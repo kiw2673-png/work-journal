@@ -7,6 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{--bg:#ECEDF1;--card:#FFF;--primary:#1B3A5C;--pl:#2C5F8A;--pg:rgba(27,58,92,.08);--accent:#E8A838;--text:#1E2A3A;--ts:#7A8694;--border:#DFE3E8;--ibg:#F5F6F9;--danger:#D63031;--success:#00B894;--rec:#FF6B6B;--admin:#6C3483;--al:#8E44AD;--sh:0 2px 12px rgba(0,0,0,.06)}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
@@ -88,6 +91,14 @@
 .at th{background:var(--admin);color:#fff;padding:5px 4px;font-weight:600;text-align:center;white-space:nowrap}
 .at td{padding:4px;border:1px solid var(--border);text-align:center}.at .cnt{background:rgba(52,152,219,.08);font-weight:700;color:var(--primary)}
 .loading{text-align:center;padding:40px;color:var(--ts);font-size:13px}
+.chart-wrap{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:14px;margin-bottom:12px}
+.audio-upload{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--ibg);border-radius:8px;margin-top:6px;flex-wrap:wrap}
+.audio-upload label{padding:5px 12px;background:var(--primary);color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600}
+.audio-upload input[type=file]{display:none}
+.prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.prog-fill{height:100%;background:var(--success);border-radius:2px;transition:width .3s}
+.cell-wrap{white-space:normal;word-break:break-all;min-width:60px;max-width:120px;font-size:9px;line-height:1.4}
+.cell-note{white-space:normal;word-break:break-word;font-size:9px;line-height:1.5;color:#555}
 @media(max-width:480px){.acard{padding:28px 20px}.cw,.aw{padding:14px 8px 80px}.cg{grid-template-columns:1fr 1fr}.uth,.utr{grid-template-columns:1fr .6fr 45px 70px;font-size:10px;padding:8px 10px}}
 </style>
 </head>
@@ -102,13 +113,22 @@
 <div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div class="dbg" id="jDt"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" placeholder="현장업무 내용 입력..."></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><button class="vb idle" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea></div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><button class="vb idle" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
+<div class="audio-upload">
+  <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
+  <label for="audioFile">파일 선택</label>
+  <input type="file" id="audioFile" accept="audio/*" onchange="handleAudioUpload(event)">
+  <span id="audioStatus" style="font-size:10px;color:var(--ts)">mp3, wav, m4a 지원</span>
+</div>
+<div class="prog-bar" id="audioProg" style="display:none"><div class="prog-fill" id="audioProgFill"></div></div>
+<audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
+</div>
 <button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3)" onclick="doSave()">📤 제출하기</button>
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
 <div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><span style="font-size:15px;font-weight:700">관리자</span></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
-<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div></div></div>
+<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
 <div id="detailScreen" class="scr"><div class="hdr ah"><div style="display:flex;justify-content:space-between;align-items:center"><button class="blo" onclick="backAdm()">← 목록</button><span style="font-size:13px;font-weight:700">상세</span></div><div class="hi" style="margin-top:10px" id="detUsr"></div></div><div style="max-width:700px;margin:0 auto;padding:16px 12px 50px"><div id="detAct" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div><div id="detList"></div></div></div>
@@ -244,13 +264,13 @@ function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeech
 /* ══ ADMIN ══ */
 function loadAdm(){buildATabs();switchAT("stats")}
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code);
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"analysis",l:"📈 분석"}];
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"analysis",l:"📈 분석"},{id:"upload",l:"📤 업로드"}];
   if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
-  ["tabStats","tabReport","tabWeekly","tabAnalysis","tabSettings","tabUsers"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
+  ["tabStats","tabReport","tabWeekly","tabAnalysis","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
   const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
-  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="analysis")loadAnal();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers()}
+  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="analysis")loadAnal();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
 
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -282,12 +302,23 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
   for(const[branch,list]of Object.entries(grouped)){
     html+='<div style="margin-bottom:16px"><div style="background:var(--pg);padding:8px 14px;border-bottom:2px solid var(--primary);border-radius:8px 8px 0 0;font-weight:700;color:var(--primary);font-size:12px">🏢 '+esc(branch)+' ('+list.length+')</div>';
-    html+='<div class="rw"><table class="rt"><thead><tr><th>이름</th><th>모델</th><th>용량</th><th>구분</th><th>S/N</th><th>제조일</th><th>설치일</th><th>증상</th><th>처리</th><th>조치</th><th>현장</th><th>상담</th></tr></thead><tbody>';
-    list.forEach(e=>{const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];const rows=Math.max(fc.length,1);
-      for(let r=0;r<rows;r++){html+="<tr>";if(r===0)html+='<td rowspan="'+rows+'" style="font-weight:600">'+esc(e.name)+'</td>';
-        const c=fc[r]||{};html+='<td>'+esc(c.model||"")+'</td><td>'+esc(c.capacity||"")+'</td><td>'+esc(c.category||"")+'</td><td>'+esc(c.serial||"")+'</td><td>'+esc(c.mfgDate||"")+'</td><td>'+esc(c.instDate||"")+'</td><td>'+esc(c.symptom||"")+'</td><td>'+esc(c.action||"")+'</td><td>'+esc(c.note||"")+'</td>';
-        if(r===0)html+='<td rowspan="'+rows+'" style="max-width:100px;white-space:pre-wrap">'+esc(e.field1||"")+'</td><td rowspan="'+rows+'" style="max-width:100px;white-space:pre-wrap">'+esc(e.field2||"")+'</td>';html+="</tr>"}});
-    html+='</tbody></table></div></div>';}
+    list.forEach(e=>{
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">';
+      html+='<div style="font-weight:700;font-size:11px;margin-bottom:4px;color:var(--primary)">👤 '+esc(e.name)+'</div>';
+      // Case rows - one line each
+      if(fc.length){
+        html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">제조일</th><th style="padding:3px 4px">설치일</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+        fc.forEach((c,i)=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.mfgDate||"")+'</td><td style="padding:2px 4px">'+esc(c.instDate||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+          if(c.note)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>'});
+        html+='</tbody></table>';
+      }
+      if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
+      if(e.field2)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  }
   document.getElementById("rptBody").innerHTML=html}
 
 /* ══ WEEKLY ══ */
@@ -305,50 +336,111 @@ async function renderWk(){const monStr=document.getElementById("tabWeekly").data
   const snap=await db.collection("reports").where("date",">=",days[0]).where("date","<=",days[6]).get();
   let entries=snap.docs.map(d=>d.data());if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
   entries.sort((a,b)=>a.date.localeCompare(b.date)||(a.branch||"").localeCompare(b.branch||""));
-  let html='<div class="rw"><table class="rt"><thead><tr><th>일자</th><th>지사</th><th>이름</th><th>모델</th><th>용량</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th><th>조치</th><th>현장</th><th>상담</th></tr></thead><tbody>';
-  if(!entries.length)html+='<tr><td colspan="12" style="text-align:center;padding:30px;color:var(--ts)">없음</td></tr>';
-  else entries.forEach(e=>{const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];const rows=Math.max(fc.length,1);
-    for(let r=0;r<rows;r++){html+="<tr>";if(r===0)html+='<td rowspan="'+rows+'">'+esc(e.date)+'</td><td rowspan="'+rows+'">'+esc(e.branch)+'</td><td rowspan="'+rows+'" style="font-weight:600">'+esc(e.name)+'</td>';
-      const c=fc[r]||{};html+='<td>'+esc(c.model||"")+'</td><td>'+esc(c.capacity||"")+'</td><td>'+esc(c.category||"")+'</td><td>'+esc(c.serial||"")+'</td><td>'+esc(c.symptom||"")+'</td><td>'+esc(c.action||"")+'</td><td>'+esc(c.note||"")+'</td>';
-      if(r===0)html+='<td rowspan="'+rows+'" style="max-width:80px;white-space:pre-wrap">'+esc(e.field1||"")+'</td><td rowspan="'+rows+'" style="max-width:80px;white-space:pre-wrap">'+esc(e.field2||"")+'</td>';html+="</tr>"}});
-  html+='</tbody></table></div>';document.getElementById("wkBody").innerHTML=html}
+  let html='';
+  if(!entries.length){html='<div style="text-align:center;padding:30px;color:var(--ts)">없음</div>';document.getElementById("wkBody").innerHTML=html;return}
+  entries.forEach(e=>{
+    const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+    html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">';
+    html+='<div style="padding:6px 10px;background:var(--ibg);display:flex;gap:12px;align-items:center;flex-wrap:wrap">'
+      +'<span style="font-size:10px;color:var(--ts)">'+esc(e.date)+'</span>'
+      +'<span style="font-size:10px;color:var(--admin);font-weight:600">'+esc(e.branch)+'</span>'
+      +'<span style="font-weight:700;font-size:11px">'+esc(e.name)+'</span></div>';
+    if(fc.length){
+      html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px"><thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+      fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+        if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>'});
+      html+='</tbody></table></div>';
+    }
+    html+='<div style="padding:6px 10px">';
+    if(e.field1)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
+    if(e.field2)html+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+    html+='</div></div>';
+  });
+  document.getElementById("wkBody").innerHTML=html}
 
 /* ══ ANALYSIS ══ */
 function loadAnal(){const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
-  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="atab" style="padding:6px 10px" onclick="mvAn(-1)">◀</button><span id="anLbl" style="font-weight:700;font-size:12px"></span><button class="atab" style="padding:6px 10px" onclick="mvAn(1)">▶</button><select id="anBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체</option>';
-  DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});h+='</select></div><div id="anBody"></div>';
-  document.getElementById("tabAnalysis").innerHTML=h;document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);renderAn()}
+  const MODEL_LIST=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV","기타"];
+  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvAn(-1)">◀</button>'
+    +'<span id="anLbl" style="font-weight:700;font-size:12px"></span>'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvAn(1)">▶</button>'
+    +'<select id="anBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 지사</option>';
+  DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
+  h+='</select>'
+    +'<select id="anModel" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 모델</option>';
+  MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
+  h+='</select></div><div id="anBody"></div>';
+  document.getElementById("tabAnalysis").innerHTML=h;
+  document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);renderAn()}
 function mvAn(dir){const el=document.getElementById("tabAnalysis");const d=new Date(el.dataset.mon);d.setDate(d.getDate()+dir*7);el.dataset.mon=d.toISOString().slice(0,10);renderAn()}
+
+const MODEL_PREFIXES=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV"];
+function normModel(s){if(!s||s.trim()==="")return"기타";const up=s.trim();
+  for(const m of MODEL_PREFIXES){const mu=m.toUpperCase();const su=up.toUpperCase();
+    if(su===mu||su.startsWith(mu+" ")||su.startsWith(mu+"-")||su.startsWith(mu+"_"))return m;}
+  const first=up.split(/[\s\-_]/)[0];return first||"기타";}
+
+let _anChart=null;
 async function renderAn(){const monStr=document.getElementById("tabAnalysis").dataset.mon;const mon=new Date(monStr);
   const days=[];for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d.toISOString().slice(0,10))}
   document.getElementById("anLbl").textContent=fds(days[0])+" ~ "+fds(days[6]);
   document.getElementById("anBody").innerHTML='<div class="loading">분석 중...</div>';
   const brF=document.getElementById("anBr")?.value||"전체";
+  const mdF=document.getElementById("anModel")?.value||"전체";
   const snap=await db.collection("reports").where("date",">=",days[0]).where("date","<=",days[6]).get();
-  const allCases=[];snap.docs.forEach(d=>{const e=d.data();if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push(c)})});
+  const allCases=[];
+  snap.docs.forEach(d=>{const e=d.data();if(brF!=="전체"&&e.branch!==brF)return;
+    if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model)})})});
+  // Pivot: row=model, col=symptom
   const rows={},colSet=new Set();
-  allCases.forEach(c=>{const rk=(c.model||"?")+" | "+(c.capacity||"-")+" | "+(c.category||"-");const sk=c.symptom||"기타";if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
+  allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";
+    if(mdF!=="전체"&&rk!==mdF)return;
+    if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
   const cols=[...colSet].sort();
-  let html='<div style="font-size:11px;font-weight:600;margin-bottom:8px">모델/용량/구분 × 문제증상</div>';
-  if(!cols.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">없음</div>';document.getElementById("anBody").innerHTML=html;return}
-  html+='<div class="rw"><table class="at"><thead><tr><th>모델</th><th>용량</th><th>구분</th>';
+  // Pie chart data for selected model
+  const pieModel=mdF!=="전체"?mdF:(Object.keys(rows)[0]||"");
+  const pieData=rows[pieModel]||{};
+  const pieLabels=Object.keys(pieData);
+  const pieVals=pieLabels.map(k=>pieData[k]);
+  const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
+  let html='';
+  if(pieLabels.length>0){
+    html+='<div class="chart-wrap"><h4 style="font-size:12px;font-weight:700;margin-bottom:10px">📊 '+esc(pieModel)+' 증상 분포</h4>'
+      +'<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">'
+      +'<div style="width:180px;height:180px;flex-shrink:0"><canvas id="anPie"></canvas></div>'
+      +'<div style="flex:1;min-width:140px"><table style="width:100%;font-size:10px;border-collapse:collapse">';
+    const total=pieVals.reduce((a,b)=>a+b,0);
+    pieLabels.forEach((l,i)=>{const pct=total?Math.round(pieVals[i]/total*100):0;
+      html+='<tr><td style="padding:2px 4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+COLORS[i%COLORS.length]+'"></span></td>'
+        +'<td style="padding:2px 4px;font-size:9px">'+esc(l)+'</td><td style="padding:2px 4px;font-weight:700">'+pieVals[i]+'</td><td style="color:var(--ts)">'+pct+'%</td></tr>'});
+    html+='</table></div></div></div>';
+  }
+  if(!cols.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">데이터 없음</div>';document.getElementById("anBody").innerHTML=html;return}
+  html+='<div style="font-size:11px;font-weight:600;margin-bottom:8px">대표모델 × 문제증상 (건수)</div>';
+  html+='<div class="rw"><table class="at"><thead><tr><th>모델</th>';
   cols.forEach(c=>{html+='<th>'+esc(c)+'</th>'});html+='<th>합계</th></tr></thead><tbody>';
   const ct={};let gt=0;
-  Object.entries(rows).sort().forEach(([rk,sv])=>{const[m,cap,cat]=rk.split(" | ");let rt=0;
-    html+='<tr><td>'+esc(m)+'</td><td>'+esc(cap)+'</td><td>'+esc(cat)+'</td>';
+  Object.entries(rows).sort().forEach(([rk,sv])=>{let rt=0;
+    html+='<tr><td style="font-weight:700;color:var(--primary)">'+esc(rk)+'</td>';
     cols.forEach(c=>{const v=sv[c]||0;rt+=v;if(!ct[c])ct[c]=0;ct[c]+=v;html+='<td'+(v?' class="cnt"':'')+'>'+( v||"")+'</td>'});
     gt+=rt;html+='<td class="cnt">'+rt+'</td></tr>'});
-  html+='<tr style="background:var(--ibg);font-weight:700"><td colspan="3">합계</td>';
+  html+='<tr style="background:var(--ibg);font-weight:700"><td>합계</td>';
   cols.forEach(c=>{html+='<td>'+(ct[c]||0)+'</td>'});html+='<td>'+gt+'</td></tr></tbody></table></div>';
-  document.getElementById("anBody").innerHTML=html}
+  document.getElementById("anBody").innerHTML=html;
+  if(pieLabels.length>0){if(_anChart){_anChart.destroy();_anChart=null}
+    const ctx=document.getElementById("anPie");
+    if(ctx)_anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}});}
+}
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()]};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],whisperKey:_settings?.whisperKey||""};renderSett()}
 function renderSett(){const p=pendS;let h='<div class="stag"><h4>📦 모델명 & 용량</h4>';
   p.models.forEach((m,i)=>{h+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px"><span class="stag-item"><b>'+esc(m.n)+'</b> ['+m.c.join(",")+'] <button class="rx" onclick="pendS.models.splice('+i+',1);renderSett()">✕</button></span></div>'});
   h+='<div class="stag-add"><input id="sNM" placeholder="모델명"><input id="sNMC" placeholder="용량(쉼표)"><button onclick="addSM()">추가</button></div></div>';
   h+=bSL("구분","cats","sNC");h+=bSL("문제증상","syms","sNS");h+=bSL("처리결과","acts","sNA");
+  h+='<div class="stag"><h4>🤖 OpenAI Whisper API (음성→텍스트 자동변환)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">선택사항</span></div></div>';
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
 function bSL(t,k,iid){let h='<div class="stag"><h4>'+t+'</h4><div class="stag-list">';
@@ -356,7 +448,7 @@ function bSL(t,k,iid){let h='<div class="stag"><h4>'+t+'</h4><div class="stag-li
   h+='</div><div class="stag-add"><input id="'+iid+'" placeholder="새 항목"><button onclick="addSI(\''+k+'\',\''+iid+'\')">추가</button></div></div>';return h}
 function addSM(){const n=document.getElementById("sNM").value.trim(),c=document.getElementById("sNMC").value.trim();if(!n)return;pendS.models.push({n,c:c?c.split(",").map(s=>s.trim()):[]});renderSett()}
 function addSI(k,iid){const v=document.getElementById(iid).value.trim();if(!v)return;pendS[k].push(v);renderSett()}
-async function saveSett(){try{await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts});alert("저장 완료")}catch(e){alert("오류: "+e.message)}}
+async function saveSett(){try{const wk=document.getElementById("sWK")?.value||"";await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,whisperKey:wk});alert("설정이 저장되었습니다.")}catch(e){alert("오류: "+e.message)}}
 
 /* ══ USERS ══ */
 async function loadUsers(){document.getElementById("tabUsers").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -404,6 +496,113 @@ function cfDE(docId,dl){document.getElementById("delTitle").textContent="일지 
   document.getElementById("delModal").classList.add("open")}
 function clDM(){document.getElementById("delModal").classList.remove("open")}
 function backAdm(){showS("adminScreen");loadStats()}
+
+/* ══ AUDIO UPLOAD ══ */
+const storage=firebase.storage();
+async function handleAudioUpload(event){
+  const file=event.target.files[0];if(!file)return;
+  const st=document.getElementById("audioStatus");const prog=document.getElementById("audioProg");const fill=document.getElementById("audioProgFill");const player=document.getElementById("audioPlayer");
+  st.textContent="업로드 중...";prog.style.display="block";fill.style.width="0%";
+  try{
+    // Upload to Firebase Storage
+    const ref=storage.ref("audio/"+CU.empId+"/"+Date.now()+"_"+file.name);
+    const task=ref.put(file);
+    task.on('state_changed',snap=>{const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);fill.style.width=pct+'%'});
+    await task;
+    const url=await ref.getDownloadURL();
+    player.src=url;player.style.display="block";
+    st.textContent="✅ 업로드 완료! 음성을 재생하며 텍스트를 입력하세요.";fill.style.width="100%";
+    // Save audio URL to current report draft
+    if(!window._audioDrafts)window._audioDrafts=[];
+    window._audioDrafts.push(url);
+    // Try Whisper transcription if API key available
+    const settings=await loadSettings();
+    if(settings.whisperKey){
+      st.textContent="🤖 텍스트 변환 중...";
+      try{
+        const formData=new FormData();formData.append("file",file);formData.append("model","whisper-1");formData.append("language","ko");
+        const res=await fetch("https://api.openai.com/v1/audio/transcriptions",{method:"POST",headers:{"Authorization":"Bearer "+settings.whisperKey},body:formData});
+        const data=await res.json();
+        if(data.text){const ta=document.getElementById("field2");ta.value+=(ta.value?"\n":"")+data.text;st.textContent="✅ 변환 완료! 텍스트가 추가되었습니다.";}
+        else st.textContent="⚠️ 변환 실패, 수동 입력해주세요.";
+      }catch(e){st.textContent="변환 오류 (API키 확인필요): "+e.message}
+    }
+  }catch(e){st.textContent="업로드 오류: "+e.message;prog.style.display="none"}
+}
+
+/* ══ EXCEL UPLOAD ══ */
+function loadUpload(){
+  let h='<div style="margin-bottom:16px"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px">📤 엑셀 데이터 업로드</h3>'
+    +'<p style="font-size:11px;color:var(--ts);margin-bottom:12px;line-height:1.6">취합본 엑셀 파일을 선택하면 Firebase에 추가 등록됩니다.<br>기존 데이터와 병합되며 중복은 덮어씁니다.</p>'
+    +'<div style="background:var(--ibg);border-radius:10px;padding:14px">'
+    +'<label style="display:block;margin-bottom:8px;font-size:11px;font-weight:600">엑셀 파일 선택 (.xlsx)</label>'
+    +'<input type="file" id="xlFile" accept=".xlsx,.xls" style="font-size:11px;margin-bottom:10px" onchange="previewXL(event)">'
+    +'<div id="xlPreview" style="font-size:11px;color:var(--ts);margin-bottom:10px"></div>'
+    +'<div class="prog-bar" id="xlProg" style="display:none"><div class="prog-fill" id="xlProgFill"></div></div>'
+    +'<div id="xlStatus" style="font-size:11px;color:var(--ts);margin-top:6px"></div>'
+    +'<button id="xlBtn" class="btn ba" style="font-size:12px;margin-top:10px;display:none" onclick="doXLImport()">📥 Firebase에 등록</button>'
+    +'</div></div>';
+  document.getElementById("tabUpload").innerHTML=h;
+}
+
+let _xlData=null;
+function previewXL(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:"array"});
+      const ws=wb.Sheets["업무취합DATA"]||wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+      const dataRows=rows.filter((r,i)=>i>0&&r[0]);
+      document.getElementById("xlPreview").textContent="✅ "+dataRows.length+"행 확인됨 (시트: "+(wb.Sheets["업무취합DATA"]?"업무취합DATA":wb.SheetNames[0])+")";
+      document.getElementById("xlBtn").style.display="block";
+      // Parse and store
+      _xlData=parseXL(rows);
+    }catch(ex){document.getElementById("xlPreview").textContent="❌ 파일 오류: "+ex.message}
+  };
+  reader.readAsArrayBuffer(file);
+}
+const BM={"경인":"경인지사","서울남부":"서울남부지사","서울북부":"서울북부지사","광주":"광주지사","전주":"전주지사","대전":"대전지사","원주":"원주지사","대구":"대구지사","부산":"부산지사","경남":"경남지사","CS본부":"CS본부"};
+function parseXL(rows){
+  const grouped={};const users={};
+  rows.slice(1).forEach(r=>{
+    if(!r[0])return;
+    let dateStr="";const dv=r[0];
+    if(typeof dv==="string"&&dv.match(/^\d{4}-\d{2}-\d{2}/))dateStr=dv.slice(0,10);
+    else if(typeof dv==="number"){const d=new Date(Math.round((dv-25569)*86400*1000));dateStr=d.toISOString().slice(0,10);}
+    else dateStr=String(dv).slice(0,10);
+    const name=r[1]||"",cat=r[2]||"",dealer=r[3]||"",tech=r[4]||"",model=r[6]||"",serial=r[7]||"",mfg=r[8]||"",inst=r[9]||"",sym=r[10]||"",act=r[11]||"",note=r[12]||"",brRaw=r[13]||"";
+    const branch=BM[brRaw]||brRaw;
+    const empId="EMP"+Math.abs(Array.from(name).reduce((h,c)=>Math.imul(31,h)+c.charCodeAt(0)|0,0)%900000000+100000000);
+    if(name&&!users[name])users[name]={empId,name,branch,role:"user"};
+    const key=dateStr+":"+name;
+    if(!grouped[key])grouped[key]={empId,name,branch,date:dateStr,dateLabel:dateStr,field1:"",field2:"",cases:[],savedAt:dateStr+"T19:00:00.000Z"};
+    const g=grouped[key];
+    if(cat==="현장지원")g.cases.push({model,capacity:"",category:cat,serial,mfgDate:mfg,instDate:inst,symptom:sym,action:act,note});
+    else{const line="["+cat+"] "+(model?model+" ":"")+(note||"");if(["기술상담","부품상담","콜센터상담","민원상담","품질상담"].includes(cat))g.field2+=(g.field2?"\n":"")+line;else g.field1+=(g.field1?"\n":"")+line;}
+  });
+  return{reports:Object.values(grouped),users:Object.values(users)};
+}
+async function doXLImport(){
+  if(!_xlData)return;
+  const btn=document.getElementById("xlBtn");btn.disabled=true;btn.textContent="등록 중...";
+  const st=document.getElementById("xlStatus"),prog=document.getElementById("xlProg"),fill=document.getElementById("xlProgFill");
+  prog.style.display="block";fill.style.width="0%";
+  try{
+    st.textContent="사용자 등록 중...";
+    for(const u of _xlData.users)await db.collection("users").doc(u.empId).set(u,{merge:true});
+    const rpts=_xlData.reports;
+    for(let i=0;i<rpts.length;i+=400){
+      const batch=db.batch();const chunk=rpts.slice(i,i+400);
+      chunk.forEach(r=>{batch.set(db.collection("reports").doc(r.date+"_"+r.empId),r,{merge:true})});
+      await batch.commit();fill.style.width=Math.round((i+chunk.length)/rpts.length*100)+"%";
+      st.textContent="등록 중... "+(i+chunk.length)+"/"+rpts.length;
+    }
+    fill.style.width="100%";st.textContent="✅ 완료! "+_xlData.users.length+"명, "+_xlData.reports.length+"건 등록";
+    st.style.color="var(--success)";btn.textContent="✅ 완료";
+  }catch(e){st.textContent="❌ 오류: "+e.message;btn.disabled=false;btn.textContent="📥 다시 시도";}
+}
 
 /* ══ INIT ══ */
 (async function(){const sess=JSON.parse(localStorage.getItem("session")||"null");if(sess){await loadSettings();if(sess.type==="admin"){showS("adminScreen");loadAdm()}else if(sess.type==="user"&&sess.user){CU=sess.user;showS("journalScreen");initJ()}}})();
