@@ -141,6 +141,10 @@ firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDom
 const db=firebase.firestore();
 const SA=["ADMIN2024","ADMIN2025","ADMIN2026"];
 const DEF_BR=["CS본부","서울북부지사","서울남부지사","경인지사","원주지사","대전지사","대구지사","부산지사","경남지사","광주지사","전주지사"];
+const DEF_REGIONS=[{name:"수도권",branches:["CS본부","서울북부지사","서울남부지사","경인지사"]},{name:"충청권",branches:["원주지사","대전지사"]},{name:"영남권",branches:["대구지사","부산지사","경남지사"]},{name:"호남권",branches:["광주지사","전주지사"]}];
+function getRegions(){return _settings?.regions||DEF_REGIONS}
+function getBranchRegion(br){const r=getRegions().find(r=>r.branches.includes(br));return r?r.name:"기타"}
+function getRegionBranches(rn){const r=getRegions().find(r=>r.name===rn);return r?r.branches:[]}
 const DEF_MODELS=[{n:"DNB",c:["13","16","20","25","30"]},{n:"DNB_H",c:["13","16","20","25","30"]},{n:"DiB",c:["13","16","20"]},{n:"DNC",c:["15","18","22","27","32"]},{n:"DNC1",c:["15","18","22","27","32"]},{n:"DOC",c:["15","22","27"]},{n:"DPC",c:["27"]},{n:"DQC",c:["15","18","22","27","32"]}];
 const DEF_CATS=["설치","수리","점검","클레임","현장지원","품질상담","기술상담","부품상담","콜센터상담","민원상담","기타"];
 const DEF_SYM=["A-물보충","A1-통신/온도센서","A2-급기팬","A3-펌프/합선","A4-과열/순환","A5-헛불단선","A6-점화불량","A7-거버너/릴레이","A8-화염신호","A9-동파예방","AA-비등방지","Ac-온수센서","Ad-응축수센서","AE-역압발생","소음","작동불량","난방/온수불량","파손/누설","누수/동파","현장지원요청","기술문의","부품문의","민원","콜센터","특판","기타"];
@@ -151,7 +155,7 @@ let _settings=null;
 
 // Settings cache
 async function loadSettings(){if(_settings)return _settings;try{const doc=await db.collection("settings").doc("config").get();if(doc.exists){_settings=doc.data();return _settings}}catch(e){}
-_settings={models:DEF_MODELS,categories:DEF_CATS,symptoms:DEF_SYM,actions:DEF_ACT};return _settings}
+_settings={models:DEF_MODELS,categories:DEF_CATS,symptoms:DEF_SYM,actions:DEF_ACT,regions:DEF_REGIONS};return _settings}
 async function saveSettings(s){_settings=s;await db.collection("settings").doc("config").set(s)}
 function getModels(){return _settings?.models||DEF_MODELS}
 function getCats(){return _settings?.categories||DEF_CATS}
@@ -425,19 +429,24 @@ async function renderWk(){
 /* ══ ANALYSIS ══ */
 function loadAnal(){const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
   const MODEL_LIST=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV","기타"];
-  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">'
+  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
+    +'<div style="display:flex;background:var(--ibg);border-radius:8px;padding:2px;gap:2px">'
+    +'<button id="anPW" class="atab active" style="padding:5px 10px;font-size:11px" onclick="setAnPeriod(\'week\')">주간</button>'
+    +'<button id="anPM" class="atab" style="padding:5px 10px;font-size:11px" onclick="setAnPeriod(\'month\')">월간</button>'
+    +'</div>'
     +'<button class="atab" style="padding:6px 10px" onclick="mvAn(-1)">◀</button>'
     +'<span id="anLbl" style="font-weight:700;font-size:12px"></span>'
     +'<button class="atab" style="padding:6px 10px" onclick="mvAn(1)">▶</button>'
     +'<select id="anBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 지사</option>';
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
-  h+='</select>'
-    +'<select id="anModel" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 모델</option>';
+  h+='</select><select id="anModel" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 모델</option>';
   MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
   h+='</select></div><div id="anBody"></div>';
   document.getElementById("tabAnalysis").innerHTML=h;
-  document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);renderAn()}
-function mvAn(dir){const el=document.getElementById("tabAnalysis");const d=new Date(el.dataset.mon);d.setDate(d.getDate()+dir*7);el.dataset.mon=d.toISOString().slice(0,10);renderAn()}
+  document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);
+  document.getElementById("tabAnalysis").dataset.period="week";renderAn()}
+function setAnPeriod(p){document.getElementById("tabAnalysis").dataset.period=p;document.getElementById("anPW").classList.toggle("active",p==="week");document.getElementById("anPM").classList.toggle("active",p==="month");renderAn()}
+function mvAn(dir){const el=document.getElementById("tabAnalysis");const p=el.dataset.period||"week";const d=new Date(el.dataset.mon);if(p==="month")d.setMonth(d.getMonth()+dir);else d.setDate(d.getDate()+dir*7);el.dataset.mon=d.toISOString().slice(0,10);renderAn()}
 
 const MODEL_PREFIXES=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV"];
 function normModel(s){if(!s||s.trim()==="")return"기타";const up=s.trim();
@@ -446,21 +455,39 @@ function normModel(s){if(!s||s.trim()==="")return"기타";const up=s.trim();
   const first=up.split(/[\s\-_]/)[0];return first||"기타";}
 
 let _anChart=null;
-async function renderAn(){const monStr=document.getElementById("tabAnalysis").dataset.mon;const mon=new Date(monStr);
-  const days=[];for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d.toISOString().slice(0,10))}
-  document.getElementById("anLbl").textContent=fds(days[0])+" ~ "+fds(days[6]);
+async function renderAn(){
+  const el=document.getElementById("tabAnalysis");
+  const monStr=el.dataset.mon;const mon=new Date(monStr);
+  const period=el.dataset.period||"week";
+  let dateStart,dateEnd,lblText;
+  if(period==="month"){
+    const y=mon.getFullYear(),m=mon.getMonth();
+    dateStart=new Date(y,m,1).toISOString().slice(0,10);
+    dateEnd=new Date(y,m+1,0).toISOString().slice(0,10);
+    lblText=y+"년 "+(m+1)+"월 분석";
+  }else{
+    const dow=mon.getDay();const wMon=new Date(mon);wMon.setDate(mon.getDate()-(dow===0?6:dow-1));
+    const days=[];for(let i=0;i<7;i++){const d=new Date(wMon);d.setDate(wMon.getDate()+i);days.push(d.toISOString().slice(0,10))}
+    dateStart=days[0];dateEnd=days[6];lblText=fds(days[0])+" ~ "+fds(days[6]);
+  }
+  document.getElementById("anLbl").textContent=lblText;
   document.getElementById("anBody").innerHTML='<div class="loading">분석 중...</div>';
   const brF=document.getElementById("anBr")?.value||"전체";
   const mdF=document.getElementById("anModel")?.value||"전체";
-  const snap=await db.collection("reports").where("date",">=",days[0]).where("date","<=",days[6]).get();
+  // Fetch data
+  let entries=[];
+  if(period==="month"){
+    const y=mon.getFullYear(),m=mon.getMonth();
+    const allDays=[];for(let d=new Date(y,m,1);d.getMonth()===m;d.setDate(d.getDate()+1))allDays.push(d.toISOString().slice(0,10));
+    for(let i=0;i<allDays.length;i+=10){const snap=await db.collection("reports").where("date","in",allDays.slice(i,i+10)).get();snap.docs.forEach(d=>entries.push(d.data()));}
+  }else{
+    const snap=await db.collection("reports").where("date",">=",dateStart).where("date","<=",dateEnd).get();
+    entries=snap.docs.map(d=>d.data());
+  }
   const allCases=[];
-  snap.docs.forEach(d=>{const e=d.data();if(brF!=="전체"&&e.branch!==brF)return;
-    if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model)})})});
-  // Pivot: row=model, col=symptom
+  entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model)})})});
   const rows={},colSet=new Set();
-  allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";
-    if(mdF!=="전체"&&rk!==mdF)return;
-    if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
+  allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";if(mdF!=="전체"&&rk!==mdF)return;if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
   const cols=[...colSet].sort();
   // Pie chart: 전체 = aggregate all symptoms, 특정 모델 = that model only
   const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
@@ -506,20 +533,38 @@ async function renderAn(){const monStr=document.getElementById("tabAnalysis").da
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],whisperKey:_settings?.whisperKey||""};renderSett()}
-function renderSett(){const p=pendS;let h='<div class="stag"><h4>📦 모델명 & 용량</h4>';
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),whisperKey:_settings?.whisperKey||""};renderSett()}
+function renderSett(){const p=pendS;let h='';
+  // 권역별 설정
+  h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
+  p.regions.forEach((r,ri)=>{
+    h+='<div style="background:var(--ibg);border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--admin)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+      +'<input value="'+esc(r.name)+'" onchange="pendS.regions['+ri+'].name=this.value" style="font-weight:700;font-size:11px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:inherit;background:#fff;width:100px">'
+      +'<button class="rx" onclick="pendS.regions.splice('+ri+',1);renderSett()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px">✕</button></div>'
+      +'<div style="font-size:10px;color:var(--ts);margin-bottom:4px">소속 지사:</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px">';
+    r.branches.forEach((b,bi)=>{h+='<span class="stag-item">'+esc(b)+' <button class="rx" onclick="pendS.regions['+ri+'].branches.splice('+bi+',1);renderSett()">✕</button></span>'});
+    h+='</div><div style="display:flex;gap:3px"><select id="addBr'+ri+'" class="fi-sel" style="flex:1;padding:4px;font-size:10px"><option value="">지사 추가...</option>';
+    DEF_BR.forEach(b=>{if(!r.branches.includes(b))h+='<option>'+b+'</option>'});
+    h+='</select><button onclick="addBrToRegion('+ri+')" style="padding:4px 8px;border:none;border-radius:5px;background:var(--primary);color:#fff;font-size:10px;cursor:pointer;font-family:inherit">추가</button></div></div>';
+  });
+  h+='<button onclick="pendS.regions.push({name:\'새권역\',branches:[]});renderSett()" style="padding:5px 12px;border:1.5px dashed var(--border);border-radius:6px;background:transparent;font-size:10px;cursor:pointer;font-family:inherit;color:var(--ts);margin-top:4px">+ 권역 추가</button></div>';
+  // 모델명
+  h+='<div class="stag"><h4>📦 모델명 & 용량</h4>';
   p.models.forEach((m,i)=>{h+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px"><span class="stag-item"><b>'+esc(m.n)+'</b> ['+m.c.join(",")+'] <button class="rx" onclick="pendS.models.splice('+i+',1);renderSett()">✕</button></span></div>'});
   h+='<div class="stag-add"><input id="sNM" placeholder="모델명"><input id="sNMC" placeholder="용량(쉼표)"><button onclick="addSM()">추가</button></div></div>';
   h+=bSL("구분","cats","sNC");h+=bSL("문제증상","syms","sNS");h+=bSL("처리결과","acts","sNA");
-  h+='<div class="stag"><h4>🤖 OpenAI Whisper API (음성→텍스트 자동변환)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">선택사항</span></div></div>';
+  h+='<div class="stag"><h4>🤖 OpenAI Whisper API (음성→텍스트)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">선택사항</span></div></div>';
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
+function addBrToRegion(ri){const sel=document.getElementById("addBr"+ri);if(!sel||!sel.value)return;pendS.regions[ri].branches.push(sel.value);renderSett()}
 function bSL(t,k,iid){let h='<div class="stag"><h4>'+t+'</h4><div class="stag-list">';
   pendS[k].forEach((v,i)=>{h+='<span class="stag-item">'+esc(v)+' <button class="rx" onclick="pendS.'+k+'.splice('+i+',1);renderSett()">✕</button></span>'});
   h+='</div><div class="stag-add"><input id="'+iid+'" placeholder="새 항목"><button onclick="addSI(\''+k+'\',\''+iid+'\')">추가</button></div></div>';return h}
 function addSM(){const n=document.getElementById("sNM").value.trim(),c=document.getElementById("sNMC").value.trim();if(!n)return;pendS.models.push({n,c:c?c.split(",").map(s=>s.trim()):[]});renderSett()}
 function addSI(k,iid){const v=document.getElementById(iid).value.trim();if(!v)return;pendS[k].push(v);renderSett()}
-async function saveSett(){try{const wk=document.getElementById("sWK")?.value||"";await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,whisperKey:wk});alert("설정이 저장되었습니다.")}catch(e){alert("오류: "+e.message)}}
+async function saveSett(){try{const wk=document.getElementById("sWK")?.value||"";await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,whisperKey:wk});alert("설정이 저장되었습니다.")}catch(e){alert("오류: "+e.message)}}
 
 /* ══ USERS ══ */
 async function loadUsers(){document.getElementById("tabUsers").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -639,19 +684,38 @@ async function handleAudioUpload(event){
 
 /* ══ MONTHLY REPORT ══ */
 function loadMonthly(){
-  const today=new Date();
-  let h='<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">'
+  const today=new Date();const regions=getRegions();
+  let h='<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">'
     +'<button class="atab" style="padding:6px 10px" onclick="mvMon(-1)">◀</button>'
     +'<span id="monLbl" style="font-weight:700;font-size:13px"></span>'
     +'<button class="atab" style="padding:6px 10px" onclick="mvMon(1)">▶</button>'
-    +'<select id="monBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderMonthly()"><option value="전체">전체</option>';
+    +'<button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderMonthly()">🔄</button></div>'
+    // View selector buttons
+    +'<div style="display:flex;gap:4px;background:var(--ibg);border-radius:8px;padding:3px;margin-bottom:10px">'
+    +'<button id="monVBtn_center" class="atab active" style="padding:6px 10px;font-size:11px" onclick="setMonView(\'center\')">📡 센터별</button>'
+    +'<button id="monVBtn_branch" class="atab" style="padding:6px 10px;font-size:11px" onclick="setMonView(\'branch\')">🏢 지사별</button>'
+    +'<button id="monVBtn_staff" class="atab" style="padding:6px 10px;font-size:11px" onclick="setMonView(\'staff\')">👤 담당자별</button>'
+    +'</div>'
+    // Hidden controls
+    +'<input type="hidden" id="monView" value="center">'
+    +'<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<select id="monCenter" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="onMonCenterChange()"><option value="전체">전체 센터</option>';
+  regions.forEach(r=>{h+='<option>'+esc(r.name)+'</option>'});
+  h+='</select><select id="monBranch" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderMonthly()"><option value="전체">전체 지사</option>';
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
-  h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderMonthly()">🔄</button>'
-    +'</div><div id="monBody"></div>';
+  h+='</select></div><div id="monBody"></div>';
   document.getElementById("tabMonthly").innerHTML=h;
   const ym=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
   document.getElementById("tabMonthly").dataset.ym=ym;
   renderMonthly();
+}
+function onMonCenterChange(){
+  const selCenter=document.getElementById("monCenter").value;
+  const bsel=document.getElementById("monBranch");
+  bsel.innerHTML='<option value="전체">전체 지사</option>';
+  const branches=selCenter==="전체"?DEF_BR:getRegionBranches(selCenter);
+  branches.forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;bsel.appendChild(o)});
+  bsel.value="전체";renderMonthly();
 }
 function mvMon(dir){
   const el=document.getElementById("tabMonthly");
@@ -663,63 +727,111 @@ function mvMon(dir){
 async function renderMonthly(){
   const el=document.getElementById("tabMonthly");
   const[y,m]=el.dataset.ym.split("-").map(Number);
-  const first=new Date(y,m-1,1),last=new Date(y,m,0);
   document.getElementById("monLbl").textContent=y+"년 "+m+"월 보고서";
   document.getElementById("monBody").innerHTML='<div class="loading">불러오는 중...</div>';
-  const brF=document.getElementById("monBr")?.value||"전체";
-  // Get all days in month
+  // Fetch month data
+  const first=new Date(y,m-1,1),last=new Date(y,m,0);
   const days=[];for(let d=new Date(first);d<=last;d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
-  // Fetch in chunks
   let entries=[];
   for(let i=0;i<days.length;i+=10){
-    const chunk=days.slice(i,i+10);
-    const snap=await db.collection("reports").where("date","in",chunk).get();
+    const snap=await db.collection("reports").where("date","in",days.slice(i,i+10)).get();
     snap.docs.forEach(d=>entries.push(d.data()));
   }
-  if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
-  entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||a.date.localeCompare(b.date));
-  // Summary
-  const totalCases=entries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
-  const unique=new Set(entries.map(e=>e.empId)).size;
-  const byBr={};entries.forEach(e=>{if(!byBr[e.branch])byBr[e.branch]={count:0,cases:0};byBr[e.branch].count++;byBr[e.branch].cases+=(e.cases?e.cases.filter(c=>c.model).length:0)});
+  const view=document.getElementById("monView")?.value||"center";
+  const selCenter=document.getElementById("monCenter")?.value||"전체";
+  const selBranch=document.getElementById("monBranch")?.value||"전체";
+  const regions=getRegions();
+  // Filter by selection
+  let filteredEntries=entries;
+  if(selCenter!=="전체")filteredEntries=filteredEntries.filter(e=>getRegionBranches(selCenter).includes(e.branch));
+  if(selBranch!=="전체")filteredEntries=filteredEntries.filter(e=>e.branch===selBranch);
+  filteredEntries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||a.date.localeCompare(b.date));
+  // Summary stats
+  const totalCases=filteredEntries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
+  const unique=new Set(filteredEntries.map(e=>e.empId)).size;
   let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
-    +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--primary)">'+entries.length+'</div><div style="font-size:10px;color:var(--ts)">일지 제출</div></div>'
+    +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--primary)">'+filteredEntries.length+'</div><div style="font-size:10px;color:var(--ts)">일지 제출</div></div>'
     +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:#3498DB">'+totalCases+'</div><div style="font-size:10px;color:var(--ts)">현장지원</div></div>'
     +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--admin)">'+unique+'</div><div style="font-size:10px;color:var(--ts)">참여 인원</div></div>'
     +'</div>';
-  // Branch summary table
-  if(brF==="전체"&&Object.keys(byBr).length>0){
+  if(view==="center"){
+    // 센터별 현황 - 클릭하면 지사 선택으로 전환
     html+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px">'
-      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">🏢 지사별 현황</div>'
-      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:7px 10px;text-align:left">지사</th><th style="padding:7px;text-align:center">제출</th><th style="padding:7px;text-align:center">현장지원</th></tr></thead><tbody>';
-    Object.entries(byBr).sort().forEach(([br,s])=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-weight:600">'+esc(br)+'</td><td style="padding:6px;text-align:center">'+s.count+'</td><td style="padding:6px;text-align:center;color:#3498DB;font-weight:700">'+s.cases+'</td></tr>'});
+      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">📡 센터별 현황 <span style="font-size:10px;font-weight:400;color:var(--ts)">(클릭→지사 상세)</span></div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:8px 10px;text-align:left">센터</th><th style="padding:8px;text-align:center">소속지사</th><th style="padding:8px;text-align:center">제출건</th><th style="padding:8px;text-align:center">현장지원</th><th style="padding:8px;text-align:center">참여인원</th></tr></thead><tbody>';
+    regions.forEach(r=>{
+      const rEntries=entries.filter(e=>r.branches.includes(e.branch));
+      const rCases=rEntries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
+      const rUnique=new Set(rEntries.map(e=>e.empId)).size;
+      html+='<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="setMonCenter(\''+esc(r.name)+'\')" onmouseover="this.style.background=\'rgba(108,52,131,.04)\'" onmouseout="this.style.background=\'\'">'
+        +'<td style="padding:8px 10px;font-weight:700;color:var(--admin)">'+esc(r.name)+'</td>'
+        +'<td style="padding:8px;text-align:center;font-size:10px;color:var(--ts)">'+r.branches.map(esc).join(", ")+'</td>'
+        +'<td style="padding:8px;text-align:center;font-weight:700">'+rEntries.length+'</td>'
+        +'<td style="padding:8px;text-align:center;color:#3498DB;font-weight:700">'+rCases+'</td>'
+        +'<td style="padding:8px;text-align:center">'+rUnique+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  }else if(view==="branch"){
+    // 지사별 현황 - 클릭하면 담당자 선택으로 전환
+    const branchesToShow=selCenter!=="전체"?getRegionBranches(selCenter):DEF_BR;
+    html+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px">'
+      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">🏢 지사별 현황 <span style="font-size:10px;font-weight:400;color:var(--ts)">(클릭→담당자 상세)</span></div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:8px 10px;text-align:left">지사</th><th style="padding:8px;text-align:center">제출건</th><th style="padding:8px;text-align:center">현장지원</th><th style="padding:8px;text-align:center">참여인원</th></tr></thead><tbody>';
+    branchesToShow.forEach(br=>{
+      const bEntries=filteredEntries.filter(e=>e.branch===br);
+      const bCases=bEntries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
+      const bUnique=new Set(bEntries.map(e=>e.empId)).size;
+      html+='<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="setMonBranch(\''+esc(br)+'\')" onmouseover="this.style.background=\'rgba(27,58,92,.04)\'" onmouseout="this.style.background=\'\'">'
+        +'<td style="padding:8px 10px;font-weight:600;color:var(--primary)">'+esc(br)+'</td>'
+        +'<td style="padding:8px;text-align:center;font-weight:700">'+bEntries.length+'</td>'
+        +'<td style="padding:8px;text-align:center;color:#3498DB;font-weight:700">'+bCases+'</td>'
+        +'<td style="padding:8px;text-align:center">'+bUnique+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  }else if(view==="staff"){
+    // 담당자별 현황
+    const byStaff={};filteredEntries.forEach(e=>{if(!byStaff[e.empId])byStaff[e.empId]={name:e.name,branch:e.branch,count:0,cases:0,entries:[]};byStaff[e.empId].count++;byStaff[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);byStaff[e.empId].entries.push(e)});
+    html+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px">'
+      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">👤 담당자별 현황</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:8px 10px;text-align:left">이름</th><th style="padding:8px;text-align:left">지사</th><th style="padding:8px;text-align:center">제출</th><th style="padding:8px;text-align:center">현장지원</th></tr></thead><tbody>';
+    Object.values(byStaff).sort((a,b)=>a.branch.localeCompare(b.branch)||a.name.localeCompare(b.name)).forEach(s=>{
+      html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 10px;font-weight:600">'+esc(s.name)+'</td><td style="padding:8px;color:var(--ts)">'+esc(s.branch)+'</td><td style="padding:8px;text-align:center;font-weight:700">'+s.count+'</td><td style="padding:8px;text-align:center;color:#3498DB;font-weight:700">'+s.cases+'</td></tr>';
+    });
     html+='</tbody></table></div>';
   }
-  if(!entries.length){html+='<div style="text-align:center;padding:40px;color:var(--ts)">데이터 없음</div>';document.getElementById("monBody").innerHTML=html;return}
-  // Group by branch
-  const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
-  for(const[branch,list]of Object.entries(grouped)){
-    html+='<div style="margin-bottom:16px"><div style="background:var(--pg);padding:8px 14px;border-bottom:2px solid var(--primary);border-radius:8px 8px 0 0;font-weight:700;color:var(--primary);font-size:12px">🏢 '+esc(branch)+' ('+list.length+'건)</div>';
-    list.forEach(e=>{
+  // Detail records
+  if(filteredEntries.length&&(view==="staff"||(view==="branch"&&selBranch!=="전체"))){
+    html+='<h4 style="font-size:12px;font-weight:700;margin-bottom:8px">📋 상세 내역</h4>';
+    filteredEntries.forEach(e=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
-      html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">'
-        +'<div style="font-weight:700;font-size:11px;margin-bottom:4px;display:flex;gap:8px;align-items:center">'
-        +'<span style="color:var(--ts);font-size:9px">'+esc(e.date)+'</span>'
-        +'<span style="color:var(--primary)">'+esc(e.name)+'</span></div>';
-      if(fc.length){
-        html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+      html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">'
+        +'<div style="padding:6px 10px;background:var(--ibg);display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+        +'<span style="font-size:9px;color:var(--ts)">'+esc(e.date)+'</span>'
+        +'<span style="font-size:10px;color:var(--admin);font-weight:600">'+esc(e.branch)+'</span>'
+        +'<span style="font-weight:700;font-size:11px">'+esc(e.name)+'</span></div>';
+      if(fc.length){html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:360px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th></tr></thead><tbody>';
         fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
           if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>'});
-        html+='</tbody></table>';
-      }
-      if(e.field1)html+='<div style="font-size:10px;margin-top:3px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
-      if(e.field2)html+='<div style="font-size:10px;margin-top:3px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
+        html+='</tbody></table></div>';}
+      if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
+      if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
       html+='</div>';
     });
-    html+='</div>';
   }
   document.getElementById("monBody").innerHTML=html;
 }
+function setMonCenter(centerName){
+  document.getElementById("monCenter").value=centerName;
+  document.getElementById("monBranch").value="전체";
+  // Update branch select options
+  const bsel=document.getElementById("monBranch");bsel.innerHTML='<option value="전체">전체 지사</option>';
+  getRegionBranches(centerName).forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;bsel.appendChild(o)});
+  document.getElementById("monView").value="branch";
+  updateMonViewBtns();renderMonthly();
+}
+function setMonBranch(br){document.getElementById("monBranch").value=br;document.getElementById("monView").value="staff";updateMonViewBtns();renderMonthly()}
+function updateMonViewBtns(){const v=document.getElementById("monView")?.value||"center";["center","branch","staff"].forEach(id=>{const b=document.getElementById("monVBtn_"+id);if(b)b.classList.toggle("active",v===id)})}
+function setMonView(v){document.getElementById("monView").value=v;if(v==="center"){document.getElementById("monCenter").value="전체";const bsel=document.getElementById("monBranch");bsel.innerHTML='<option value="전체">전체 지사</option>';DEF_BR.forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;bsel.appendChild(o)});document.getElementById("monBranch").value="전체";}updateMonViewBtns();renderMonthly()}
 
 /* ══ EXCEL UPLOAD ══ */
 function loadUpload(){
