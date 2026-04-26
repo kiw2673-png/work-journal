@@ -128,7 +128,7 @@
 
 <!-- ADMIN -->
 <div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><span style="font-size:15px;font-weight:700">관리자</span></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
-<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
+<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabMonthly" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
 <div id="detailScreen" class="scr"><div class="hdr ah"><div style="display:flex;justify-content:space-between;align-items:center"><button class="blo" onclick="backAdm()">← 목록</button><span style="font-size:13px;font-weight:700">상세</span></div><div class="hi" style="margin-top:10px" id="detUsr"></div></div><div style="max-width:700px;margin:0 auto;padding:16px 12px 50px"><div id="detAct" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div><div id="detList"></div></div></div>
@@ -264,13 +264,13 @@ function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeech
 /* ══ ADMIN ══ */
 function loadAdm(){buildATabs();switchAT("stats")}
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code);
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"analysis",l:"📈 분석"},{id:"upload",l:"📤 업로드"}];
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"upload",l:"📤 업로드"}];
   if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
-  ["tabStats","tabReport","tabWeekly","tabAnalysis","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
+  ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
   const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
-  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="analysis")loadAnal();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
+  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
 
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -322,22 +322,85 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   document.getElementById("rptBody").innerHTML=html}
 
 /* ══ WEEKLY ══ */
-function loadWeek(){const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
-  let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="atab" style="padding:6px 10px" onclick="mvWk(-1)">◀</button><span id="wkLbl" style="font-weight:700;font-size:12px"></span><button class="atab" style="padding:6px 10px" onclick="mvWk(1)">▶</button><select id="wkBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderWk()"><option value="전체">전체</option>';
+function loadWeek(){
+  const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
+  let h='<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">'
+    // Period toggle
+    +'<div style="display:flex;background:var(--ibg);border-radius:8px;padding:2px;gap:2px">'
+    +'<button id="wkToggleW" class="atab active" style="padding:5px 12px;font-size:11px" onclick="setWkMode(\'week\')">주간</button>'
+    +'<button id="wkToggleM" class="atab" style="padding:5px 12px;font-size:11px" onclick="setWkMode(\'month\')">월간</button>'
+    +'</div>'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvWk(-1)">◀</button>'
+    +'<span id="wkLbl" style="font-weight:700;font-size:12px"></span>'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvWk(1)">▶</button>'
+    +'<select id="wkBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderWk()"><option value="전체">전체</option>';
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
-  h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderWk()">🔄</button></div><div id="wkBody"></div>';
-  document.getElementById("tabWeekly").innerHTML=h;document.getElementById("tabWeekly").dataset.mon=mon.toISOString().slice(0,10);renderWk()}
-function mvWk(dir){const el=document.getElementById("tabWeekly");const d=new Date(el.dataset.mon);d.setDate(d.getDate()+dir*7);el.dataset.mon=d.toISOString().slice(0,10);renderWk()}
-async function renderWk(){const monStr=document.getElementById("tabWeekly").dataset.mon;const mon=new Date(monStr);
-  const days=[];for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d.toISOString().slice(0,10))}
-  document.getElementById("wkLbl").textContent=fds(days[0])+" ~ "+fds(days[6]);
+  h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderWk()">🔄</button>'
+    +'</div><div id="wkBody"></div>';
+  document.getElementById("tabWeekly").innerHTML=h;
+  document.getElementById("tabWeekly").dataset.mon=mon.toISOString().slice(0,10);
+  document.getElementById("tabWeekly").dataset.mode="week";
+  renderWk();
+}
+function setWkMode(mode){
+  document.getElementById("tabWeekly").dataset.mode=mode;
+  document.getElementById("wkToggleW").classList.toggle("active",mode==="week");
+  document.getElementById("wkToggleM").classList.toggle("active",mode==="month");
+  renderWk();
+}
+function mvWk(dir){
+  const el=document.getElementById("tabWeekly");
+  const mode=el.dataset.mode||"week";
+  const d=new Date(el.dataset.mon);
+  if(mode==="month")d.setMonth(d.getMonth()+dir);
+  else d.setDate(d.getDate()+dir*7);
+  el.dataset.mon=d.toISOString().slice(0,10);renderWk();
+}
+async function renderWk(){
+  const el=document.getElementById("tabWeekly");
+  const monStr=el.dataset.mon;const mon=new Date(monStr);
+  const mode=el.dataset.mode||"week";
+  let days=[],label="";
+  if(mode==="month"){
+    const y=mon.getFullYear(),m=mon.getMonth();
+    const first=new Date(y,m,1),last=new Date(y,m+1,0);
+    for(let d=new Date(first);d<=last;d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
+    label=y+"년 "+(m+1)+"월 보고";
+  }else{
+    const dow=mon.getDay();const wMon=new Date(mon);wMon.setDate(mon.getDate()-(dow===0?6:dow-1));
+    for(let i=0;i<7;i++){const d=new Date(wMon);d.setDate(wMon.getDate()+i);days.push(d.toISOString().slice(0,10))}
+    label=fds(days[0])+" ~ "+fds(days[6]);
+  }
+  document.getElementById("wkLbl").textContent=label;
   document.getElementById("wkBody").innerHTML='<div class="loading">불러오는 중...</div>';
   const brF=document.getElementById("wkBr")?.value||"전체";
-  const snap=await db.collection("reports").where("date",">=",days[0]).where("date","<=",days[6]).get();
-  let entries=snap.docs.map(d=>d.data());if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
+  // Firestore query in batches if needed (max 10 in array)
+  let entries=[];
+  if(days.length<=10){
+    const snap=await db.collection("reports").where("date","in",days).get();
+    entries=snap.docs.map(d=>d.data());
+  }else{
+    // Split into chunks of 10
+    for(let i=0;i<days.length;i+=10){
+      const chunk=days.slice(i,i+10);
+      const snap=await db.collection("reports").where("date","in",chunk).get();
+      snap.docs.forEach(d=>entries.push(d.data()));
+    }
+  }
+  if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
   entries.sort((a,b)=>a.date.localeCompare(b.date)||(a.branch||"").localeCompare(b.branch||""));
-  let html='';
-  if(!entries.length){html='<div style="text-align:center;padding:30px;color:var(--ts)">없음</div>';document.getElementById("wkBody").innerHTML=html;return}
+  // Summary stats for monthly
+  let summaryHtml="";
+  if(mode==="month"&&entries.length>0){
+    const totalCases=entries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
+    const byBr={};entries.forEach(e=>{if(!byBr[e.branch])byBr[e.branch]=0;byBr[e.branch]++});
+    summaryHtml='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+      +'<div style="background:var(--card);border-radius:8px;padding:8px 14px;border:1px solid var(--border);font-size:11px"><b style="font-size:16px;color:var(--primary)">'+entries.length+'</b>건 제출</div>'
+      +'<div style="background:var(--card);border-radius:8px;padding:8px 14px;border:1px solid var(--border);font-size:11px"><b style="font-size:16px;color:#3498DB">'+totalCases+'</b>건 현장지원</div>'
+      +'</div>';
+  }
+  let html=summaryHtml;
+  if(!entries.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">없음</div>';document.getElementById("wkBody").innerHTML=html;return}
   entries.forEach(e=>{
     const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
     html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">';
@@ -346,7 +409,8 @@ async function renderWk(){const monStr=document.getElementById("tabWeekly").data
       +'<span style="font-size:10px;color:var(--admin);font-weight:600">'+esc(e.branch)+'</span>'
       +'<span style="font-weight:700;font-size:11px">'+esc(e.name)+'</span></div>';
     if(fc.length){
-      html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px"><thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+      html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px">'
+        +'<thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
       fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
         if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>'});
       html+='</tbody></table></div>';
@@ -398,15 +462,22 @@ async function renderAn(){const monStr=document.getElementById("tabAnalysis").da
     if(mdF!=="전체"&&rk!==mdF)return;
     if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
   const cols=[...colSet].sort();
-  // Pie chart data for selected model
-  const pieModel=mdF!=="전체"?mdF:(Object.keys(rows)[0]||"");
-  const pieData=rows[pieModel]||{};
-  const pieLabels=Object.keys(pieData);
-  const pieVals=pieLabels.map(k=>pieData[k]);
+  // Pie chart: 전체 = aggregate all symptoms, 특정 모델 = that model only
   const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
+  let pieTitle, pieAgg={};
+  if(mdF==="전체"){
+    pieTitle="전체 모델 증상 분포";
+    // Aggregate ALL symptoms from all models
+    Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});
+  }else{
+    pieTitle=mdF+" 증상 분포";
+    pieAgg=rows[mdF]||{};
+  }
+  const pieLabels=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]);
+  const pieVals=pieLabels.map(k=>pieAgg[k]);
   let html='';
   if(pieLabels.length>0){
-    html+='<div class="chart-wrap"><h4 style="font-size:12px;font-weight:700;margin-bottom:10px">📊 '+esc(pieModel)+' 증상 분포</h4>'
+    html+='<div class="chart-wrap"><h4 style="font-size:12px;font-weight:700;margin-bottom:10px">📊 '+esc(pieTitle)+'</h4>'
       +'<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">'
       +'<div style="width:180px;height:180px;flex-shrink:0"><canvas id="anPie"></canvas></div>'
       +'<div style="flex:1;min-width:140px"><table style="width:100%;font-size:10px;border-collapse:collapse">';
@@ -501,33 +572,153 @@ function backAdm(){showS("adminScreen");loadStats()}
 const storage=firebase.storage();
 async function handleAudioUpload(event){
   const file=event.target.files[0];if(!file)return;
-  const st=document.getElementById("audioStatus");const prog=document.getElementById("audioProg");const fill=document.getElementById("audioProgFill");const player=document.getElementById("audioPlayer");
-  st.textContent="업로드 중...";prog.style.display="block";fill.style.width="0%";
+  const st=document.getElementById("audioStatus");
+  const prog=document.getElementById("audioProg");const fill=document.getElementById("audioProgFill");
+  const player=document.getElementById("audioPlayer");
+  st.style.color="var(--ts)";
+  // Show local player immediately
+  const localUrl=URL.createObjectURL(file);player.src=localUrl;player.style.display="block";
+  prog.style.display="block";fill.style.width="5%";st.textContent="📤 Firebase에 업로드 중...";
   try{
-    // Upload to Firebase Storage
+    // 1. Upload audio to Firebase Storage
     const ref=storage.ref("audio/"+CU.empId+"/"+Date.now()+"_"+file.name);
     const task=ref.put(file);
-    task.on('state_changed',snap=>{const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);fill.style.width=pct+'%'});
+    task.on('state_changed',snap=>{
+      const pct=Math.round(snap.bytesTransferred/snap.totalBytes*80);
+      fill.style.width=pct+"%";
+    });
     await task;
-    const url=await ref.getDownloadURL();
-    player.src=url;player.style.display="block";
-    st.textContent="✅ 업로드 완료! 음성을 재생하며 텍스트를 입력하세요.";fill.style.width="100%";
-    // Save audio URL to current report draft
-    if(!window._audioDrafts)window._audioDrafts=[];
-    window._audioDrafts.push(url);
-    // Try Whisper transcription if API key available
+    const downloadUrl=await ref.getDownloadURL();
+    fill.style.width="85%";
+    // 2. Try OpenAI Whisper if API key is available
     const settings=await loadSettings();
-    if(settings.whisperKey){
-      st.textContent="🤖 텍스트 변환 중...";
+    const wKey=settings.whisperKey||"";
+    if(wKey&&wKey.startsWith("sk-")){
+      st.textContent="🤖 Whisper로 텍스트 변환 중...";
       try{
-        const formData=new FormData();formData.append("file",file);formData.append("model","whisper-1");formData.append("language","ko");
-        const res=await fetch("https://api.openai.com/v1/audio/transcriptions",{method:"POST",headers:{"Authorization":"Bearer "+settings.whisperKey},body:formData});
-        const data=await res.json();
-        if(data.text){const ta=document.getElementById("field2");ta.value+=(ta.value?"\n":"")+data.text;st.textContent="✅ 변환 완료! 텍스트가 추가되었습니다.";}
-        else st.textContent="⚠️ 변환 실패, 수동 입력해주세요.";
-      }catch(e){st.textContent="변환 오류 (API키 확인필요): "+e.message}
+        const formData=new FormData();
+        formData.append("file",file,file.name);
+        formData.append("model","whisper-1");
+        formData.append("language","ko");
+        formData.append("response_format","text");
+        const resp=await fetch("https://api.openai.com/v1/audio/transcriptions",{
+          method:"POST",
+          headers:{"Authorization":"Bearer "+wKey},
+          body:formData
+        });
+        if(!resp.ok){const err=await resp.text();throw new Error("Whisper 오류: "+err)}
+        const transcribed=await resp.text();
+        if(transcribed&&transcribed.trim()){
+          const ta=document.getElementById("field2");
+          ta.value+=(ta.value?"\n":"")+transcribed.trim();
+          fill.style.width="100%";
+          st.textContent="✅ 변환 완료! 텍스트가 상담&특이사항에 추가되었습니다.";
+          st.style.color="var(--success)";
+          // Save audio URL reference to draft
+          if(!window._audioDrafts)window._audioDrafts=[];
+          window._audioDrafts.push(downloadUrl);
+          return;
+        }
+      }catch(wErr){
+        st.textContent="⚠️ Whisper 변환 실패: "+wErr.message;
+      }
     }
-  }catch(e){st.textContent="업로드 오류: "+e.message;prog.style.display="none"}
+    // 3. No Whisper key - just store and guide user
+    fill.style.width="100%";
+    st.innerHTML='✅ 음성 파일 저장 완료! <br>'
+      +'<span style="font-size:9px;color:var(--ts)">자동 변환 사용 시 관리자 설정에서 OpenAI Whisper API Key 등록 필요<br>'
+      +'재생하면서 직접 텍스트를 입력하거나 🎙 말하기 버튼을 이용하세요.</span>';
+    if(!window._audioDrafts)window._audioDrafts=[];
+    window._audioDrafts.push(downloadUrl);
+  }catch(e){
+    fill.style.width="100%";st.style.color="var(--danger)";
+    st.textContent="오류: "+e.message;
+  }
+}
+
+
+/* ══ MONTHLY REPORT ══ */
+function loadMonthly(){
+  const today=new Date();
+  let h='<div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvMon(-1)">◀</button>'
+    +'<span id="monLbl" style="font-weight:700;font-size:13px"></span>'
+    +'<button class="atab" style="padding:6px 10px" onclick="mvMon(1)">▶</button>'
+    +'<select id="monBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderMonthly()"><option value="전체">전체</option>';
+  DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
+  h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderMonthly()">🔄</button>'
+    +'</div><div id="monBody"></div>';
+  document.getElementById("tabMonthly").innerHTML=h;
+  const ym=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
+  document.getElementById("tabMonthly").dataset.ym=ym;
+  renderMonthly();
+}
+function mvMon(dir){
+  const el=document.getElementById("tabMonthly");
+  const[y,m]=el.dataset.ym.split("-").map(Number);
+  const d=new Date(y,m-1+dir,1);
+  el.dataset.ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  renderMonthly();
+}
+async function renderMonthly(){
+  const el=document.getElementById("tabMonthly");
+  const[y,m]=el.dataset.ym.split("-").map(Number);
+  const first=new Date(y,m-1,1),last=new Date(y,m,0);
+  document.getElementById("monLbl").textContent=y+"년 "+m+"월 보고서";
+  document.getElementById("monBody").innerHTML='<div class="loading">불러오는 중...</div>';
+  const brF=document.getElementById("monBr")?.value||"전체";
+  // Get all days in month
+  const days=[];for(let d=new Date(first);d<=last;d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10));
+  // Fetch in chunks
+  let entries=[];
+  for(let i=0;i<days.length;i+=10){
+    const chunk=days.slice(i,i+10);
+    const snap=await db.collection("reports").where("date","in",chunk).get();
+    snap.docs.forEach(d=>entries.push(d.data()));
+  }
+  if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
+  entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||a.date.localeCompare(b.date));
+  // Summary
+  const totalCases=entries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
+  const unique=new Set(entries.map(e=>e.empId)).size;
+  const byBr={};entries.forEach(e=>{if(!byBr[e.branch])byBr[e.branch]={count:0,cases:0};byBr[e.branch].count++;byBr[e.branch].cases+=(e.cases?e.cases.filter(c=>c.model).length:0)});
+  let html='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+    +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--primary)">'+entries.length+'</div><div style="font-size:10px;color:var(--ts)">일지 제출</div></div>'
+    +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:#3498DB">'+totalCases+'</div><div style="font-size:10px;color:var(--ts)">현장지원</div></div>'
+    +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--admin)">'+unique+'</div><div style="font-size:10px;color:var(--ts)">참여 인원</div></div>'
+    +'</div>';
+  // Branch summary table
+  if(brF==="전체"&&Object.keys(byBr).length>0){
+    html+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px">'
+      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">🏢 지사별 현황</div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:7px 10px;text-align:left">지사</th><th style="padding:7px;text-align:center">제출</th><th style="padding:7px;text-align:center">현장지원</th></tr></thead><tbody>';
+    Object.entries(byBr).sort().forEach(([br,s])=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 10px;font-weight:600">'+esc(br)+'</td><td style="padding:6px;text-align:center">'+s.count+'</td><td style="padding:6px;text-align:center;color:#3498DB;font-weight:700">'+s.cases+'</td></tr>'});
+    html+='</tbody></table></div>';
+  }
+  if(!entries.length){html+='<div style="text-align:center;padding:40px;color:var(--ts)">데이터 없음</div>';document.getElementById("monBody").innerHTML=html;return}
+  // Group by branch
+  const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
+  for(const[branch,list]of Object.entries(grouped)){
+    html+='<div style="margin-bottom:16px"><div style="background:var(--pg);padding:8px 14px;border-bottom:2px solid var(--primary);border-radius:8px 8px 0 0;font-weight:700;color:var(--primary);font-size:12px">🏢 '+esc(branch)+' ('+list.length+'건)</div>';
+    list.forEach(e=>{
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">'
+        +'<div style="font-weight:700;font-size:11px;margin-bottom:4px;display:flex;gap:8px;align-items:center">'
+        +'<span style="color:var(--ts);font-size:9px">'+esc(e.date)+'</span>'
+        +'<span style="color:var(--primary)">'+esc(e.name)+'</span></div>';
+      if(fc.length){
+        html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+        fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+          if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>'});
+        html+='</tbody></table>';
+      }
+      if(e.field1)html+='<div style="font-size:10px;margin-top:3px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
+      if(e.field2)html+='<div style="font-size:10px;margin-top:3px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  }
+  document.getElementById("monBody").innerHTML=html;
 }
 
 /* ══ EXCEL UPLOAD ══ */
