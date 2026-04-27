@@ -545,22 +545,90 @@ async function renderAn(){
     const snap=await db.collection("reports").where("date",">=",dateStart).where("date","<=",dateEnd).get();
     entries=snap.docs.map(d=>d.data());
   }
-  // Store entries for drill-down
   window._anEntries=entries;
   window._anDateRange={dateStart,dateEnd,lblText};
 
+  // Build full cases index
   const allCases=[];
   entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model),_entry:e})})});
+
+  // Full pivot (all models × all symptoms)
   const rows={},colSet=new Set();
   allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";if(mdF!=="전체"&&rk!==mdF)return;if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
   const cols=[...colSet].sort();
   const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
+
+  // ── 모델별 증상현황 분포 (슬라이스 선택) ──
+  const DEF_SLICE_MODELS=["DNB","DiB","DNC1","DQC","DOC","DPC"];
+  if(!window._anSliceModels)window._anSliceModels=[...DEF_SLICE_MODELS];
+  const sliceModels=window._anSliceModels;
+  // Collect all available models from data + predefined
+  const availableModels=[...new Set([...DEF_SLICE_MODELS,...Object.keys(rows)])].sort();
+
+  let html='';
+
+  // ── 슬라이스 선택기 ──
+  html+='<div class="chart-wrap" style="margin-bottom:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">'
+    +'<h4 style="font-size:12px;font-weight:700">📊 모델별 증상현황 분포</h4>'
+    +'<span style="font-size:9px;color:var(--ts)">모델 클릭으로 선택/해제</span></div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sliceChips">';
+  availableModels.forEach(m=>{
+    const active=sliceModels.includes(m);
+    html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:4px 10px;border-radius:20px;border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>';
+  });
+  html+='</div>';
+
+  // ── 모델별 증상 데이터 (선택된 모델만, 합계 내림차순) ──
+  if(sliceModels.length===0){
+    html+='<div style="text-align:center;padding:16px;color:var(--ts);font-size:11px">모델을 하나 이상 선택해주세요</div>';
+  }else{
+    // Get all symptoms for selected models, sorted by total desc
+    const symTotals={};
+    sliceModels.forEach(m=>{const sv=rows[m]||{};Object.entries(sv).forEach(([sym,v])=>{symTotals[sym]=(symTotals[sym]||0)+v})});
+    const sortedSyms=Object.entries(symTotals).sort((a,b)=>b[1]-a[1]).map(([s])=>s);
+    const maxTotal=sortedSyms.length>0?symTotals[sortedSyms[0]]:1;
+
+    if(sortedSyms.length===0){
+      html+='<div style="text-align:center;padding:16px;color:var(--ts);font-size:11px">해당 기간 데이터 없음</div>';
+    }else{
+      html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px;min-width:360px">'
+        +'<thead><tr style="background:var(--ibg)"><th style="padding:5px 8px;text-align:left;font-weight:700;white-space:nowrap">증상유형</th>';
+      sliceModels.forEach(m=>{html+='<th style="padding:5px 6px;text-align:center;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap" onclick="showAnDetail(\''+esc(m)+'\',\'전체\')" title="'+esc(m)+' 전체 보기">'+esc(m)+'</th>'});
+      html+='<th style="padding:5px 6px;text-align:center;font-weight:700">합계</th>'
+        +'<th style="padding:5px 8px;text-align:left;font-weight:700;min-width:80px">분포</th></tr></thead><tbody>';
+
+      sortedSyms.forEach((sym,si)=>{
+        const rowTotal=symTotals[sym];
+        const barPct=Math.round(rowTotal/maxTotal*100);
+        html+='<tr style="border-bottom:1px solid var(--border)'+(si%2===0?';background:rgba(0,0,0,.01)':'')+'">'
+          +'<td style="padding:4px 8px;font-size:9px;white-space:nowrap;max-width:100px;overflow:hidden;text-overflow:ellipsis" title="'+esc(sym)+'">'+esc(sym)+'</td>';
+        sliceModels.forEach(m=>{
+          const v=(rows[m]||{})[sym]||0;
+          html+='<td style="padding:4px 6px;text-align:center;'+(v?'cursor:pointer;font-weight:700;color:var(--primary)':'')+'" '
+            +(v?'onclick="showAnDetail(\''+esc(m)+'\',\''+esc(sym)+'\')" onmouseover="this.style.background=\'#D6EAF8\'" onmouseout="this.style.background=\'\'"':'')
+            +'>'+( v||'<span style="color:#ddd">·</span>')+'</td>';
+        });
+        html+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:var(--admin);cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(sym)+'\')">'+rowTotal+'</td>'
+          +'<td style="padding:4px 8px"><div style="background:var(--border);border-radius:3px;height:8px;overflow:hidden">'
+          +'<div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--pl));width:'+barPct+'%;transition:width .3s"></div></div></td></tr>';
+      });
+      // 합계 행
+      html+='<tr style="background:var(--ibg);font-weight:700;border-top:2px solid var(--border)">'
+        +'<td style="padding:5px 8px;cursor:pointer" onclick="showAnDetail(\'전체\',\'전체\')">합계</td>';
+      sliceModels.forEach(m=>{const mv=Object.values(rows[m]||{}).reduce((s,v)=>s+v,0);html+='<td style="padding:5px 6px;text-align:center;cursor:pointer;font-weight:700;color:var(--admin)" onclick="showAnDetail(\''+esc(m)+'\',\'전체\')">'+mv+'</td>'});
+      const grandTotal=sliceModels.reduce((s,m)=>s+Object.values(rows[m]||{}).reduce((a,b)=>a+b,0),0);
+      html+='<td style="padding:5px 6px;text-align:center;color:var(--admin)">'+grandTotal+'</td><td></td></tr></tbody></table></div>';
+    }
+  }
+  html+='</div>'; // close chart-wrap
+
+  // ── 전체 모델 증상 분포 (파이차트) ──
   let pieTitle,pieAgg={};
   if(mdF==="전체"){pieTitle="전체 모델 증상 분포";Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
   else{pieTitle=mdF+" 증상 분포";pieAgg=rows[mdF]||{};}
   const pieLabels=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]);
   const pieVals=pieLabels.map(k=>pieAgg[k]);
-  let html='';
   if(pieLabels.length>0){
     html+='<div class="chart-wrap"><h4 style="font-size:12px;font-weight:700;margin-bottom:10px">📊 '+esc(pieTitle)+'</h4>'
       +'<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">'
@@ -575,26 +643,41 @@ async function renderAn(){
         +'<td style="color:var(--ts)">'+pct+'%</td></tr>'});
     html+='</table></div></div></div>';
   }
+
+  // ── 전체 피벗 테이블 ──
   if(!cols.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">데이터 없음</div>';document.getElementById("anBody").innerHTML=html;return}
   html+='<div style="font-size:11px;font-weight:600;margin-bottom:6px">대표모델 × 문제증상 <span style="font-weight:400;color:var(--ts)">(숫자 클릭 → 상세 보고서)</span></div>';
   html+='<div class="rw"><table class="at"><thead><tr><th>모델</th>';
   cols.forEach(c=>{html+='<th style="cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(c)+'\')" title="'+esc(c)+' 전체 보기">'+esc(c)+'</th>'});
   html+='<th>합계</th></tr></thead><tbody>';
   const ct={};let gt=0;
-  Object.entries(rows).sort().forEach(([rk,sv])=>{let rt=0;
+  // Sort by row total desc
+  const sortedRows=Object.entries(rows).map(([rk,sv])=>{const rt=Object.values(sv).reduce((a,b)=>a+b,0);return[rk,sv,rt]}).sort((a,b)=>b[2]-a[2]);
+  sortedRows.forEach(([rk,sv,rt])=>{
     html+='<tr><td style="font-weight:700;color:var(--primary);cursor:pointer" onclick="showAnDetail(\''+esc(rk)+'\',\'전체\')" title="'+esc(rk)+' 전체 보기">'+esc(rk)+'</td>';
-    cols.forEach(c=>{const v=sv[c]||0;rt+=v;if(!ct[c])ct[c]=0;ct[c]+=v;
+    cols.forEach(c=>{const v=sv[c]||0;if(!ct[c])ct[c]=0;ct[c]+=v;
       html+='<td style="'+(v?'cursor:pointer;':'')+'" '
-        +(v?'class="cnt" onclick="showAnDetail(\''+esc(rk)+'\',\''+esc(c)+'\')" onmouseover="this.style.background=\'#AED6F1\'" onmouseout="this.style.className=\'cnt\';this.style.background=\'rgba(52,152,219,.08)\'"':'')
+        +(v?'class="cnt" onclick="showAnDetail(\''+esc(rk)+'\',\''+esc(c)+'\')" onmouseover="this.style.background=\'#AED6F1\'" onmouseout="this.style.background=\'rgba(52,152,219,.08)\'"':'')
         +'>'+(v||"")+'</td>'});
     gt+=rt;html+='<td class="cnt" style="cursor:pointer" onclick="showAnDetail(\''+esc(rk)+'\',\'전체\')">'+rt+'</td></tr>'});
   html+='<tr style="background:var(--ibg);font-weight:700"><td style="cursor:pointer" onclick="showAnDetail(\'전체\',\'전체\')">합계</td>';
   cols.forEach(c=>{html+='<td style="cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(c)+'\')">'+(ct[c]||0)+'</td>'});
   html+='<td>'+gt+'</td></tr></tbody></table></div>';
+
   document.getElementById("anBody").innerHTML=html;
+
+  // Draw pie chart
   if(pieLabels.length>0){if(_anChart){_anChart.destroy();_anChart=null}
     const ctx=document.getElementById("anPie");
     if(ctx)_anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},onClick:(evt,el)=>{if(el.length>0){const idx=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx]);}}}});}
+}
+
+function toggleSliceModel(model){
+  if(!window._anSliceModels)window._anSliceModels=["DNB","DiB","DNC1","DQC","DOC","DPC"];
+  const idx=window._anSliceModels.indexOf(model);
+  if(idx>=0)window._anSliceModels.splice(idx,1);
+  else window._anSliceModels.push(model);
+  renderAn();
 }
 
 /* ══ ANALYSIS DETAIL MODAL ══ */
