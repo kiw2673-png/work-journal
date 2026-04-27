@@ -139,7 +139,7 @@
 
 <!-- Modals -->
 <div class="mo" id="editModal" onclick="clEM()"><div class="mc" onclick="event.stopPropagation()"><h3 style="font-size:15px;margin-bottom:14px">✏️ 수정</h3><div id="editErr" class="err" style="display:none"></div><div style="background:var(--ibg);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px">사번: <strong id="edEmpId"></strong></div><label class="fl">이름</label><input id="edName" class="fi-input" style="margin-bottom:10px"><label class="fl">지사</label><select id="edBranch" class="fi-sel"></select><label class="fl" style="margin-top:10px">권한</label><select id="edRole" class="fi-sel"><option value="user">사용자</option><option value="admin">관리자</option></select><div style="display:flex;gap:6px;margin-top:16px"><button onclick="clEM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button onclick="svEdit()" class="btn ba" style="flex:2;font-size:12px">저장</button></div></div></div>
-<div class="mo" id="delModal" onclick="clDM()"><div class="mc" onclick="event.stopPropagation()" style="text-align:center;max-width:340px"><div style="font-size:40px;margin-bottom:10px">⚠️</div><h3 id="delTitle" style="font-size:15px;margin-bottom:4px"></h3><p id="delMsg" style="font-size:12px;color:var(--ts);margin-bottom:18px"></p><div style="display:flex;gap:6px"><button onclick="clDM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button id="delBtn" class="btn" style="flex:1;font-size:12px;background:var(--danger);color:#fff">삭제</button></div></div></div>
+<div class="mo" id="delModal" onclick="clDM()"><div class="mc" onclick="event.stopPropagation()" id="delModalInner" style="max-width:480px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><h3 id="delTitle" style="font-size:15px;font-weight:700"></h3><button onclick="clDM()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ts);padding:0;line-height:1">✕</button></div><div id="delIcon" style="font-size:40px;text-align:center;margin-bottom:8px"></div><div id="delMsg" style="font-size:12px;color:var(--ts);margin-bottom:16px;max-height:55vh;overflow-y:auto"></div><div style="display:flex;gap:6px" id="delBtns"><button id="delCancelBtn" onclick="clDM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button id="delBtn" class="btn" style="flex:1;font-size:12px;background:var(--danger);color:#fff">삭제</button></div></div></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDomain:"work-journal-99e5a.firebaseapp.com",projectId:"work-journal-99e5a",storageBucket:"work-journal-99e5a.firebasestorage.app",messagingSenderId:"298252811540",appId:"1:298252811540:web:3a7e896a943bfa44ff5601"});
 const db=firebase.firestore();
@@ -545,22 +545,19 @@ async function renderAn(){
     const snap=await db.collection("reports").where("date",">=",dateStart).where("date","<=",dateEnd).get();
     entries=snap.docs.map(d=>d.data());
   }
+  // Store entries for drill-down
+  window._anEntries=entries;
+  window._anDateRange={dateStart,dateEnd,lblText};
+
   const allCases=[];
-  entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model)})})});
+  entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model),_entry:e})})});
   const rows={},colSet=new Set();
   allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";if(mdF!=="전체"&&rk!==mdF)return;if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
   const cols=[...colSet].sort();
-  // Pie chart: 전체 = aggregate all symptoms, 특정 모델 = that model only
   const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
-  let pieTitle, pieAgg={};
-  if(mdF==="전체"){
-    pieTitle="전체 모델 증상 분포";
-    // Aggregate ALL symptoms from all models
-    Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});
-  }else{
-    pieTitle=mdF+" 증상 분포";
-    pieAgg=rows[mdF]||{};
-  }
+  let pieTitle,pieAgg={};
+  if(mdF==="전체"){pieTitle="전체 모델 증상 분포";Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+  else{pieTitle=mdF+" 증상 분포";pieAgg=rows[mdF]||{};}
   const pieLabels=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]);
   const pieVals=pieLabels.map(k=>pieAgg[k]);
   let html='';
@@ -571,25 +568,81 @@ async function renderAn(){
       +'<div style="flex:1;min-width:140px"><table style="width:100%;font-size:10px;border-collapse:collapse">';
     const total=pieVals.reduce((a,b)=>a+b,0);
     pieLabels.forEach((l,i)=>{const pct=total?Math.round(pieVals[i]/total*100):0;
-      html+='<tr><td style="padding:2px 4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+COLORS[i%COLORS.length]+'"></span></td>'
-        +'<td style="padding:2px 4px;font-size:9px">'+esc(l)+'</td><td style="padding:2px 4px;font-weight:700">'+pieVals[i]+'</td><td style="color:var(--ts)">'+pct+'%</td></tr>'});
+      html+='<tr style="cursor:pointer" onclick="showAnDetail(\''+esc(mdF==="전체"?"전체":mdF)+'\',\''+esc(l)+'\')" onmouseover="this.style.background=\'rgba(52,152,219,.06)\'" onmouseout="this.style.background=\'\'">'
+        +'<td style="padding:2px 4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+COLORS[i%COLORS.length]+'"></span></td>'
+        +'<td style="padding:2px 4px;font-size:9px">'+esc(l)+'</td>'
+        +'<td style="padding:2px 4px;font-weight:700;color:var(--primary)">'+pieVals[i]+'</td>'
+        +'<td style="color:var(--ts)">'+pct+'%</td></tr>'});
     html+='</table></div></div></div>';
   }
   if(!cols.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">데이터 없음</div>';document.getElementById("anBody").innerHTML=html;return}
-  html+='<div style="font-size:11px;font-weight:600;margin-bottom:8px">대표모델 × 문제증상 (건수)</div>';
+  html+='<div style="font-size:11px;font-weight:600;margin-bottom:6px">대표모델 × 문제증상 <span style="font-weight:400;color:var(--ts)">(숫자 클릭 → 상세 보고서)</span></div>';
   html+='<div class="rw"><table class="at"><thead><tr><th>모델</th>';
-  cols.forEach(c=>{html+='<th>'+esc(c)+'</th>'});html+='<th>합계</th></tr></thead><tbody>';
+  cols.forEach(c=>{html+='<th style="cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(c)+'\')" title="'+esc(c)+' 전체 보기">'+esc(c)+'</th>'});
+  html+='<th>합계</th></tr></thead><tbody>';
   const ct={};let gt=0;
   Object.entries(rows).sort().forEach(([rk,sv])=>{let rt=0;
-    html+='<tr><td style="font-weight:700;color:var(--primary)">'+esc(rk)+'</td>';
-    cols.forEach(c=>{const v=sv[c]||0;rt+=v;if(!ct[c])ct[c]=0;ct[c]+=v;html+='<td'+(v?' class="cnt"':'')+'>'+( v||"")+'</td>'});
-    gt+=rt;html+='<td class="cnt">'+rt+'</td></tr>'});
-  html+='<tr style="background:var(--ibg);font-weight:700"><td>합계</td>';
-  cols.forEach(c=>{html+='<td>'+(ct[c]||0)+'</td>'});html+='<td>'+gt+'</td></tr></tbody></table></div>';
+    html+='<tr><td style="font-weight:700;color:var(--primary);cursor:pointer" onclick="showAnDetail(\''+esc(rk)+'\',\'전체\')" title="'+esc(rk)+' 전체 보기">'+esc(rk)+'</td>';
+    cols.forEach(c=>{const v=sv[c]||0;rt+=v;if(!ct[c])ct[c]=0;ct[c]+=v;
+      html+='<td style="'+(v?'cursor:pointer;':'')+'" '
+        +(v?'class="cnt" onclick="showAnDetail(\''+esc(rk)+'\',\''+esc(c)+'\')" onmouseover="this.style.background=\'#AED6F1\'" onmouseout="this.style.className=\'cnt\';this.style.background=\'rgba(52,152,219,.08)\'"':'')
+        +'>'+(v||"")+'</td>'});
+    gt+=rt;html+='<td class="cnt" style="cursor:pointer" onclick="showAnDetail(\''+esc(rk)+'\',\'전체\')">'+rt+'</td></tr>'});
+  html+='<tr style="background:var(--ibg);font-weight:700"><td style="cursor:pointer" onclick="showAnDetail(\'전체\',\'전체\')">합계</td>';
+  cols.forEach(c=>{html+='<td style="cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(c)+'\')">'+(ct[c]||0)+'</td>'});
+  html+='<td>'+gt+'</td></tr></tbody></table></div>';
   document.getElementById("anBody").innerHTML=html;
   if(pieLabels.length>0){if(_anChart){_anChart.destroy();_anChart=null}
     const ctx=document.getElementById("anPie");
-    if(ctx)_anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}});}
+    if(ctx)_anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},onClick:(evt,el)=>{if(el.length>0){const idx=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx]);}}}});}
+}
+
+/* ══ ANALYSIS DETAIL MODAL ══ */
+function showAnDetail(model,symptom){
+  const entries=window._anEntries||[];
+  const range=window._anDateRange||{};
+  const brF=document.getElementById("anBr")?.value||"전체";
+  // Filter matching entries
+  const matched=[];
+  entries.forEach(e=>{
+    if(brF!=="전체"&&e.branch!==brF)return;
+    if(!e.cases)return;
+    e.cases.forEach(c=>{
+      const nm=normModel(c.model||"");
+      const modelMatch=model==="전체"||nm===model;
+      const symMatch=symptom==="전체"||(c.symptom||"기타")===symptom;
+      if(modelMatch&&symMatch)matched.push({entry:e,case:c,normModel:nm});
+    });
+  });
+  // Build modal
+  const title=(model==="전체"?"전체모델":model)+" / "+(symptom==="전체"?"전체증상":symptom);
+  let body='<div style="font-size:11px;color:var(--ts);margin-bottom:12px">'+esc(range.lblText||"")+" · "+matched.length+"건</div>";
+  if(!matched.length){body+='<div style="text-align:center;padding:20px;color:var(--ts)">해당하는 데이터가 없습니다.</div>';}
+  else{
+    body+='<div style="display:flex;flex-direction:column;gap:8px">';
+    matched.forEach(({entry:e,case:c,normModel:nm})=>{
+      body+='<div style="background:var(--ibg);border-radius:8px;padding:10px 12px;border-left:3px solid #3498DB">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:4px">'
+        +'<div><span style="font-weight:700;font-size:12px">'+esc(e.name)+'</span> <span style="font-size:10px;color:var(--ts)">'+esc(e.branch)+'</span></div>'
+        +'<span style="font-size:10px;color:var(--ts);background:var(--card);padding:2px 8px;border-radius:4px">'+esc(e.date)+'</span></div>'
+        +'<table style="width:100%;font-size:10px;border-collapse:collapse;background:#fff;border-radius:6px;overflow:hidden">';
+      const fields=[["모델",nm||c.model],["용량",c.capacity],["구분",c.category],["S/N",c.serial],["제조일",c.mfgDate],["설치일",c.instDate],["증상",c.symptom],["처리",c.action],["조치",c.note]];
+      fields.filter(([,v])=>v).forEach(([k,v])=>{body+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:3px 8px;font-weight:600;color:var(--ts);width:50px;font-size:9px">'+esc(k)+'</td><td style="padding:3px 8px">'+esc(v)+'</td></tr>'});
+      body+='</table>';
+      if(e.field1)body+='<div style="margin-top:6px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field1)+'</div></div>';
+      if(e.field2)body+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field2)+'</div></div>';
+      body+='</div>';
+    });
+    body+='</div>';
+  }
+  document.getElementById("delTitle").textContent="📋 "+title;
+  document.getElementById("delIcon").textContent="";
+  document.getElementById("delMsg").innerHTML=body;
+  document.getElementById("delCancelBtn").style.display="none";
+  document.getElementById("delBtn").textContent="닫기";
+  document.getElementById("delBtn").style.background="var(--primary)";
+  document.getElementById("delBtn").onclick=clDM;
+  document.getElementById("delModal").classList.add("open");
 }
 
 /* ══ SETTINGS ══ */
@@ -663,12 +716,19 @@ async function svEdit(){const empId=document.getElementById("edEmpId").textConte
     clEM();if(dEmp===empId)showDet(empId);else loadStats()}catch(e){alert("오류: "+e.message)}}
 
 function cfDU(empId){db.collection("users").doc(empId).get().then(doc=>{if(!doc.exists)return;const user=doc.data();
+  document.getElementById("delIcon").textContent="⚠️";
   document.getElementById("delTitle").textContent="사용자 삭제";document.getElementById("delMsg").innerHTML="<strong>"+esc(user.name)+"</strong> 전체 삭제";
+  document.getElementById("delCancelBtn").style.display="";
+  document.getElementById("delBtn").textContent="삭제";document.getElementById("delBtn").style.background="var(--danger)";
   document.getElementById("delBtn").onclick=async function(){try{await db.collection("users").doc(empId).delete();
     const snap=await db.collection("reports").where("empId","==",empId).get();const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();
     clDM();backAdm()}catch(e){alert("오류: "+e.message)}};document.getElementById("delModal").classList.add("open")})}
 
-function cfDE(docId,dl){document.getElementById("delTitle").textContent="일지 삭제";document.getElementById("delMsg").innerHTML=dl+" 삭제?";
+function cfDE(docId,dl){
+  document.getElementById("delIcon").textContent="⚠️";
+  document.getElementById("delTitle").textContent="일지 삭제";document.getElementById("delMsg").innerHTML=dl+" 삭제?";
+  document.getElementById("delCancelBtn").style.display="";
+  document.getElementById("delBtn").textContent="삭제";document.getElementById("delBtn").style.background="var(--danger)";
   document.getElementById("delBtn").onclick=async function(){try{await db.collection("reports").doc(docId).delete();clDM();if(dEmp)showDet(dEmp)}catch(e){alert("오류: "+e.message)}};
   document.getElementById("delModal").classList.add("open")}
 function clDM(){document.getElementById("delModal").classList.remove("open")}
