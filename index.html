@@ -113,7 +113,7 @@
 <div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div class="dbg" id="jDt"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" placeholder="현장업무 내용 입력..."></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><button class="vb idle" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
 <div class="audio-upload">
   <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
   <label for="audioFile">파일 선택</label>
@@ -124,11 +124,15 @@
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 </div>
 <button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3)" onclick="doSave()">📤 제출하기</button>
+<div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+  <button id="draftBtn" onclick="saveDraft()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--ts);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 임시저장</button>
+  <span id="draftStatus" style="font-size:10px;color:var(--ts)"></span>
+</div>
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
 <div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><span style="font-size:15px;font-weight:700">관리자</span></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
-<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabMonthly" style="display:none"></div></div></div>
+<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
 <div id="detailScreen" class="scr"><div class="hdr ah"><div style="display:flex;justify-content:space-between;align-items:center"><button class="blo" onclick="backAdm()">← 목록</button><span style="font-size:13px;font-weight:700">상세</span></div><div class="hi" style="margin-top:10px" id="detUsr"></div></div><div style="max-width:700px;margin:0 auto;padding:16px 12px 50px"><div id="detAct" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div><div id="detList"></div></div></div>
@@ -236,13 +240,16 @@ function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=docume
 
 /* ══ JOURNAL ══ */
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";document.getElementById("jDt").textContent=fd();
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null)}else{buildCG(null)}}catch(e){buildCG(null)}
-  loadH()}
+  // Try today's submitted data first, then draft
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);}
+  else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
+  startDraftTimer();loadH()}
 
 async function doSave(){const t=tk(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fd(),field1:document.getElementById("field1").value,field2:document.getElementById("field2").value,cases:getCasesData(),savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
+    clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
       document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null)},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
@@ -254,27 +261,81 @@ async function loadH(){try{const snap=await db.collection("reports").where("empI
     return'<div class="hc"><div class="hd">'+esc(h.dateLabel||h.date)+'</div>'+(h.field1?'<div class="hl">🏗️ '+esc(h.field1.slice(0,35))+(cs?" ["+esc(cs)+"]":"")+'</div>':'')+(h.field2?'<div class="hl">💬 '+esc(h.field2.slice(0,50))+'</div>':'')+'</div>'}).join("")}catch(e){}}
 
 /* ══ VOICE ══ */
-let vT=null,vST=null,vB=null,vF=null,vR=null,isVR=false,isVS=false,mS=false,fB="",sF="",lI="",lFT="",lFTm=0;
+/* ══ 임시저장 (DRAFT) ══ */
+let _draftTimer=null;
+function startDraftTimer(){
+  if(_draftTimer)clearInterval(_draftTimer);
+  _draftTimer=setInterval(()=>{if(CU)autoSaveDraft()},30000); // 30초마다 자동저장
+}
+function autoSaveDraft(){
+  if(!CU)return;
+  const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
+  localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
+}
+function saveDraft(){
+  if(!CU)return;
+  autoSaveDraft();
+  const btn=document.getElementById("draftBtn");const st=document.getElementById("draftStatus");
+  const prev=btn.textContent;btn.style.color="var(--success)";btn.textContent="✓ 저장됨";
+  const now=new Date();st.textContent=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+" 저장";
+  setTimeout(()=>{btn.textContent=prev;btn.style.color=""},2000);
+}
+function loadDraft(){
+  if(!CU)return false;
+  const d=localStorage.getItem("draft:"+CU.empId);if(!d)return false;
+  try{
+    const draft=JSON.parse(d);const age=(Date.now()-new Date(draft.ts))/1000/60;
+    if(age>60*24)return false; // 24시간 초과면 무시
+    document.getElementById("field1").value=draft.field1||"";
+    document.getElementById("field2").value=draft.field2||"";
+    buildCG(draft.cases||null);
+    const st=document.getElementById("draftStatus");
+    if(st){const m=new Date(draft.ts);st.textContent="임시저장 "+m.getHours()+":"+String(m.getMinutes()).padStart(2,"0")+" 복원됨";st.style.color="var(--success)";setTimeout(()=>{st.style.color="var(--ts)"},3000)}
+    return true;
+  }catch(e){return false}
+}
+function clearDraft(){if(CU)localStorage.removeItem("draft:"+CU.empId)}
+
+/* ══ VOICE (일시정지 지원) ══ */
+let vT=null,vST=null,vB=null,vF=null,vR=null,isVR=false,isVS=false,mS=false,fB="",sF="",lI="",lFT="",lFTm=0,isPaused=false;
 const VM=180;
 function upVT(){if(!vB||!vST)return;const r=VM-Math.floor((Date.now()-vST)/1000);if(r<=0){stV();return}vB.innerHTML='<span>⏹</span> '+Math.floor(r/60)+":"+String(r%60).padStart(2,"0")}
+function showPauseBtn(show){const pb=document.getElementById("vpField2");if(pb)pb.style.display=show?"inline-flex":"none"}
+function pauseV(){
+  if(!vR||mS)return;
+  if(!isPaused){
+    // 일시정지
+    isPaused=true;
+    fB+=sF+(lI?" "+lI:"");sF="";lI="";
+    if(vF){const ta=document.getElementById(vF);if(fB)ta.value=fB}
+    try{vR.stop()}catch(e){}
+    const pb=document.getElementById("vpField2");if(pb){pb.textContent="▶ 재개";pb.style.background="#27AE60"}
+    if(vB)vB.innerHTML='<span>⏸</span> 일시정지';
+  }else{
+    // 재개
+    isPaused=false;
+    const pb=document.getElementById("vpField2");if(pb){pb.textContent="⏸ 일시정지";pb.style.background="#F39C12"}
+    try{vR.start();isVR=true;}catch(e){}
+  }
+}
 function mkV(fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const rec=new SR();rec.lang="ko-KR";rec.continuous=false;rec.interimResults=true;
 rec.onstart=()=>{isVS=false;isVR=true};
 rec.onresult=(e)=>{let int="",nf="";for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)nf+=e.results[i][0].transcript;else int=e.results[i][0].transcript}lI=int;if(nf){const now=Date.now();if(nf!==lFT||(now-lFTm)>=2500){sF+=nf;lFT=nf;lFTm=now}}document.getElementById(fid).value=fB+sF+(int?" "+int:"")};
 rec.onerror=(e)=>{isVS=false;isVR=false;if(e.error==="not-allowed"){mS=true;stV();alert("마이크 권한 필요")}};
-rec.onend=()=>{isVS=false;isVR=false;if(!mS){fB+=sF;sF="";lI="";const ta=document.getElementById(fid);if(fB)ta.value=fB;if(vST&&(Date.now()-vST)/1000<VM){setTimeout(()=>{if(!mS&&vST){isVS=true;try{rec.start()}catch(e){stV()}}},300);return}stV()}};return rec}
-function stV(){mS=true;if(vT){clearInterval(vT);vT=null}fB+=sF+(lI?" "+lI:"");sF="";lI="";if(vF){const ta=document.getElementById(vF);if(fB)ta.value=fB}if(vR){try{vR.stop()}catch(e){}}vR=null;isVR=false;isVS=false;vST=null;fB="";lFT="";lFTm=0;document.querySelectorAll(".vb").forEach(b=>{b.className="vb idle";b.innerHTML='<span>🎙</span> '+(b.dataset.lb||"말하기")})}
-function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Chrome/Edge 필요");return}if(isVR||isVS){stV();return}btn.dataset.lb=btn.dataset.lb||"말하기";vB=btn;vF=fid;mS=false;fB=document.getElementById(fid).value;if(fB&&!fB.endsWith("\n"))fB+="\n";sF="";lI="";lFT="";lFTm=0;vST=Date.now();upVT();vT=setInterval(upVT,1000);vR=mkV(fid);btn.className="vb recording";if(vR){isVS=true;try{vR.start()}catch(e){stV()}}}
+rec.onend=()=>{isVS=false;isVR=false;if(!mS&&!isPaused){fB+=sF;sF="";lI="";const ta=document.getElementById(fid);if(fB)ta.value=fB;if(vST&&(Date.now()-vST)/1000<VM){setTimeout(()=>{if(!mS&&!isPaused&&vST){isVS=true;try{rec.start()}catch(e){stV()}}},300);return}stV()}};return rec}
+function stV(){mS=true;isPaused=false;if(vT){clearInterval(vT);vT=null}fB+=sF+(lI?" "+lI:"");sF="";lI="";if(vF){const ta=document.getElementById(vF);if(fB)ta.value=fB}if(vR){try{vR.stop()}catch(e){}}vR=null;isVR=false;isVS=false;vST=null;fB="";lFT="";lFTm=0;showPauseBtn(false);document.querySelectorAll(".vb").forEach(b=>{b.className="vb idle";b.innerHTML='<span>🎙</span> '+(b.dataset.lb||"말하기")})}
+function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Chrome/Edge 필요");return}if(isVR||isVS){stV();return}btn.dataset.lb=btn.dataset.lb||"말하기";vB=btn;vF=fid;mS=false;isPaused=false;fB=document.getElementById(fid).value;if(fB&&!fB.endsWith("\n"))fB+="\n";sF="";lI="";lFT="";lFTm=0;vST=Date.now();upVT();vT=setInterval(upVT,1000);vR=mkV(fid);btn.className="vb recording";showPauseBtn(fid==="field2");if(vR){isVS=true;try{vR.start()}catch(e){stV()}}}
 
 /* ══ ADMIN ══ */
 function loadAdm(){buildATabs();switchAT("stats")}
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code);
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"upload",l:"📤 업로드"}];
-  if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"});
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"csr",l:"📞 CSR"}];
+  if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"},{id:"upload",l:"📤 업로드"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
-  ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
+  ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabCSR","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
   const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
-  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
+  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="csr")loadCSR();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
 
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -905,6 +966,121 @@ async function doXLImport(){
     fill.style.width="100%";st.textContent="✅ 완료! "+_xlData.users.length+"명, "+_xlData.reports.length+"건 등록";
     st.style.color="var(--success)";btn.textContent="✅ 완료";
   }catch(e){st.textContent="❌ 오류: "+e.message;btn.disabled=false;btn.textContent="📥 다시 시도";}
+}
+
+/* ══ CSR 분석 ══ */
+function loadCSR(){
+  const today=new Date();const ym=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
+  let h='<div style="margin-bottom:12px">'
+    +'<h3 style="font-size:14px;font-weight:700;margin-bottom:6px">📞 CSR 상담 및 서비스 현황 분석</h3>'
+    +'<p style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:12px">CS 시스템의 상담/서비스 데이터를 입력하거나 엑셀 파일을 업로드하면 분석 차트가 생성됩니다.</p>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">'
+    +'<button class="atab" onclick="mvCSR(-1)">◀</button>'
+    +'<span id="csrLbl" style="font-weight:700;font-size:13px"></span>'
+    +'<button class="atab" onclick="mvCSR(1)">▶</button>'
+    +'<select id="csrBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderCSR()"><option value="전체">전체</option>';
+  DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
+  h+='</select><button class="atab" style="color:var(--success)" onclick="renderCSR()">🔄</button></div>'
+    // Upload section
+    +'<div style="background:var(--ibg);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+    +'<label style="padding:5px 12px;background:var(--primary);color:#fff;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600">📂 CSR 엑셀 업로드<input type="file" accept=".xlsx,.xls" style="display:none" onchange="importCSR(event)"></label>'
+    +'<span style="font-size:10px;color:var(--ts)">CSR 시스템에서 내보낸 엑셀 파일을 업로드하세요</span>'
+    +'<div id="csrUpSt" style="font-size:10px;color:var(--ts)"></div>'
+    +'</div>'
+    +'<div id="csrBody"><div class="loading">데이터를 불러오는 중...</div></div>';
+  document.getElementById("tabCSR").innerHTML=h;
+  document.getElementById("tabCSR").dataset.ym=ym;
+  renderCSR();
+}
+function mvCSR(dir){const el=document.getElementById("tabCSR");const[y,m]=(el.dataset.ym||"").split("-").map(Number);const d=new Date(y,m-1+dir,1);el.dataset.ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");renderCSR()}
+async function renderCSR(){
+  const el=document.getElementById("tabCSR");if(!el)return;
+  const[y,m]=(el.dataset.ym||"").split("-").map(Number);
+  const lbl=document.getElementById("csrLbl");if(lbl)lbl.textContent=y+"년 "+m+"월 CSR 분석";
+  const brF=document.getElementById("csrBr")?.value||"전체";
+  document.getElementById("csrBody").innerHTML='<div class="loading">불러오는 중...</div>';
+  // Fetch from csr collection
+  try{
+    const snap=await db.collection("csr").where("year","==",y).where("month","==",m).get();
+    let rows=snap.docs.map(d=>d.data());
+    if(brF!=="전체")rows=rows.filter(r=>r.branch===brF);
+    if(!rows.length){document.getElementById("csrBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">데이터 없음<br><span style="font-size:10px">CSR 엑셀 파일을 업로드하거나 데이터를 입력해주세요</span></div>';return}
+    // Stats
+    const total=rows.length;
+    const byType={},byModel={},byRegion={},byResult={};
+    rows.forEach(r=>{
+      const t=r.category||r.type||"기타";const mo=normModel(r.model||"");const rg=r.region||getBranchRegion(r.branch||"")||"기타";const res=r.result||r.action||"기타";
+      if(!byType[t])byType[t]=0;byType[t]++;
+      if(!byModel[mo])byModel[mo]=0;byModel[mo]++;
+      if(!byRegion[rg])byRegion[rg]=0;byRegion[rg]++;
+      if(!byResult[res])byResult[res]=0;byResult[res]++;
+    });
+    const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800","#34495E"];
+    let h='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'
+      +'<div style="background:var(--card);border-radius:10px;padding:10px 16px;border:1px solid var(--border);text-align:center"><div style="font-size:22px;font-weight:800;color:var(--primary)">'+total+'</div><div style="font-size:10px;color:var(--ts)">전체 접수</div></div>'
+      +'</div>';
+    // 유형별 통계
+    h+=renderCSRPie("접수 유형별",byType,COLORS);
+    h+=renderCSRPie("모델별",byModel,COLORS);
+    h+=renderCSRPie("권역별",byRegion,COLORS);
+    h+=renderCSRPie("처리결과별",byResult,COLORS);
+    // Table
+    h+='<h4 style="font-size:12px;font-weight:700;margin-bottom:8px">📋 접수 유형 × 처리결과</h4>';
+    const typeKeys=Object.keys(byType).sort();const resKeys=Object.keys(byResult).sort();
+    h+='<div class="rw"><table class="at" style="min-width:400px"><thead><tr><th>유형</th>';
+    resKeys.forEach(k=>{h+='<th>'+esc(k)+'</th>'});h+='<th>합계</th></tr></thead><tbody>';
+    const cross={};rows.forEach(r=>{const t=r.category||r.type||"기타";const res=r.result||r.action||"기타";if(!cross[t])cross[t]={};if(!cross[t][res])cross[t][res]=0;cross[t][res]++});
+    typeKeys.forEach(t=>{let rt=0;h+='<tr><td style="font-weight:600;text-align:left">'+esc(t)+'</td>';resKeys.forEach(k=>{const v=cross[t]?.[k]||0;rt+=v;h+='<td'+(v?' class="cnt"':'')+'>'+( v||"")+'</td>'});h+='<td class="cnt">'+rt+'</td></tr>'});
+    h+='</tbody></table></div>';
+    document.getElementById("csrBody").innerHTML=h;
+    // Draw pie charts
+    ['csrPie0','csrPie1','csrPie2','csrPie3'].forEach((id,i)=>{
+      const obj=[byType,byModel,byRegion,byResult][i];const labels=Object.keys(obj).sort((a,b)=>obj[b]-obj[a]);const vals=labels.map(k=>obj[k]);
+      const ctx=document.getElementById(id);if(ctx&&vals.length>0){new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:COLORS.slice(0,labels.length),borderWidth:1}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}}}})}
+    });
+  }catch(e){document.getElementById("csrBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--danger)">오류: '+esc(e.message)+'</div>'}
+}
+function renderCSRPie(title,obj,colors){
+  const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]);const total=entries.reduce((s,[,v])=>s+v,0);const id="csrPie"+['접수 유형별','모델별','권역별','처리결과별'].indexOf(title);
+  let h='<div class="chart-wrap" style="margin-bottom:12px"><h4 style="font-size:11px;font-weight:700;margin-bottom:8px">'+esc(title)+'</h4>'
+    +'<div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">'
+    +'<div style="width:140px;height:140px;flex-shrink:0"><canvas id="'+id+'"></canvas></div>'
+    +'<div style="flex:1;min-width:120px"><table style="width:100%;font-size:9px;border-collapse:collapse">';
+  entries.forEach(([l,v],i)=>{const pct=total?Math.round(v/total*100):0;h+='<tr><td style="padding:2px 3px"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:'+colors[i%colors.length]+'"></span></td><td style="padding:2px 3px">'+esc(l)+'</td><td style="padding:2px 3px;font-weight:700">'+v+'</td><td style="color:var(--ts)">'+pct+'%</td></tr>'});
+  h+='</table></div></div></div>';return h;
+}
+async function importCSR(event){
+  const file=event.target.files[0];if(!file)return;
+  document.getElementById("csrUpSt").textContent="파일 읽는 중...";
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      const wb=XLSX.read(e.target.result,{type:"array"});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+      const headers=rows[0]||[];
+      const dataRows=rows.slice(1).filter(r=>r.some(c=>c));
+      document.getElementById("csrUpSt").textContent="분석 중... "+dataRows.length+"행";
+      const el=document.getElementById("tabCSR");const[y,m]=(el.dataset.ym||"").split("-").map(Number);
+      const batch=db.batch();
+      dataRows.forEach((r,i)=>{
+        const obj={year:y,month:m,idx:i};
+        headers.forEach((h,hi)=>{if(h&&r[hi]!==undefined)obj[h.trim()]=String(r[hi]||"")});
+        // Common field mapping
+        obj.category=obj["접수유형"]||obj["유형"]||obj["구분"]||obj.category||"기타";
+        obj.model=obj["모델명"]||obj["제품명"]||obj.model||"";
+        obj.branch=obj["지사"]||obj["센터"]||obj.branch||"";
+        obj.result=obj["처리결과"]||obj["결과"]||obj.result||"";
+        obj.date=obj["접수일"]||obj["일자"]||obj.date||"";
+        batch.set(db.collection("csr").doc(y+"-"+String(m).padStart(2,"0")+"_"+i),obj);
+      });
+      await batch.commit();
+      document.getElementById("csrUpSt").textContent="✅ "+dataRows.length+"건 등록 완료";
+      renderCSR();
+    }catch(ex){document.getElementById("csrUpSt").textContent="❌ 오류: "+ex.message}
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 /* ══ INIT ══ */
