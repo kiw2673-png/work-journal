@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<link rel="icon" href="data:,">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>CS업무일지 - 대성쎌틱에너시스</title>
@@ -663,10 +662,6 @@ async function renderAn(){
   cols.forEach(c=>{html+='<td onclick="showAnDetail(\'전체\',\''+esc(c)+'\')" style="cursor:pointer">'+(ct[c]||0)+'</td>'});
   html+='<td>'+gt+'</td></tr></tbody></table></div>';
   document.getElementById("anBody").innerHTML=html;
-  if(pieLabels.length>0){if(_anChart){_anChart.destroy();_anChart=null}
-    const ctx=document.getElementById("anPie");
-    if(ctx)_anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},onClick:(evt,el)=>{if(el.length>0){const idx=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx]);}}}});}
-}
 
   // Build full cases index
   const allCases=[];
