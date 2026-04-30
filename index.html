@@ -171,6 +171,14 @@ function tk(){return new Date().toISOString().slice(0,10)}
 function fd(d){d=d||new Date();const w=["일","월","화","수","목","금","토"];return d.getFullYear()+"년 "+String(d.getMonth()+1).padStart(2,"0")+"월 "+String(d.getDate()).padStart(2,"0")+"일 ("+w[d.getDay()]+")"}
 function fds(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
 function esc(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""}
+function renderAudioLinks(audios){
+  if(!audios||!audios.length)return"";
+  let h='<div style="margin-top:4px;padding:6px 10px;background:rgba(232,168,56,.1);border-radius:6px;border-left:3px solid var(--accent)"><div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:3px">🎵 첨부 음성파일 ('+audios.length+'개)</div>';
+  audios.forEach((a,i)=>{const sz=a.fileSize?Math.round(a.fileSize/1024)+"KB":"";
+    h+='<div style="display:flex;align-items:center;gap:6px;font-size:9px;margin-bottom:2px"><span style="color:var(--ts)">📎</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.fileName||"audio "+(i+1))+'</span><span style="color:var(--ts);font-size:8px">'+sz+'</span><a href="'+esc(a.url||"")+'" target="_blank" style="color:var(--primary);text-decoration:none;padding:1px 6px;border:1px solid var(--border);border-radius:3px;background:#fff">▶ 재생</a></div>';
+  });
+  h+='</div>';return h;
+}
 function showS(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function popBr(sel){sel.innerHTML='<option value="">선택</option>';DEF_BR.forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;sel.appendChild(o)})}
 popBr(document.getElementById("branchSelect"));
@@ -241,18 +249,19 @@ function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=docume
 
 /* ══ JOURNAL ══ */
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";document.getElementById("jDt").textContent=fd();
+  window._currentAudios=[];
   // Try today's submitted data first, then draft
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);}
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];}
   else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
   startDraftTimer();loadH();renderAudioList();}
 
-async function doSave(){const t=tk(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fd(),field1:document.getElementById("field1").value,field2:document.getElementById("field2").value,cases:getCasesData(),savedAt:new Date().toISOString()};
+async function doSave(){const t=tk(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fd(),field1:document.getElementById("field1").value,field2:document.getElementById("field2").value,cases:getCasesData(),audios:window._currentAudios||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null)},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 async function loadH(){try{const snap=await db.collection("reports").where("empId","==",CU.empId).orderBy("date","desc").limit(7).get();
@@ -381,6 +390,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       }
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+      if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
       html+='</div>';
     });
     html+='</div>';
@@ -484,6 +494,7 @@ async function renderWk(){
     html+='<div style="padding:6px 10px">';
     if(e.field1)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
     if(e.field2)html+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+    if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
     html+='</div></div>';
   });
   document.getElementById("wkBody").innerHTML=html}
@@ -773,8 +784,9 @@ async function showDet(empId){dEmp=empId;
   if(!entries.length){document.getElementById("detList").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';showS("detailScreen");return}
   document.getElementById("detList").innerHTML=entries.map(({id,data:e})=>{
     const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"}].filter(x=>x.f);
+    const audioH=e.audios&&e.audios.length?renderAudioLinks(e.audios):"";
     let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>"}}
-    return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+"</div></div>"}).join("");
+    return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>"}).join("");
   showS("detailScreen")}
 
 /* ══ EDIT/DELETE ══ */
@@ -820,7 +832,7 @@ async function handleAudioUpload(event){
   const localUrl=URL.createObjectURL(file);
   player.src=localUrl;player.style.display="block";
   prog.style.display="block";fill.style.width="5%";
-  st.textContent="📤 업로드 중...";
+  st.textContent="📤 Firebase에 업로드 중...";
 
   let downloadUrl="";
   try{
@@ -831,56 +843,61 @@ async function handleAudioUpload(event){
     await uploadTask;
     downloadUrl=await storageRef.getDownloadURL();
     fill.style.width="50%";
-    st.textContent="🤖 텍스트 변환 중...";
 
-    // Step 2: Convert file to base64
-    const b64=await new Promise((res,rej)=>{
-      const reader=new FileReader();
-      reader.onload=()=>res(reader.result.split(",")[1]);
-      reader.onerror=rej;
-      reader.readAsDataURL(file);
-    });
+    // Save to current session for attaching to report
+    if(!window._currentAudios)window._currentAudios=[];
+    window._currentAudios.push({url:downloadUrl,fileName:file.name,fileSize:file.size,uploadedAt:new Date().toISOString()});
+
+    // Step 2: Save to Firestore audioFiles
+    const audioRecord={empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType:file.type||"audio/mpeg",downloadUrl,uploadedAt:new Date().toISOString(),date:tk()};
+    await db.collection("audioFiles").add(audioRecord);
     fill.style.width="65%";
 
-    // Step 3: Call Anthropic API for transcription
-    const mimeType=file.type||"audio/mpeg";
-    const resp=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json","anthropic-version":"2023-06-01"},
-      body:JSON.stringify({
-        model:"claude-opus-4-5-20251001",
-        max_tokens:4096,
-        messages:[{role:"user",content:[
-          {type:"text",text:"이 음성 파일의 내용을 한국어로 정확히 받아쓰기(transcription)해주세요. 말한 내용만 그대로 출력하고, 설명이나 따옴표, 추가 코멘트는 넣지 마세요."},
-          {type:"document",source:{type:"base64",media_type:mimeType,data:b64}}
-        ]}]
-      })
-    });
-    fill.style.width="85%";
-
-    if(resp.ok){
-      const data=await resp.json();
-      const text=data.content?.[0]?.text||"";
-      if(text&&text.trim()){
-        const ta=document.getElementById("field2");
-        ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+text.trim();
+    // Step 3: Try OpenAI Whisper transcription (CORS supported)
+    const settings=await loadSettings();
+    const wKey=settings.whisperKey||"";
+    if(wKey&&wKey.startsWith("sk-")){
+      st.textContent="🤖 Whisper로 텍스트 변환 중...";
+      try{
+        const formData=new FormData();
+        formData.append("file",file,file.name);
+        formData.append("model","whisper-1");
+        formData.append("language","ko");
+        formData.append("response_format","text");
+        const resp=await fetch("https://api.openai.com/v1/audio/transcriptions",{
+          method:"POST",
+          headers:{"Authorization":"Bearer "+wKey},
+          body:formData
+        });
+        fill.style.width="90%";
+        if(resp.ok){
+          const transcribed=await resp.text();
+          if(transcribed&&transcribed.trim()){
+            const ta=document.getElementById("field2");
+            ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+"[음성변환] "+transcribed.trim();
+            fill.style.width="100%";
+            st.style.color="var(--success)";
+            st.textContent="✅ 변환 완료! 상담&특이사항에 추가됨 + 보고서에 첨부됨";
+          }else{fill.style.width="100%";st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
+        }else{
+          const err=await resp.text();
+          fill.style.width="100%";
+          st.textContent="✅ 업로드 완료 (Whisper 오류: "+err.slice(0,80)+")";
+        }
+      }catch(wErr){
         fill.style.width="100%";
-        st.style.color="var(--success)";
-        st.textContent="✅ 변환 완료! 상담&특이사항에 추가됨";
-      }else{fill.style.width="100%";st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
+        st.textContent="✅ 업로드 완료 (변환 실패 - 직접 입력해주세요)";
+      }
     }else{
       fill.style.width="100%";
-      st.textContent="✅ 업로드 완료 (변환 불가 - 재생하며 직접 입력)";
+      st.style.color="var(--admin)";
+      st.innerHTML='✅ <strong>음성 파일 보고서 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">자동 텍스트 변환을 원하시면 관리자(ADMIN2024)에게 OpenAI API Key 설정 요청 → 설정 탭에서 등록</span>';
     }
-
-    // Step 4: Save record to Firestore
-    const audioRecord={empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType,downloadUrl,uploadedAt:new Date().toISOString(),date:tk()};
-    await db.collection("audioFiles").add(audioRecord);
     renderAudioList();
 
   }catch(e){
     fill.style.width="100%";st.style.color="var(--danger)";
-    st.textContent="오류: "+e.message.slice(0,60);
+    st.textContent="오류: "+e.message.slice(0,80);
     console.error("Audio upload error:",e);
   }
 }
@@ -888,23 +905,32 @@ async function handleAudioUpload(event){
 async function renderAudioList(){
   if(!CU)return;
   const listEl=document.getElementById("audioList");if(!listEl)return;
+  let h='';
+  // Currently attached (will be saved with submit)
+  if(window._currentAudios&&window._currentAudios.length){
+    h+='<div style="margin-top:8px;padding:8px 10px;background:rgba(0,184,148,.08);border-left:3px solid var(--success);border-radius:6px"><div style="font-size:10px;font-weight:700;color:var(--success);margin-bottom:4px">📎 이번 보고서에 첨부됨 ('+window._currentAudios.length+'개)</div>';
+    window._currentAudios.forEach(a=>{const sz=a.fileSize?Math.round(a.fileSize/1024)+"KB":"";
+      h+='<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:#fff;border-radius:5px;margin-bottom:2px;flex-wrap:wrap"><span style="font-size:10px">🎵</span><span style="font-size:10px;flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(a.fileName||"")+'</span><span style="font-size:9px;color:var(--ts)">'+sz+'</span><a href="'+esc(a.url||"")+'" target="_blank" style="font-size:9px;color:var(--primary);text-decoration:none;padding:2px 6px;border:1px solid var(--border);border-radius:4px">▶</a></div>'});
+    h+='</div>';
+  }
   try{
     const snap=await db.collection("audioFiles").where("empId","==",CU.empId).orderBy("uploadedAt","desc").limit(10).get();
-    if(snap.empty){listEl.innerHTML="";return}
-    let h='<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--ts);margin-bottom:4px">📂 업로드된 음성파일 (최근 10개)</div>';
-    snap.docs.forEach(d=>{const r=d.data();
-      const dt=r.uploadedAt?new Date(r.uploadedAt).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
-      const sz=r.fileSize?Math.round(r.fileSize/1024)+"KB":"";
-      h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--ibg);border-radius:6px;margin-bottom:3px;flex-wrap:wrap">'
-        +'<span style="font-size:9px;color:var(--ts)">🎵</span>'
-        +'<span style="font-size:10px;flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.fileName||"")+'">'+esc((r.fileName||"").slice(0,25))+'</span>'
-        +'<span style="font-size:9px;color:var(--ts)">'+sz+'</span>'
-        +'<span style="font-size:9px;color:var(--ts)">'+dt+'</span>'
-        +(r.downloadUrl?'<a href="'+r.downloadUrl+'" target="_blank" style="font-size:9px;color:var(--primary);text-decoration:none;padding:2px 6px;border:1px solid var(--border);border-radius:4px">▶ 재생</a>':"")
-        +'</div>'});
-    h+='</div>';
+    if(!snap.empty){
+      h+='<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--ts);margin-bottom:4px">📂 내 음성파일 누적 (최근 10개)</div>';
+      snap.docs.forEach(d=>{const r=d.data();
+        const dt=r.uploadedAt?new Date(r.uploadedAt).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+        const sz=r.fileSize?Math.round(r.fileSize/1024)+"KB":"";
+        h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--ibg);border-radius:6px;margin-bottom:3px;flex-wrap:wrap">'
+          +'<span style="font-size:9px;color:var(--ts)">🎵</span>'
+          +'<span style="font-size:10px;flex:1;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.fileName||"")+'">'+esc((r.fileName||"").slice(0,25))+'</span>'
+          +'<span style="font-size:9px;color:var(--ts)">'+sz+'</span>'
+          +'<span style="font-size:9px;color:var(--ts)">'+dt+'</span>'
+          +(r.downloadUrl?'<a href="'+r.downloadUrl+'" target="_blank" style="font-size:9px;color:var(--primary);text-decoration:none;padding:2px 6px;border:1px solid var(--border);border-radius:4px">▶ 재생</a>':"")
+          +'</div>'});
+      h+='</div>';
+    }
     listEl.innerHTML=h;
-  }catch(e){listEl.innerHTML="";}
+  }catch(e){listEl.innerHTML=h;console.warn(e)}
 }
 
 /* Load audio list when journal is initialized */
@@ -1043,6 +1069,7 @@ async function renderMonthly(){
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
+      if(e.audios&&e.audios.length)html+='<div style="padding:0 10px 8px">'+renderAudioLinks(e.audios)+'</div>';
       html+='</div>';
     });
   }
@@ -1209,6 +1236,7 @@ async function doSearch(){
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
       if(e.field2)h+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
+      if(e.audios&&e.audios.length)h+=renderAudioLinks(e.audios);
       h+='</div></div>';
     });
     document.getElementById("srchBody").innerHTML=h;
