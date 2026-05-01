@@ -104,15 +104,15 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.6.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.7.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.6.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" placeholder="현장업무 내용 입력..."></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
 <div class="audio-upload">
   <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
@@ -124,15 +124,16 @@
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 <div id="audioList" style="margin-top:6px"></div>
 </div>
-<button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3)" onclick="doSave()">📤 제출하기</button>
 <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-  <button id="draftBtn" onclick="saveDraft()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--ts);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 임시저장</button>
-  <span id="draftStatus" style="font-size:10px;color:var(--ts)"></span>
+  <button id="draftBtn" onclick="toggleDraft()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--ts);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 임시저장</button>
+  <button id="editReportsBtn" onclick="openMyReports()" style="flex:1;padding:10px;border:1.5px solid var(--admin);border-radius:10px;background:transparent;color:var(--admin);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 보고서 수정</button>
 </div>
+<div id="draftStatus" style="font-size:10px;color:var(--ts);margin-top:4px;text-align:center"></div>
+<button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3);margin-top:14px" onclick="doSave()">📤 제출하기</button>
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.6.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -269,7 +270,7 @@ async function doSave(){
   const hasCases=cases.some(c=>c.model||c.serial||c.symptom||c.action||c.note);
   const hasAudio=(window._currentAudios||[]).length>0;
   if(!f1&&!f2&&!hasCases&&!hasAudio){
-    alert("⚠️ 작성되지 않았습니다.\n\n현장업무, 상담&특이사항, 현장지원 중\n최소 하나 이상 입력해주세요.");
+    alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항 중\n최소 하나 이상 입력해주세요.");
     return;
   }
   const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,cases,audios:window._currentAudios||[],savedAt:new Date().toISOString()};
@@ -299,14 +300,28 @@ function autoSaveDraft(){
   const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
   localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
 }
-function saveDraft(){
+function toggleDraft(){
   if(!CU)return;
-  autoSaveDraft();
-  const btn=document.getElementById("draftBtn");const st=document.getElementById("draftStatus");
-  const prev=btn.textContent;btn.style.color="var(--success)";btn.textContent="✓ 저장됨";
-  const now=new Date();st.textContent=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+" 저장";
-  setTimeout(()=>{btn.textContent=prev;btn.style.color=""},2000);
+  const has=localStorage.getItem("draft:"+CU.empId);
+  const btn=document.getElementById("draftBtn");
+  const st=document.getElementById("draftStatus");
+  if(has){
+    // 두번째 클릭 - 임시저장 해제
+    if(!confirm("임시저장된 내용을 삭제하시겠습니까?\n현재 입력 내용은 유지됩니다."))return;
+    localStorage.removeItem("draft:"+CU.empId);
+    btn.style.background="transparent";btn.style.color="var(--ts)";btn.style.borderColor="var(--border)";btn.textContent="💾 임시저장";
+    st.textContent="임시저장 해제됨";st.style.color="var(--danger)";
+    setTimeout(()=>{st.textContent="";st.style.color="var(--ts)"},2500);
+  }else{
+    // 첫번째 클릭 - 임시저장
+    autoSaveDraft();
+    btn.style.background="rgba(0,184,148,.1)";btn.style.color="var(--success)";btn.style.borderColor="var(--success)";btn.textContent="✓ 임시저장됨";
+    const now=new Date();st.textContent=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+" 임시저장됨 (다시 누르면 해제)";st.style.color="var(--success)";
+    setTimeout(()=>{st.style.color="var(--ts)"},3000);
+  }
 }
+// Backward compat
+function saveDraft(){toggleDraft()}
 function loadDraft(){
   if(!CU)return false;
   const d=localStorage.getItem("draft:"+CU.empId);if(!d)return false;
@@ -1482,6 +1497,113 @@ async function importCSR(event){
     }catch(ex){document.getElementById("csrUpSt").textContent="❌ 오류: "+ex.message}
   };
   reader.readAsArrayBuffer(file);
+}
+
+/* ══ 사용자 본인 보고서 수정/삭제 ══ */
+async function openMyReports(){
+  if(!CU)return;
+  document.getElementById("delTitle").textContent="✏️ 내 보고서";
+  document.getElementById("delIcon").textContent="";
+  document.getElementById("delMsg").innerHTML='<div class="loading">불러오는 중...</div>';
+  document.getElementById("delCancelBtn").style.display="none";
+  document.getElementById("delBtn").textContent="닫기";
+  document.getElementById("delBtn").style.background="var(--primary)";
+  document.getElementById("delBtn").onclick=clDM;
+  document.getElementById("delModal").classList.add("open");
+  try{
+    const snap=await db.collection("reports").where("empId","==",CU.empId).orderBy("date","desc").limit(50).get();
+    if(snap.empty){
+      document.getElementById("delMsg").innerHTML='<div style="text-align:center;padding:30px;color:var(--ts)">제출한 보고서가 없습니다</div>';
+      return;
+    }
+    let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">총 '+snap.size+'건 (최근 50건)</div>';
+    snap.docs.forEach(d=>{
+      const e=d.data();const docId=d.id;
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      const cs=fc.map(c=>c.model||"").filter(Boolean).join(", ");
+      const f1Preview=(e.field1||"").slice(0,40);
+      const f2Preview=(e.field2||"").slice(0,40);
+      const audioCount=(e.audios||[]).length;
+      h+='<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;flex-wrap:wrap;gap:4px">'
+        +'<span style="font-weight:700;font-size:12px;color:var(--primary)">📅 '+esc(e.dateLabel||e.date)+'</span>'
+        +'<div style="display:flex;gap:4px"><button onclick="userEditReport(\''+docId+'\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:5px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit;font-weight:600">✏️ 수정</button>'
+        +'<button onclick="userDeleteReport(\''+docId+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:4px 10px;border:1px solid var(--danger);border-radius:5px;background:transparent;color:var(--danger);font-size:10px;cursor:pointer;font-family:inherit;font-weight:600">🗑 삭제</button></div>'
+        +'</div>';
+      if(cs)h+='<div style="font-size:10px;color:#3498DB;margin-bottom:3px">🏗 '+esc(cs)+' ('+fc.length+'건)</div>';
+      if(f1Preview)h+='<div style="font-size:10px;color:#2980B9;margin-bottom:2px">🔧 '+esc(f1Preview)+(e.field1.length>40?"...":"")+'</div>';
+      if(f2Preview)h+='<div style="font-size:10px;color:#00B894;margin-bottom:2px">💬 '+esc(f2Preview)+(e.field2.length>40?"...":"")+'</div>';
+      if(audioCount>0)h+='<div style="font-size:10px;color:var(--accent)">🎵 음성 '+audioCount+'개 첨부</div>';
+      h+='</div>';
+    });
+    document.getElementById("delMsg").innerHTML=h;
+  }catch(err){document.getElementById("delMsg").innerHTML='<div style="text-align:center;padding:30px;color:var(--danger)">오류: '+esc(err.message)+'</div>'}
+}
+
+async function userEditReport(docId){
+  // Reuse admin edit but for user's own report
+  try{
+    const doc=await db.collection("reports").doc(docId).get();
+    if(!doc.exists){alert("보고서를 찾을 수 없습니다");return}
+    const e=doc.data();
+    if(e.empId!==CU.empId){alert("본인의 보고서만 수정할 수 있습니다");return}
+    let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">'+esc(e.dateLabel||e.date)+'</div>';
+    h+='<label class="fl">보고일자</label><input type="date" id="aeDate" class="fi-input" value="'+esc(e.date)+'" style="margin-bottom:10px">';
+    h+='<label class="fl">상담 & 특이사항</label><textarea id="aeF2" class="fi-input" style="min-height:80px;font-family:inherit;margin-bottom:10px">'+esc(e.field2||"")+'</textarea>';
+    h+='<label class="fl">현장지원</label><div id="aeCases" style="margin-bottom:10px"></div>';
+    if(e.audios&&e.audios.length){
+      h+='<label class="fl">첨부 음성</label><div style="margin-bottom:10px" id="aeAudios">';
+      e.audios.forEach((a,i)=>{h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--ibg);border-radius:6px;margin-bottom:3px;flex-wrap:wrap" data-idx="'+i+'"><span style="font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🎵 '+esc(a.fileName||"")+'</span><a href="'+esc(a.url||"")+'" target="_blank" style="font-size:9px;color:var(--primary);text-decoration:none;padding:2px 6px;border:1px solid var(--border);border-radius:4px">▶</a><button type="button" onclick="this.parentElement.remove()" style="font-size:9px;color:var(--danger);background:transparent;border:1px solid var(--danger);border-radius:4px;padding:2px 6px;cursor:pointer;font-family:inherit">✕</button></div>'});
+      h+='</div>';
+    }
+    document.getElementById("delTitle").textContent="✏️ 보고서 수정";
+    document.getElementById("delIcon").textContent="";
+    document.getElementById("delMsg").innerHTML='<input type="hidden" id="aeF1" value="'+esc(e.field1||"")+'">'+h;
+    document.getElementById("delCancelBtn").style.display="";
+    document.getElementById("delCancelBtn").textContent="목록으로";
+    document.getElementById("delCancelBtn").onclick=openMyReports;
+    document.getElementById("delBtn").textContent="저장";
+    document.getElementById("delBtn").style.background="var(--admin)";
+    document.getElementById("delBtn").onclick=async function(){await saveUserEdit(docId,e)};
+    setTimeout(()=>{buildAECases(e.cases||[])},50);
+  }catch(err){alert("오류: "+err.message)}
+}
+
+async function saveUserEdit(oldDocId,oldEntry){
+  try{
+    const newDate=document.getElementById("aeDate").value;
+    const f1=document.getElementById("aeF1")?.value||oldEntry.field1||"";
+    const f2=document.getElementById("aeF2").value;
+    const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial);
+    const audioElems=document.querySelectorAll("#aeAudios > div");
+    const remainingAudios=[];
+    audioElems.forEach(el=>{const idx=+el.dataset.idx;if(oldEntry.audios&&oldEntry.audios[idx])remainingAudios.push(oldEntry.audios[idx])});
+    // Validate not all empty
+    if(!f1.trim()&&!f2.trim()&&!cases.length&&!remainingAudios.length){
+      alert("⚠️ 작성되지 않았습니다.\n최소 하나 이상 입력해주세요.");return;
+    }
+    const updated={...oldEntry,date:newDate,dateLabel:fdsKor(newDate),field1:f1,field2:f2,cases,audios:remainingAudios,savedAt:new Date().toISOString()};
+    const newDocId=newDate+"_"+oldEntry.empId;
+    if(newDocId!==oldDocId)await db.collection("reports").doc(oldDocId).delete();
+    await db.collection("reports").doc(newDocId).set(updated);
+    // Reset modal cancel button
+    document.getElementById("delCancelBtn").textContent="취소";
+    document.getElementById("delCancelBtn").onclick=clDM;
+    clDM();
+    alert("✅ 수정되었습니다");
+    loadH();
+    if(newDate===getSelectedDate())onDateChange();
+  }catch(e){alert("저장 오류: "+e.message)}
+}
+
+function userDeleteReport(docId,dateLabel){
+  if(!confirm("⚠️ 보고서 삭제\n\n"+dateLabel+" 보고서를 영구 삭제하시겠습니까?\n첨부된 음성 파일은 별도로 유지됩니다."))return;
+  db.collection("reports").doc(docId).delete().then(()=>{
+    alert("✅ 삭제되었습니다");
+    openMyReports();
+    loadH();
+    if(docId.startsWith(getSelectedDate()))onDateChange();
+  }).catch(e=>alert("삭제 오류: "+e.message));
 }
 
 /* ══ ADMIN: Edit/Delete Report ══ */
