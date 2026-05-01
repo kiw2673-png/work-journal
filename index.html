@@ -104,13 +104,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.7.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.7.1</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -133,7 +133,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -282,10 +282,11 @@ async function doSave(){
       document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
-async function loadH(){try{const snap=await db.collection("reports").where("empId","==",CU.empId).orderBy("date","desc").limit(7).get();
+async function loadH(){try{const snap=await db.collection("reports").where("empId","==",CU.empId).get();
+  const docs=snap.docs.map(d=>d.data()).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,7);
   const sec=document.getElementById("histSec"),list=document.getElementById("histList");
-  if(snap.empty){sec.style.display="none";return}sec.style.display="block";
-  list.innerHTML=snap.docs.map(d=>{const h=d.data();const cs=h.cases?h.cases.filter(c=>c.model).map(c=>c.model).join(","):"";
+  if(!docs.length){sec.style.display="none";return}sec.style.display="block";
+  list.innerHTML=docs.map(h=>{const cs=h.cases?h.cases.filter(c=>c.model).map(c=>c.model).join(","):"";
     return'<div class="hc"><div class="hd">'+esc(h.dateLabel||h.date)+'</div>'+(h.field1?'<div class="hl">🏗️ '+esc(h.field1.slice(0,35))+(cs?" ["+esc(cs)+"]":"")+'</div>':'')+(h.field2?'<div class="hl">💬 '+esc(h.field2.slice(0,50))+'</div>':'')+'</div>'}).join("")}catch(e){}}
 
 /* ══ VOICE ══ */
@@ -819,8 +820,8 @@ async function loadUsers(){document.getElementById("tabUsers").innerHTML='<div c
 let dEmp=null;
 async function showDet(empId){dEmp=empId;
   const userDoc=await db.collection("users").doc(empId).get();const user=userDoc.data();if(!user)return;
-  const snap=await db.collection("reports").where("empId","==",empId).orderBy("date","desc").get();
-  const entries=snap.docs.map(d=>({id:d.id,data:d.data()}));const count=entries.length;const today=tk();const hasToday=entries.some(e=>e.data.date===today);
+  const snap=await db.collection("reports").where("empId","==",empId).get();
+  const entries=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.date||"").localeCompare(a.data.date||""));const count=entries.length;const today=tk();const hasToday=entries.some(e=>e.data.date===today);
   document.getElementById("detUsr").innerHTML='<div><div style="font-size:16px;font-weight:700">'+esc(user.name)+(user.role==="admin"?' <span style="font-size:10px;color:var(--admin)">관리자</span>':'')+'</div><div style="font-size:11px;opacity:.7">'+esc(user.branch)+" · "+empId+'</div></div><div style="display:flex;gap:8px"><div style="background:rgba(255,255,255,.1);padding:6px 12px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:800">'+count+'</div><div style="font-size:9px;opacity:.7">등록</div></div></div>';
   document.getElementById("detAct").innerHTML='<button onclick="openEM(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--admin);border-radius:7px;background:transparent;color:var(--admin);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">✏️</button><button onclick="cfDU(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--danger);border-radius:7px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🗑️</button>';
   if(!entries.length){document.getElementById("detList").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';showS("detailScreen");return}
@@ -1032,10 +1033,11 @@ async function renderAudioList(){
     h+='</div>';
   }
   try{
-    const snap=await db.collection("audioFiles").where("empId","==",CU.empId).orderBy("uploadedAt","desc").limit(10).get();
+    const snap=await db.collection("audioFiles").where("empId","==",CU.empId).get();
     if(!snap.empty){
+      const docs=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.uploadedAt||"").localeCompare(a.data.uploadedAt||"")).slice(0,10);
       h+='<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--ts);margin-bottom:4px">📂 내 음성파일 누적 (최근 10개)</div>';
-      snap.docs.forEach(d=>{const r=d.data();const docId=d.id;
+      docs.forEach(({id:docId,data:r})=>{
         const dt=r.uploadedAt?new Date(r.uploadedAt).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
         const sz=r.fileSize?Math.round(r.fileSize/1024)+"KB":"";
         h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--ibg);border-radius:6px;margin-bottom:3px;flex-wrap:wrap">'
@@ -1511,14 +1513,15 @@ async function openMyReports(){
   document.getElementById("delBtn").onclick=clDM;
   document.getElementById("delModal").classList.add("open");
   try{
-    const snap=await db.collection("reports").where("empId","==",CU.empId).orderBy("date","desc").limit(50).get();
+    const snap=await db.collection("reports").where("empId","==",CU.empId).get();
     if(snap.empty){
       document.getElementById("delMsg").innerHTML='<div style="text-align:center;padding:30px;color:var(--ts)">제출한 보고서가 없습니다</div>';
       return;
     }
-    let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">총 '+snap.size+'건 (최근 50건)</div>';
-    snap.docs.forEach(d=>{
-      const e=d.data();const docId=d.id;
+    // Sort client-side by date desc
+    const docs=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.date||"").localeCompare(a.data.date||"")).slice(0,50);
+    let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">총 '+snap.size+'건 (최근 '+docs.length+'건 표시)</div>';
+    docs.forEach(({id:docId,data:e})=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
       const cs=fc.map(c=>c.model||"").filter(Boolean).join(", ");
       const f1Preview=(e.field1||"").slice(0,40);
