@@ -104,13 +104,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.5.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.6.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.5.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.6.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" placeholder="현장업무 내용 입력..."></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -132,7 +132,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.5.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.6.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -262,7 +262,17 @@ async function initJ(){document.getElementById("jBr").textContent=CU.branch;docu
   else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
   startDraftTimer();loadH();renderAudioList();}
 
-async function doSave(){const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:document.getElementById("field1").value,field2:document.getElementById("field2").value,cases:getCasesData(),audios:window._currentAudios||[],savedAt:new Date().toISOString()};
+async function doSave(){
+  const f1=document.getElementById("field1").value.trim();
+  const f2=document.getElementById("field2").value.trim();
+  const cases=getCasesData();
+  const hasCases=cases.some(c=>c.model||c.serial||c.symptom||c.action||c.note);
+  const hasAudio=(window._currentAudios||[]).length>0;
+  if(!f1&&!f2&&!hasCases&&!hasAudio){
+    alert("⚠️ 작성되지 않았습니다.\n\n현장업무, 상담&특이사항, 현장지원 중\n최소 하나 이상 입력해주세요.");
+    return;
+  }
+  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,cases,audios:window._currentAudios||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
@@ -853,7 +863,7 @@ async function handleAudioUpload(event){
 
   let downloadUrl="";
   try{
-    // Step 1: Upload to Firebase Storage
+    // Step 1: Upload original to Firebase Storage
     const storageRef=storage.ref("audio/"+CU.empId+"/"+Date.now()+"_"+file.name);
     const uploadTask=storageRef.put(file);
     uploadTask.on('state_changed',snap=>{fill.style.width=Math.round(snap.bytesTransferred/snap.totalBytes*40)+"%"});
@@ -861,23 +871,41 @@ async function handleAudioUpload(event){
     downloadUrl=await storageRef.getDownloadURL();
     fill.style.width="50%";
 
-    // Save to current session for attaching to report
     if(!window._currentAudios)window._currentAudios=[];
     window._currentAudios.push({url:downloadUrl,fileName:file.name,fileSize:file.size,uploadedAt:new Date().toISOString()});
 
-    // Step 2: Save to Firestore audioFiles
     const audioRecord={empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType:file.type||"audio/mpeg",downloadUrl,uploadedAt:new Date().toISOString(),date:tk()};
     await db.collection("audioFiles").add(audioRecord);
     fill.style.width="65%";
 
-    // Step 3: Try OpenAI Whisper transcription (CORS supported)
+    // Step 2: Try Whisper with auto-conversion for unsupported formats
     const settings=await loadSettings();
     const wKey=settings.whisperKey||"";
     if(wKey&&wKey.startsWith("sk-")){
-      st.textContent="🤖 Whisper로 텍스트 변환 중...";
+      st.textContent="🎵 음성 처리 중...";
+      // Whisper supports: flac, mp3, mp4, mpeg, mpga, m4a, ogg, wav, webm
+      const supportedExts=["flac","mp3","mp4","mpeg","mpga","m4a","ogg","wav","webm"];
+      const ext=(file.name.split(".").pop()||"").toLowerCase();
+      const isSupported=supportedExts.includes(ext);
+      let uploadFile=file;
+      let uploadName=file.name;
+      if(!isSupported){
+        st.textContent="🔄 형식 변환 중 (WAV)...";
+        try{
+          const wavBlob=await convertToWav(file);
+          uploadFile=wavBlob;
+          uploadName=file.name.replace(/\.[^.]+$/,"")+".wav";
+        }catch(convErr){
+          fill.style.width="100%";
+          st.style.color="var(--admin)";
+          st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">자동 변환 미지원 형식 (.'+esc(ext)+')<br>관리자가 보고서에서 직접 들을 수 있습니다.</span>';
+          renderAudioList();return;
+        }
+      }
+      st.textContent="🤖 Whisper 텍스트 변환 중...";
       try{
         const formData=new FormData();
-        formData.append("file",file,file.name);
+        formData.append("file",uploadFile,uploadName);
         formData.append("model","whisper-1");
         formData.append("language","ko");
         formData.append("response_format","text");
@@ -894,21 +922,25 @@ async function handleAudioUpload(event){
             ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+"[음성변환] "+transcribed.trim();
             fill.style.width="100%";
             st.style.color="var(--success)";
-            st.textContent="✅ 변환 완료! 상담&특이사항에 추가됨 + 보고서에 첨부됨";
+            st.textContent="✅ 변환 완료! 상담&특이사항에 추가됨";
           }else{fill.style.width="100%";st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
         }else{
           const err=await resp.text();
           fill.style.width="100%";
-          st.textContent="✅ 업로드 완료 (Whisper 오류: "+err.slice(0,80)+")";
+          st.style.color="var(--admin)";
+          st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">텍스트 변환 실패 - 관리자가 직접 들을 수 있습니다</span>';
+          console.warn("Whisper error:",err);
         }
       }catch(wErr){
         fill.style.width="100%";
-        st.textContent="✅ 업로드 완료 (변환 실패 - 직접 입력해주세요)";
+        st.style.color="var(--admin)";
+        st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">변환 실패 - 직접 입력해주세요</span>';
+        console.warn("Whisper fetch error:",wErr);
       }
     }else{
       fill.style.width="100%";
       st.style.color="var(--admin)";
-      st.innerHTML='✅ <strong>음성 파일 보고서 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">자동 텍스트 변환을 원하시면 관리자(ADMIN2024)에게 OpenAI API Key 설정 요청 → 설정 탭에서 등록</span>';
+      st.innerHTML='✅ <strong>음성 파일 보고서 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">관리자에게 OpenAI API Key 등록 요청 시 자동 변환 가능</span>';
     }
     renderAudioList();
 
@@ -918,6 +950,60 @@ async function handleAudioUpload(event){
     console.error("Audio upload error:",e);
   }
 }
+
+// Convert any audio file to WAV using Web Audio API
+async function convertToWav(file){
+  const arrayBuffer=await file.arrayBuffer();
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  const audioCtx=new AudioCtx();
+  const audioBuffer=await audioCtx.decodeAudioData(arrayBuffer);
+  // Encode as WAV
+  const wavBuffer=audioBufferToWav(audioBuffer);
+  audioCtx.close();
+  return new Blob([wavBuffer],{type:"audio/wav"});
+}
+
+function audioBufferToWav(buffer){
+  const numCh=buffer.numberOfChannels;
+  const sampleRate=buffer.sampleRate;
+  const format=1; // PCM
+  const bitDepth=16;
+  const bytesPerSample=bitDepth/8;
+  const blockAlign=numCh*bytesPerSample;
+  const byteRate=sampleRate*blockAlign;
+  // Mix down to mono if needed (smaller file for Whisper)
+  const samples=buffer.length;
+  const dataSize=samples*blockAlign;
+  const arrayBuffer=new ArrayBuffer(44+dataSize);
+  const view=new DataView(arrayBuffer);
+  // RIFF header
+  writeString(view,0,"RIFF");
+  view.setUint32(4,36+dataSize,true);
+  writeString(view,8,"WAVE");
+  writeString(view,12,"fmt ");
+  view.setUint32(16,16,true);
+  view.setUint16(20,format,true);
+  view.setUint16(22,numCh,true);
+  view.setUint32(24,sampleRate,true);
+  view.setUint32(28,byteRate,true);
+  view.setUint16(32,blockAlign,true);
+  view.setUint16(34,bitDepth,true);
+  writeString(view,36,"data");
+  view.setUint32(40,dataSize,true);
+  // PCM data
+  let offset=44;
+  const channels=[];
+  for(let ch=0;ch<numCh;ch++)channels.push(buffer.getChannelData(ch));
+  for(let i=0;i<samples;i++){
+    for(let ch=0;ch<numCh;ch++){
+      let s=Math.max(-1,Math.min(1,channels[ch][i]));
+      view.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true);
+      offset+=2;
+    }
+  }
+  return arrayBuffer;
+}
+function writeString(view,offset,str){for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i))}
 
 async function renderAudioList(){
   if(!CU)return;
