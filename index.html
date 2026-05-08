@@ -104,26 +104,36 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.7.3</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.8.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.8.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
 <div class="audio-upload">
   <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
   <label for="audioFile">🎵 음성파일 추가</label>
-  <input type="file" id="audioFile" accept="audio/*,video/*" onchange="handleAudioUpload(event)">
-  <span id="audioStatus" style="font-size:10px;color:var(--ts)">mp3, wav, m4a, mp4 지원 · 텍스트 자동 변환</span>
+  <input type="file" id="audioFile" accept="audio/*" onchange="handleAudioUpload(event)">
+  <span id="audioStatus" style="font-size:10px;color:var(--ts)">mp3, wav, m4a 지원 · 텍스트 자동 변환</span>
 </div>
 <div class="prog-bar" id="audioProg" style="display:none"><div class="prog-fill" id="audioProgFill"></div></div>
 <button id="audioCancelBtn" onclick="cancelAudioUpload()" style="display:none;margin-top:6px;padding:6px 14px;border:1.5px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;width:100%">⏹ 업로드 취소</button>
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 <div id="audioList" style="margin-top:6px"></div>
+</div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(232,168,56,.06),transparent)"><h3>📷 사진/동영상 첨부 <span style="font-size:9px;font-weight:400;color:var(--ts)">(사진 최대 5장, 동영상 가능)</span></h3></div>
+<div class="audio-upload" style="background:rgba(232,168,56,.05)">
+  <label for="mediaFile" style="background:var(--accent)">📷 사진/동영상 선택</label>
+  <input type="file" id="mediaFile" accept="image/*,video/*" multiple onchange="handleMediaUpload(event)">
+  <span id="mediaStatus" style="font-size:10px;color:var(--ts)">사진(jpg, png, heic) · 동영상(mp4, mov)</span>
+</div>
+<div class="prog-bar" id="mediaProg" style="display:none"><div class="prog-fill" id="mediaProgFill" style="background:var(--accent)"></div></div>
+<button id="mediaCancelBtn" onclick="cancelMediaUpload()" style="display:none;margin-top:6px;padding:6px 14px;border:1.5px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;width:100%">⏹ 업로드 취소</button>
+<div id="mediaList" style="margin-top:6px"></div>
 </div>
 <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
   <button id="draftBtn" onclick="toggleDraft()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--ts);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 임시저장</button>
@@ -134,7 +144,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.7.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.8.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -236,7 +246,8 @@ function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wra
       +'<div><select id="cg'+n+'a" onchange="cgC(this,\'cg'+n+'aX\')"><option value="">처리결과</option>';
     acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
     html+='<option value="__o"'+(ac?' selected':'')+'>직접입력</option></select><input id="cg'+n+'aX" placeholder="결과" style="margin-top:2px;display:'+(ac?'block':'none')+'" value="'+(ac?esc(av):'')+'"></div>'
-      +'<div class="full" style="display:flex;gap:3px"><input id="cg'+n+'n" placeholder="조치내용" value="'+esc(nv)+'" style="flex:1"><button class="vb idle" onclick="toggleV(this,\'cg'+n+'n\')" style="padding:3px 6px;font-size:9px"><span>🎙</span></button></div></div>';}
+      +'<div class="full"><input id="cg'+n+'n" placeholder="조치내용" value="'+esc(nv)+'"></div>'
+      +'</div>';}
   wrap.innerHTML=html;}
 
 function cgMC(n){const sel=document.getElementById("cg"+n+"m"),capSel=document.getElementById("cg"+n+"cap"),mx=document.getElementById("cg"+n+"mX");
@@ -252,22 +263,21 @@ function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=docume
 /* ══ JOURNAL ══ */
 function getSelectedDate(){return document.getElementById("jDtInput")?.value||tk()}
 function fdsKor(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
-async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];
-  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];}
+async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];
+  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];}
   else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);}}catch(e){buildCG(null);}
-  renderAudioList();
+  renderAudioList();renderMediaList();
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
   const dInp=document.getElementById("jDtInput");dInp.value=tk();
-  window._currentAudios=[];
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];}
+  window._currentAudios=[];window._currentMedia=[];
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];}
   else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
-  startDraftTimer();loadH();renderAudioList();}
+  startDraftTimer();loadH();renderAudioList();renderMediaList();}
 
 async function doSave(){
-  // Block submit while audio upload is in progress
-  if(window._audioUploadInProgress){
-    alert("⚠️ 음성 파일 업로드가 진행 중입니다.\n\n업로드 완료 후 제출해주세요.\n(또는 ⏹ 업로드 취소 후 제출 가능)");
+  if(window._audioUploadInProgress||window._mediaUploadInProgress){
+    alert("⚠️ 파일 업로드가 진행 중입니다.\n\n업로드 완료 후 제출해주세요.\n(또는 ⏹ 업로드 취소 후 제출 가능)");
     return;
   }
   const f1=document.getElementById("field1").value.trim();
@@ -275,17 +285,18 @@ async function doSave(){
   const cases=getCasesData();
   const hasCases=cases.some(c=>c.model||c.serial||c.symptom||c.action||c.note);
   const hasAudio=(window._currentAudios||[]).length>0;
-  if(!f1&&!f2&&!hasCases&&!hasAudio){
-    alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항 중\n최소 하나 이상 입력해주세요.");
+  const hasMedia=(window._currentMedia||[]).length>0;
+  if(!f1&&!f2&&!hasCases&&!hasAudio&&!hasMedia){
+    alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항, 첨부 중\n최소 하나 이상 입력해주세요.");
     return;
   }
-  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,cases,audios:window._currentAudios||[],savedAt:new Date().toISOString()};
+  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,cases,audios:window._currentAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];window._currentMedia=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 async function loadH(){try{const snap=await db.collection("reports").where("empId","==",CU.empId).get();
@@ -378,13 +389,13 @@ function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeech
 /* ══ ADMIN ══ */
 function loadAdm(){buildATabs();switchAT("stats")}
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code);
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"📞 CSR"}];
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"}];
   if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"},{id:"upload",l:"📤 업로드"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
   ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSearch","tabCSR","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
   const el=document.getElementById("tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
-  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="search")loadSearch();else if(tab==="csr")loadCSR();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
+  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="search")loadSearch();else if(tab==="csr")loadSolutions();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
 
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
@@ -435,6 +446,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
       if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
+      if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
       html+='</div>';
     });
     html+='</div>';
@@ -544,6 +556,7 @@ async function renderWk(){
     if(e.field1)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
     if(e.field2)html+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
     if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
+      if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
     html+='</div></div>';
   });
   document.getElementById("wkBody").innerHTML=html}
@@ -722,6 +735,14 @@ async function renderAn(){
   cols.forEach(c=>{html+='<td onclick="showAnDetail(\'전체\',\''+esc(c)+'\')" style="cursor:pointer">'+(ct[c]||0)+'</td>'});
   html+='<td>'+gt+'</td></tr></tbody></table></div>';
   document.getElementById("anBody").innerHTML=html;
+  // Draw the doughnut chart
+  if(pieLabels.length>0){
+    if(_anChart){try{_anChart.destroy()}catch(e){}_anChart=null}
+    const ctx=document.getElementById("anPie");
+    if(ctx&&typeof Chart!=="undefined"){
+      _anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
+    }
+  }
 }
 
 function toggleSliceModel(model){
@@ -833,7 +854,7 @@ async function showDet(empId){dEmp=empId;
   if(!entries.length){document.getElementById("detList").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';showS("detailScreen");return}
   document.getElementById("detList").innerHTML=entries.map(({id,data:e})=>{
     const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"}].filter(x=>x.f);
-    const audioH=e.audios&&e.audios.length?renderAudioLinks(e.audios):"";
+    const audioH=(e.audios&&e.audios.length?renderAudioLinks(e.audios):"")+(e.media&&e.media.length?renderMediaLinks(e.media):"");
     let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>"}}
     return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>"}).join("");
   showS("detailScreen")}
@@ -1273,6 +1294,7 @@ async function renderMonthly(){
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
       if(e.audios&&e.audios.length)html+='<div style="padding:0 10px 8px">'+renderAudioLinks(e.audios)+'</div>';
+      if(e.media&&e.media.length)html+='<div style="padding:0 10px 8px">'+renderMediaLinks(e.media)+'</div>';
       html+='</div>';
     });
   }
@@ -1444,6 +1466,7 @@ async function doSearch(){
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
       if(e.field2)h+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
       if(e.audios&&e.audios.length)h+=renderAudioLinks(e.audios);
+      if(e.media&&e.media.length)h+=renderMediaLinks(e.media);
       h+='</div></div>';
     });
     document.getElementById("srchBody").innerHTML=h;
@@ -1451,6 +1474,167 @@ async function doSearch(){
 }
 
 /* ══ CSR 분석 ══ */
+/* ══ 모델별 증상 해결법 라이브러리 ══ */
+function loadSolutions(){
+  const MODEL_LIST=["DNB","DiB","DNC1","DNC","DNB_H","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV","기타"];
+  let h='<div style="margin-bottom:12px">'
+    +'<h3 style="font-size:14px;font-weight:700;margin-bottom:6px">💡 모델별 증상 해결법</h3>'
+    +'<p style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:12px">실제 처리 사례에서 학습된 데이터 + 등록된 표준 해결법을 바탕으로 모델별 증상 해결 방법을 제시합니다.<br>관리자가 직접 표준 해결법을 등록하거나 수정할 수 있습니다.</p>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<select id="solModel" class="fi-sel" style="width:auto;padding:5px 10px;font-size:11px" onchange="renderSolutions()"><option value="">모델 선택...</option>';
+  MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
+  h+='</select>'
+    +'<input id="solSymSearch" class="fi-input" placeholder="증상 검색..." style="flex:1;min-width:120px;padding:6px 10px;font-size:11px" oninput="renderSolutions()">'
+    +'<button onclick="openAddSolution()" class="atab" style="padding:6px 12px;background:var(--admin);color:#fff;font-size:11px">➕ 해결법 등록</button>'
+    +'</div>'
+    +'<div id="solBody"><div class="loading">모델을 선택해주세요</div></div>';
+  document.getElementById("tabCSR").innerHTML=h;
+}
+
+async function renderSolutions(){
+  const model=document.getElementById("solModel")?.value||"";
+  const sym=(document.getElementById("solSymSearch")?.value||"").trim().toLowerCase();
+  if(!model){document.getElementById("solBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">모델을 선택해주세요</div>';return}
+  document.getElementById("solBody").innerHTML='<div class="loading">분석 중...</div>';
+  try{
+    // 1. 누적 데이터에서 해당 모델의 증상-처리 사례 수집
+    const reportsSnap=await db.collection("reports").get();
+    const cases={}; // {symptom: [{date,name,branch,action,note,model}]}
+    reportsSnap.docs.forEach(d=>{
+      const e=d.data();if(!e.cases)return;
+      e.cases.forEach(c=>{
+        const nm=normModel(c.model||"");
+        if(nm!==model)return;
+        if(!c.symptom)return;
+        if(sym&&!c.symptom.toLowerCase().includes(sym))return;
+        if(!cases[c.symptom])cases[c.symptom]=[];
+        cases[c.symptom].push({date:e.date,name:e.name,branch:e.branch,model:c.model,action:c.action||"",note:c.note||"",serial:c.serial||""});
+      });
+    });
+    // 2. 등록된 표준 해결법
+    const stdSnap=await db.collection("solutions").where("model","==",model).get();
+    const standards={}; // {symptom: [{id, ...}]}
+    stdSnap.docs.forEach(d=>{const s=d.data();if(sym&&!(s.symptom||"").toLowerCase().includes(sym))return;if(!standards[s.symptom])standards[s.symptom]=[];standards[s.symptom].push({id:d.id,...s})});
+    // 3. 통합 표시 (증상별로 정리, 발생 빈도 내림차순)
+    const allSyms=[...new Set([...Object.keys(cases),...Object.keys(standards)])];
+    if(!allSyms.length){document.getElementById("solBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">'+esc(model)+' 관련 데이터가 없습니다<br><span style="font-size:10px">실제 처리 사례가 누적되거나 표준 해결법을 등록하면 표시됩니다</span></div>';return}
+    allSyms.sort((a,b)=>{const ca=(cases[a]||[]).length;const cb=(cases[b]||[]).length;return cb-ca});
+    let html='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">'+esc(model)+' · 총 '+allSyms.length+'개 증상</div>';
+    allSyms.forEach(symptom=>{
+      const cs=cases[symptom]||[];
+      const stds=standards[symptom]||[];
+      // Aggregate processing actions for this symptom
+      const actionCount={};cs.forEach(c=>{const a=c.action||"미입력";actionCount[a]=(actionCount[a]||0)+1});
+      const sortedActions=Object.entries(actionCount).sort((a,b)=>b[1]-a[1]);
+      const noteSamples=cs.filter(c=>c.note).slice(0,3);
+      html+='<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">'
+        +'<div><span style="font-size:13px;font-weight:700;color:var(--primary)">🔧 '+esc(symptom)+'</span>'
+        +(cs.length>0?'<span style="font-size:10px;color:var(--ts);margin-left:8px">발생 '+cs.length+'건</span>':'')+'</div>'
+        +'<button onclick="openAddSolution(\''+esc(model)+'\',\''+esc(symptom)+'\')" style="padding:3px 8px;border:1px solid var(--admin);border-radius:5px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">+ 해결법 추가</button>'
+        +'</div>';
+      // 표준 해결법
+      if(stds.length>0){
+        html+='<div style="background:rgba(108,52,131,.06);border-left:3px solid var(--admin);padding:8px 10px;border-radius:6px;margin-bottom:6px">'
+          +'<div style="font-size:10px;font-weight:700;color:var(--admin);margin-bottom:4px">⭐ 표준 해결법</div>';
+        stds.forEach(s=>{html+='<div style="background:#fff;border-radius:5px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:flex-start;gap:6px">'
+          +'<div style="flex:1;font-size:11px;line-height:1.5;white-space:pre-wrap">'+esc(s.solution||"")+(s.author?'<div style="font-size:9px;color:var(--ts);margin-top:3px">— '+esc(s.author)+(s.updatedAt?" · "+(new Date(s.updatedAt).toLocaleDateString("ko-KR")):"")+'</div>':"")+'</div>'
+          +'<div style="display:flex;gap:3px;flex-shrink:0"><button onclick="editSolution(\''+s.id+'\')" style="padding:2px 6px;border:1px solid var(--admin);border-radius:4px;background:transparent;color:var(--admin);font-size:9px;cursor:pointer;font-family:inherit">✏️</button>'
+          +'<button onclick="deleteSolution(\''+s.id+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">🗑</button></div></div>'});
+        html+='</div>';
+      }
+      // 처리 사례 통계
+      if(sortedActions.length>0){
+        html+='<div style="background:var(--ibg);padding:8px 10px;border-radius:6px;margin-bottom:6px">'
+          +'<div style="font-size:10px;font-weight:700;color:var(--ts);margin-bottom:4px">📊 실제 처리 분포</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:4px">';
+        sortedActions.forEach(([a,n])=>{const pct=Math.round(n/cs.length*100);html+='<span style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:3px 9px;font-size:10px"><b style="color:var(--primary)">'+esc(a)+'</b> '+n+'건 ('+pct+'%)</span>'});
+        html+='</div></div>';
+      }
+      // 조치내용 샘플
+      if(noteSamples.length>0){
+        html+='<div style="font-size:10px;color:var(--ts);margin-bottom:4px">💬 최근 조치 사례</div>';
+        noteSamples.forEach(n=>{html+='<div style="background:#fff;border-left:2px solid #3498DB;padding:5px 8px;margin-bottom:3px;font-size:10px;line-height:1.5"><span style="color:var(--ts);font-size:9px">'+esc(n.date)+' · '+esc(n.name)+' ('+esc(n.branch)+')</span><div>'+esc(n.note)+'</div>'+(n.action?'<div style="margin-top:2px"><span style="background:rgba(52,152,219,.1);padding:1px 5px;border-radius:3px;font-size:9px">처리: '+esc(n.action)+'</span></div>':"")+'</div>'});
+      }
+      html+='</div>';
+    });
+    document.getElementById("solBody").innerHTML=html;
+  }catch(e){document.getElementById("solBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--danger)">오류: '+esc(e.message)+'</div>'}
+}
+
+function openAddSolution(presetModel,presetSymptom){
+  const model=presetModel||document.getElementById("solModel")?.value||"";
+  if(!model){alert("먼저 모델을 선택해주세요");return}
+  const syms=getSyms();
+  let h='<label class="fl">모델</label><input id="addSolModel" class="fi-input" value="'+esc(model)+'" style="margin-bottom:10px">';
+  h+='<label class="fl">증상</label><select id="addSolSym" class="fi-sel" style="margin-bottom:10px"><option value="">선택...</option>';
+  syms.forEach(s=>{h+='<option'+(s===presetSymptom?' selected':'')+'>'+esc(s)+'</option>'});
+  h+='<option value="기타">직접 입력</option></select>';
+  h+='<input id="addSolSymCustom" class="fi-input" placeholder="기타 증상명" style="margin-bottom:10px;display:none">';
+  h+='<label class="fl">표준 해결법 / 처리 절차</label><textarea id="addSolText" class="fi-input" style="min-height:120px;font-family:inherit;margin-bottom:10px" placeholder="단계별 처리 방법, 점검 포인트, 부품 교체 가이드 등을 상세히 작성해주세요"></textarea>';
+  h+='<label class="fl">작성자 (선택)</label><input id="addSolAuthor" class="fi-input" placeholder="작성자명" style="margin-bottom:10px">';
+  document.getElementById("delTitle").textContent="💡 해결법 등록";
+  document.getElementById("delIcon").textContent="";
+  document.getElementById("delMsg").innerHTML=h;
+  document.getElementById("delCancelBtn").style.display="";
+  document.getElementById("delCancelBtn").textContent="취소";
+  document.getElementById("delCancelBtn").onclick=clDM;
+  document.getElementById("delBtn").textContent="등록";
+  document.getElementById("delBtn").style.background="var(--admin)";
+  document.getElementById("delBtn").onclick=saveSolution;
+  document.getElementById("delModal").classList.add("open");
+  setTimeout(()=>{const sel=document.getElementById("addSolSym");if(sel)sel.onchange=()=>{document.getElementById("addSolSymCustom").style.display=sel.value==="기타"?"block":"none"}},50);
+}
+
+async function saveSolution(){
+  const model=document.getElementById("addSolModel").value.trim();
+  let symptom=document.getElementById("addSolSym").value;
+  if(symptom==="기타")symptom=document.getElementById("addSolSymCustom").value.trim();
+  const solution=document.getElementById("addSolText").value.trim();
+  const author=document.getElementById("addSolAuthor").value.trim();
+  if(!model||!symptom||!solution){alert("모델, 증상, 해결법은 필수입니다");return}
+  try{
+    await db.collection("solutions").add({model,symptom,solution,author,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+    clDM();alert("✅ 등록되었습니다");renderSolutions();
+  }catch(e){alert("저장 오류: "+e.message)}
+}
+
+async function editSolution(id){
+  try{
+    const doc=await db.collection("solutions").doc(id).get();
+    if(!doc.exists){alert("해결법을 찾을 수 없습니다");return}
+    const s=doc.data();
+    let h='<label class="fl">모델</label><input id="addSolModel" class="fi-input" value="'+esc(s.model||"")+'" style="margin-bottom:10px">';
+    h+='<label class="fl">증상</label><input id="addSolSym" class="fi-input" value="'+esc(s.symptom||"")+'" style="margin-bottom:10px">';
+    h+='<input id="addSolSymCustom" type="hidden">';
+    h+='<label class="fl">표준 해결법</label><textarea id="addSolText" class="fi-input" style="min-height:120px;font-family:inherit;margin-bottom:10px">'+esc(s.solution||"")+'</textarea>';
+    h+='<label class="fl">작성자</label><input id="addSolAuthor" class="fi-input" value="'+esc(s.author||"")+'" style="margin-bottom:10px">';
+    document.getElementById("delTitle").textContent="✏️ 해결법 수정";
+    document.getElementById("delIcon").textContent="";
+    document.getElementById("delMsg").innerHTML=h;
+    document.getElementById("delCancelBtn").style.display="";
+    document.getElementById("delCancelBtn").textContent="취소";
+    document.getElementById("delCancelBtn").onclick=clDM;
+    document.getElementById("delBtn").textContent="수정";
+    document.getElementById("delBtn").style.background="var(--admin)";
+    document.getElementById("delBtn").onclick=async function(){
+      const model=document.getElementById("addSolModel").value.trim();
+      const symptom=document.getElementById("addSolSym").value.trim();
+      const solution=document.getElementById("addSolText").value.trim();
+      const author=document.getElementById("addSolAuthor").value.trim();
+      if(!model||!symptom||!solution){alert("필수 항목을 입력하세요");return}
+      try{await db.collection("solutions").doc(id).update({model,symptom,solution,author,updatedAt:new Date().toISOString()});clDM();alert("✅ 수정되었습니다");renderSolutions();}catch(e){alert("저장 오류: "+e.message)}
+    };
+    document.getElementById("delModal").classList.add("open");
+  }catch(e){alert("오류: "+e.message)}
+}
+
+function deleteSolution(id){
+  if(!confirm("해결법을 삭제하시겠습니까?"))return;
+  db.collection("solutions").doc(id).delete().then(()=>{alert("✅ 삭제되었습니다");renderSolutions()}).catch(e=>alert("삭제 오류: "+e.message));
+}
+
 function loadCSR(){
   const today=new Date();const ym=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0");
   let h='<div style="margin-bottom:12px">'
@@ -1672,6 +1856,120 @@ function userDeleteReport(docId,dateLabel){
     if(docId.startsWith(getSelectedDate()))onDateChange();
   }).catch(e=>alert("삭제 오류: "+e.message));
 }
+
+/* ══ 사진/동영상 업로드 ══ */
+async function handleMediaUpload(event){
+  const files=Array.from(event.target.files||[]);if(!files.length)return;
+  const st=document.getElementById("mediaStatus");
+  const prog=document.getElementById("mediaProg");const fill=document.getElementById("mediaProgFill");
+  const cancelBtn=document.getElementById("mediaCancelBtn");
+  if(!window._currentMedia)window._currentMedia=[];
+  const photoCount=window._currentMedia.filter(m=>(m.mimeType||"").startsWith("image/")).length;
+  const incomingPhotos=files.filter(f=>(f.type||"").startsWith("image/")).length;
+  if(photoCount+incomingPhotos>5){
+    alert("⚠️ 사진은 최대 5장까지 첨부 가능합니다.\n\n현재 "+photoCount+"장 첨부됨.");
+    document.getElementById("mediaFile").value="";return;
+  }
+  st.style.color="var(--ts)";
+  prog.style.display="block";fill.style.width="2%";
+  window._mediaUploadCancelled=false;
+  window._mediaUploadInProgress=true;
+  cancelBtn.style.display="block";cancelBtn.disabled=false;cancelBtn.textContent="⏹ 업로드 취소";
+  const submitBtn=document.getElementById("saveBtn");if(submitBtn){submitBtn.style.opacity="0.5"}
+  let uploaded=0;
+  try{
+    for(const file of files){
+      if(window._mediaUploadCancelled)throw new Error("CANCELLED");
+      const isImg=(file.type||"").startsWith("image/");
+      const kind=isImg?"image":"video";
+      st.textContent="📤 업로드 중... ("+(uploaded+1)+"/"+files.length+") "+file.name;
+      const ref=storage.ref("media/"+CU.empId+"/"+Date.now()+"_"+file.name);
+      const task=ref.put(file);
+      window._currentMediaTask=task;
+      task.on('state_changed',snap=>{
+        if(window._mediaUploadCancelled)return;
+        const filePct=snap.bytesTransferred/snap.totalBytes;
+        const totalPct=((uploaded+filePct)/files.length)*100;
+        fill.style.width=Math.round(totalPct)+"%";
+      });
+      await task;
+      if(window._mediaUploadCancelled){try{await ref.delete()}catch(e){}throw new Error("CANCELLED")}
+      const url=await ref.getDownloadURL();
+      window._currentMedia.push({url,fileName:file.name,fileSize:file.size,mimeType:file.type||(isImg?"image/jpeg":"video/mp4"),kind,uploadedAt:new Date().toISOString()});
+      // Save to mediaFiles collection
+      try{await db.collection("mediaFiles").add({empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType:file.type||"",kind,downloadUrl:url,uploadedAt:new Date().toISOString(),date:tk()})}catch(e){}
+      uploaded++;
+    }
+    fill.style.width="100%";
+    st.style.color="var(--success)";
+    st.textContent="✅ "+uploaded+"개 업로드 완료";
+    cancelBtn.style.display="none";
+    document.getElementById("mediaFile").value="";
+    renderMediaList();
+  }catch(e){
+    if(e.message==="CANCELLED"){
+      fill.style.width="0%";prog.style.display="none";
+      st.style.color="var(--danger)";
+      st.textContent="❌ 업로드가 취소되었습니다 ("+uploaded+"개 완료)";
+      document.getElementById("mediaFile").value="";
+      renderMediaList();
+    }else{
+      st.style.color="var(--danger)";
+      st.textContent="오류: "+e.message.slice(0,80);
+    }
+    cancelBtn.style.display="none";
+  }
+  window._currentMediaTask=null;
+  window._mediaUploadInProgress=false;
+  if(submitBtn){submitBtn.style.opacity="";submitBtn.title="";}
+}
+
+function cancelMediaUpload(){
+  if(!confirm("사진/동영상 업로드를 취소하시겠습니까?"))return;
+  window._mediaUploadCancelled=true;
+  try{if(window._currentMediaTask)window._currentMediaTask.cancel()}catch(e){}
+  const cb=document.getElementById("mediaCancelBtn");
+  cb.disabled=true;cb.textContent="⏹ 취소 중...";
+}
+
+function renderMediaList(){
+  const listEl=document.getElementById("mediaList");if(!listEl)return;
+  if(!window._currentMedia||!window._currentMedia.length){listEl.innerHTML="";return}
+  let h='<div style="margin-top:8px;padding:8px;background:rgba(232,168,56,.08);border-left:3px solid var(--accent);border-radius:6px"><div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:6px">📎 첨부 ('+window._currentMedia.length+'개)</div>';
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+  window._currentMedia.forEach((m,idx)=>{
+    if(m.kind==="image"){
+      h+='<div style="position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
+    }else{
+      h+='<div style="position:relative;width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:64px;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')" controls preload="metadata"></video><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
+    }
+  });
+  h+='</div></div>';
+  listEl.innerHTML=h;
+}
+
+function removeAttachedMedia(idx){
+  if(!window._currentMedia)return;
+  if(!confirm("첨부 파일을 제거하시겠습니까?\n(저장된 파일은 유지됩니다)"))return;
+  window._currentMedia.splice(idx,1);
+  renderMediaList();
+}
+
+function renderMediaLinks(media){
+  if(!media||!media.length)return"";
+  let h='<div style="margin-top:4px;padding:6px 10px;background:rgba(232,168,56,.1);border-radius:6px;border-left:3px solid var(--accent)"><div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:4px">📷 첨부 사진/동영상 ('+media.length+'개)</div>'
+    +'<div style="display:flex;gap:5px;flex-wrap:wrap">';
+  media.forEach(m=>{
+    if(m.kind==="image"){
+      h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:60px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt=""></a>';
+    }else{
+      h+='<div style="width:80px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:60px;object-fit:cover" controls preload="metadata"></video></div>';
+    }
+  });
+  h+='</div></div>';return h;
+}
+
+/* ══ 사진/동영상 업로드 끝 ══ */
 
 /* ══ ADMIN: Edit/Delete Report ══ */
 async function adminEditReport(docId){
