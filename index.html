@@ -105,13 +105,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.9.1</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.9.2</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.2</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -145,7 +145,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.2</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -184,6 +184,15 @@ function tk(){return new Date().toISOString().slice(0,10)}
 function fd(d){d=d||new Date();const w=["일","월","화","수","목","금","토"];return d.getFullYear()+"년 "+String(d.getMonth()+1).padStart(2,"0")+"월 "+String(d.getDate()).padStart(2,"0")+"일 ("+w[d.getDay()]+")"}
 function fds(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
 function esc(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""}
+function renderCaseMediaLinks(media){
+  if(!media||!media.length)return'';
+  let h='<div style="display:flex;gap:4px;flex-wrap:wrap;padding:3px 0 2px">';
+  media.forEach(m=>{
+    if(m.kind==="image"){h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:52px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none;flex-shrink:0"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt="사진" loading="lazy"></a>';}
+    else{h+='<div style="width:72px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0"><video src="'+esc(m.url)+'" style="width:100%;height:52px;object-fit:cover" controls preload="metadata"></video></div>';}
+  });
+  h+='</div>';return h;
+}
 function renderAudioLinks(audios){
   if(!audios||!audios.length)return"";
   let h='<div style="margin-top:4px;padding:6px 10px;background:rgba(232,168,56,.1);border-radius:6px;border-left:3px solid var(--accent)"><div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:3px">🎵 첨부 음성파일 ('+audios.length+'개)</div>';
@@ -226,7 +235,12 @@ function doLO(){CU=null;localStorage.removeItem("session");eI.value="";document.
 /* ══ CASE GROUPS ══ */
 function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wrap)return;
   const models=getModels(),cats=getCats(),syms=getSyms(),acts=getActs();
-  caseCount=cases?Math.max(cases.length,2):2;let html="";
+  caseCount=cases?Math.max(cases.length,2):2;
+  // Restore _caseMedia from saved case data
+  if(!window._caseMedia)window._caseMedia={};
+  // Always restore from saved case data (overwrite with saved if exists)
+  if(cases){cases.forEach((c,n)=>{if(c&&c.media&&c.media.length)window._caseMedia[n]=c.media;else if(!window._caseMedia[n])window._caseMedia[n]=[];})}
+  let html="";
   for(let n=0;n<caseCount;n++){const c=cases?cases[n]:null;const mv=c?.model||"",cv=c?.capacity||"",ctv=c?.category||"",sv=c?.serial||"",mdv=c?.mfgDate||"",idv=c?.instDate||"",syv=c?.symptom||"",av=c?.action||"",nv=c?.note||"";
     const mc=mv&&!models.find(m=>m.n===mv),syc=syv&&!syms.includes(syv),ac=av&&!acts.includes(av);
     const caps=models.find(m=>m.n===mv)?.c||[];
@@ -269,6 +283,23 @@ function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=docume
 /* ══ 현장지원별 사진/동영상 ══ */
 function cgPickMedia(n){document.getElementById("cgMediaFile"+n)?.click()}
 
+/* 이미지 압축 */
+async function compressImage(file,maxW=1280,quality=0.82){
+  return new Promise((res,rej)=>{
+    const img=new Image();const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*maxW/w);w=maxW}
+      const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
+      canvas.getContext("2d").drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(b=>{if(b)res(new File([b],file.name.replace(/\.[^.]+$/,".jpg"),{type:"image/jpeg"}));else rej(new Error("압축 실패"));},"image/jpeg",quality);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);res(file);}; // 실패시 원본
+    img.src=url;
+  });
+}
+
 async function handleCaseMediaUpload(event,caseIdx){
   const files=Array.from(event.target.files||[]);if(!files.length)return;
   if(!window._caseMedia)window._caseMedia={};
@@ -279,25 +310,28 @@ async function handleCaseMediaUpload(event,caseIdx){
     alert("⚠️ 한 현장지원당 사진은 최대 5장까지 첨부 가능합니다");
     event.target.value="";return;
   }
-  // Mark upload in progress
   if(!window._caseUploadCount)window._caseUploadCount=0;
   window._caseUploadCount++;
   window._mediaUploadInProgress=true;
   const submitBtn=document.getElementById("saveBtn");
   if(submitBtn){submitBtn.style.opacity="0.5"}
-  // Show inline status
   const listEl=document.getElementById("cgMediaList"+caseIdx);
   if(listEl)listEl.innerHTML='<div style="font-size:10px;color:var(--accent);padding:4px 8px">📤 업로드 중... ('+files.length+'개)</div>';
   let uploaded=0;
   try{
-    for(const file of files){
-      const isImg=(file.type||"").startsWith("image/");
+    for(const rawFile of files){
+      const isImg=(rawFile.type||"").startsWith("image/");
       const kind=isImg?"image":"video";
+      // Compress images before upload
+      let file=rawFile;
+      if(isImg){
+        try{file=await compressImage(rawFile);}catch(e){file=rawFile;}
+      }
       const ref=storage.ref("media/"+CU.empId+"/case/"+Date.now()+"_c"+caseIdx+"_"+file.name);
       await ref.put(file);
       const url=await ref.getDownloadURL();
-      window._caseMedia[caseIdx].push({url,fileName:file.name,fileSize:file.size,mimeType:file.type||"",kind,uploadedAt:new Date().toISOString()});
-      try{await db.collection("mediaFiles").add({empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType:file.type||"",kind,downloadUrl:url,uploadedAt:new Date().toISOString(),date:tk(),caseIdx})}catch(e){}
+      window._caseMedia[caseIdx].push({url,fileName:rawFile.name,fileSize:file.size,origSize:rawFile.size,mimeType:file.type||"",kind,uploadedAt:new Date().toISOString()});
+      try{await db.collection("mediaFiles").add({empId:CU.empId,name:CU.name,branch:CU.branch,fileName:rawFile.name,fileSize:file.size,mimeType:file.type||"",kind,downloadUrl:url,uploadedAt:new Date().toISOString(),date:tk(),caseIdx})}catch(e){}
       uploaded++;
       if(listEl)listEl.innerHTML='<div style="font-size:10px;color:var(--accent);padding:4px 8px">📤 업로드 중... '+uploaded+'/'+files.length+'</div>';
     }
@@ -342,16 +376,19 @@ function removeCaseMedia(caseIdx,mediaIdx){
 /* ══ JOURNAL ══ */
 function getSelectedDate(){return document.getElementById("jDtInput")?.value||tk()}
 function fdsKor(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
-async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];
-  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];}
-  else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);}}catch(e){buildCG(null);}
+async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
+  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+    // Restore case media from saved data
+    if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
+  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);}}catch(e){buildCG(null);}
   renderAudioList();renderMediaList();
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
   const dInp=document.getElementById("jDtInput");dInp.value=tk();
-  window._currentAudios=[];window._currentMedia=[];
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];}
-  else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
+  window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+    if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
+  }else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
   startDraftTimer();loadH();renderAudioList();renderMediaList();}
 
 async function doSave(){
@@ -375,7 +412,7 @@ async function doSave(){
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];window._currentMedia=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 /* ══ 카톡 공유 ══ */
@@ -609,7 +646,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       if(fc.length){
         html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">제조일</th><th style="padding:3px 4px">설치일</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
         fc.forEach((c,i)=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.mfgDate||"")+'</td><td style="padding:2px 4px">'+esc(c.instDate||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>'});
+          if(c.note)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table>';
       }
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
@@ -718,7 +755,7 @@ async function renderWk(){
       html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px">'
         +'<thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
       fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-        if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>'});
+        if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
       html+='</tbody></table></div>';
     }
     html+='<div style="padding:6px 10px">';
@@ -1468,7 +1505,7 @@ async function renderMonthly(){
         +'</div>';
       if(fc.length){html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:360px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th></tr></thead><tbody>';
         fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>'});
+          if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
@@ -1640,7 +1677,7 @@ async function doSearch(){
         +'<div style="padding:8px 12px">';
       if(fc.length){h+='<div style="margin-bottom:6px"><table style="width:100%;border-collapse:collapse;font-size:9px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>증상</th><th>처리</th></tr></thead><tbody>';
         fc.forEach(c=>{h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+hlText(c.model||"")+'</td><td style="padding:2px 4px">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+hlText(c.symptom||"")+'</td><td style="padding:2px 4px">'+hlText(c.action||"")+'</td></tr>';
-          if(c.note)h+='<tr><td colspan="5" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>'});
+          if(c.note)h+='<tr><td colspan="5" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="5" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
       if(e.field2)h+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
@@ -2114,11 +2151,22 @@ async function handleMediaUpload(event){
   const submitBtn=document.getElementById("saveBtn");if(submitBtn){submitBtn.style.opacity="0.5"}
   let uploaded=0;
   try{
-    for(const file of files){
+    for(const rawFile of files){
       if(window._mediaUploadCancelled)throw new Error("CANCELLED");
-      const isImg=(file.type||"").startsWith("image/");
+      const isImg=(rawFile.type||"").startsWith("image/");
       const kind=isImg?"image":"video";
-      st.textContent="📤 업로드 중... ("+(uploaded+1)+"/"+files.length+") "+file.name;
+      // Compress images before upload
+      let file=rawFile;
+      if(isImg){
+        try{
+          const before=Math.round(rawFile.size/1024);
+          file=await compressImage(rawFile);
+          const after=Math.round(file.size/1024);
+          st.textContent="🗜 압축: "+before+"KB → "+after+"KB · 업로드 중... ("+(uploaded+1)+"/"+files.length+")";
+        }catch(e){file=rawFile}
+      }else{
+        st.textContent="📤 업로드 중... ("+(uploaded+1)+"/"+files.length+") "+rawFile.name;
+      }
       const ref=storage.ref("media/"+CU.empId+"/"+Date.now()+"_"+file.name);
       const task=ref.put(file);
       window._currentMediaTask=task;
