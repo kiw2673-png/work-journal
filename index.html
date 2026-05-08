@@ -157,7 +157,7 @@
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDomain:"work-journal-99e5a.firebaseapp.com",projectId:"work-journal-99e5a",storageBucket:"work-journal-99e5a.firebasestorage.app",messagingSenderId:"298252811540",appId:"1:298252811540:web:3a7e896a943bfa44ff5601"});
 const db=firebase.firestore();
-const SA=["ADMIN2024","ADMIN2025","ADMIN2026"];
+const SA=["DSCS2024","DSCS2025","DSCS2026"];
 const DEF_BR=["CS본부","서울북부지사","서울남부지사","경인지사","원주지사","대전지사","대구지사","부산지사","경남지사","광주지사","전주지사"];
 const DEF_REGIONS=[{name:"수도권",branches:["CS본부","서울북부지사","서울남부지사","경인지사"]},{name:"충청권",branches:["원주지사","대전지사"]},{name:"영남권",branches:["대구지사","부산지사","경남지사"]},{name:"호남권",branches:["광주지사","전주지사"]}];
 function getRegions(){return _settings?.regions||DEF_REGIONS}
