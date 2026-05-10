@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
+
 <style>
 :root{--bg:#ECEDF1;--card:#FFF;--primary:#1B3A5C;--pl:#2C5F8A;--pg:rgba(27,58,92,.08);--accent:#E8A838;--text:#1E2A3A;--ts:#7A8694;--border:#DFE3E8;--ibg:#F5F6F9;--danger:#D63031;--success:#00B894;--rec:#FF6B6B;--admin:#6C3483;--al:#8E44AD;--sh:0 2px 12px rgba(0,0,0,.06)}
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
@@ -105,13 +105,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v2.9.3</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v3.0.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.0.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -145,7 +145,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v2.9.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.0.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -442,10 +442,10 @@ function buildReportText(e){
 function showShareModal(entry){
   const text=buildReportText(entry);
   let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">아래 보고서 내용을 공유할 수 있습니다</div>';
-  h+='<textarea id="shareText" readonly style="width:100%;min-height:180px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;background:#FAFBFC;line-height:1.5;resize:vertical">'+esc(text)+'</textarea>';
+  h+='<textarea id="shareText" style="width:100%;min-height:180px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;background:#FAFBFC;line-height:1.5;resize:vertical">'+esc(text)+'</textarea>';
   h+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">';
-  h+='<button onclick="shareViaKakao()" style="padding:12px;border:none;border-radius:10px;background:#FEE500;color:#191919;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">💬 카카오톡으로 공유</button>';
-  h+='<button onclick="copyReportText()" style="padding:10px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>';
+  h+='<button onclick="shareViaTelegram()" style="padding:12px;border:none;border-radius:10px;background:#2CA5E0;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">✈️ 텔레그램으로 공유</button>';
+  h+='<button onclick="copyReportText()" style="padding:10px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 텍스트 복사 (붙여넣기용)</button>';
   h+='<button onclick="shareViaWebShare()" style="padding:10px;border:1.5px solid var(--admin);border-radius:10px;background:transparent;color:var(--admin);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📤 다른 앱으로 공유 (모바일)</button>';
   h+='</div>';
   document.getElementById("delTitle").textContent="✅ 제출 완료";
@@ -472,36 +472,39 @@ function copyReportText(){
 async function shareViaWebShare(){
   const text=document.getElementById("shareText")?.value||"";
   if(navigator.share){
-    try{await navigator.share({title:"CS업무일지",text});}
-    catch(e){if(e.name!=="AbortError")alert("공유 실패: "+e.message)}
-  }else{alert("이 브라우저는 공유 기능을 지원하지 않습니다.\n텍스트를 복사하여 카톡에 붙여넣으세요.");copyReportText();}
+    try{await navigator.share({title:"CS업무일지 일일보고",text});return;}
+    catch(e){if(e.name==="AbortError")return;}
+  }
+  copyReportText();
 }
 
-async function shareViaKakao(){
+function shareViaTelegram(){
   const text=document.getElementById("shareText")?.value||"";
-  // Try Kakao SDK first
-  try{
-    const settings=await loadSettings();
-    const kakaoKey=settings.kakaoKey||"";
-    if(kakaoKey&&typeof Kakao!=="undefined"){
-      if(!Kakao.isInitialized())Kakao.init(kakaoKey);
-      Kakao.Share.sendDefault({
-        objectType:"text",
-        text:text.length>200?text.slice(0,200)+"...":text,
-        link:{mobileWebUrl:window.location.href,webUrl:window.location.href},
-      });
-      return;
-    }
-  }catch(e){console.warn("Kakao share failed:",e)}
-  // Fallback: copy + open kakaotalk
-  const ta=document.getElementById("shareText");if(ta){ta.select();try{document.execCommand("copy");}catch(e){}}
-  // Try mobile kakaotalk URL scheme
-  if(/Android|iPhone|iPad|iPod/.test(navigator.userAgent)){
-    alert("✅ 텍스트가 복사되었습니다.\n카카오톡이 열리면 채팅창에 붙여넣기 하세요.");
-    setTimeout(()=>{window.location.href="kakaotalk://";},500);
-  }else{
-    alert("✅ 텍스트가 복사되었습니다.\n카카오톡 PC 버전에서 채팅창에 붙여넣으세요.\n\n💡 자동 공유를 위해 관리자가 ⚙️ 설정에서 카카오 JavaScript 키를 등록할 수 있습니다.");
+  if(!text){alert("공유할 내용이 없습니다");return}
+  // Telegram has 4096 char limit per message - warn if over
+  if(text.length>4000){
+    if(!confirm("텍스트가 길어 일부가 잘릴 수 있습니다 ("+text.length+"자).\n\n계속하시겠습니까?\n\n※ 잘리는 경우 \"📋 텍스트 복사\" 후 텔레그램에 직접 붙여넣기 하세요.")){return}
   }
+  const encoded=encodeURIComponent(text);
+  // On mobile: open Telegram app directly
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    // Try app scheme first, fallback to web
+    const appUrl="tg://msg?text="+encoded;
+    const webUrl="https://t.me/share/url?text="+encoded;
+    window.location.href=appUrl;
+    setTimeout(()=>{window.open(webUrl,"_blank")},2000);
+  }else{
+    // Desktop: open Telegram web
+    window.open("https://t.me/share/url?text="+encoded,"_blank","width=600,height=500");
+  }
+}
+
+function copyReportText(){
+  const ta=document.getElementById("shareText");if(!ta)return;
+  const text=ta.value;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>alert("✅ 복사 완료!\n텔레그램 채팅창에 붙여넣기 하세요.")).catch(()=>{ta.select();document.execCommand("copy");alert("✅ 복사되었습니다");});
+  }else{ta.select();document.execCommand("copy");alert("✅ 복사되었습니다");}
 }
 
 async function loadH(){try{const snap=await db.collection("reports").where("empId","==",CU.empId).get();
@@ -619,7 +622,7 @@ async function loadStats(){
   h+='</div>';document.getElementById("tabStats").innerHTML=h;window._aU=users;window._aS=stats}
 
 /* ══ REPORT ══ */
-function loadRpt(){let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="atab" style="padding:6px 10px" onclick="mvRD(-1)">◀</button><input type="date" id="rptDate" class="fi-input" style="width:auto;padding:7px 10px;font-size:12px" onchange="renderRpt()"><button class="atab" style="padding:6px 10px" onclick="mvRD(1)">▶</button><button class="atab" style="padding:6px 10px;color:var(--admin);font-weight:700" onclick="goTD()">오늘</button><button class="atab" style="padding:6px 10px;color:var(--success);font-weight:700" onclick="renderRpt()">🔄</button><button onclick="shareDailyReport()" style="padding:6px 12px;border:none;border-radius:6px;background:#FEE500;color:#191919;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">💬 일괄 카톡</button></div><div id="rptLabel" style="font-size:14px;font-weight:700;margin-bottom:12px"></div><div id="rptBody"></div>';
+function loadRpt(){let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="atab" style="padding:6px 10px" onclick="mvRD(-1)">◀</button><input type="date" id="rptDate" class="fi-input" style="width:auto;padding:7px 10px;font-size:12px" onchange="renderRpt()"><button class="atab" style="padding:6px 10px" onclick="mvRD(1)">▶</button><button class="atab" style="padding:6px 10px;color:var(--admin);font-weight:700" onclick="goTD()">오늘</button><button class="atab" style="padding:6px 10px;color:var(--success);font-weight:700" onclick="renderRpt()">🔄</button><button onclick="shareDailyReport()" style="padding:6px 12px;border:none;border-radius:6px;background:#2CA5E0;color:#fff;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">✈️ 일괄 텔레그램</button></div><div id="rptLabel" style="font-size:14px;font-weight:700;margin-bottom:12px"></div><div id="rptBody"></div>';
   document.getElementById("tabReport").innerHTML=h;document.getElementById("rptDate").value=tk();renderRpt()}
 function mvRD(dir){const inp=document.getElementById("rptDate");const d=new Date(inp.value);d.setDate(d.getDate()+dir);inp.value=d.toISOString().slice(0,10);renderRpt()}
 function goTD(){document.getElementById("rptDate").value=tk();renderRpt()}
@@ -638,7 +641,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">'
         +'<span style="font-weight:700;font-size:11px;color:var(--primary)">👤 '+esc(e.name)+'</span>'
-        +'<div style="display:flex;gap:4px;flex-wrap:wrap"><button onclick="shareReport(\''+docId+'\')" style="padding:3px 10px;border:1px solid #FEE500;border-radius:5px;background:#FEE500;color:#191919;font-size:10px;cursor:pointer;font-family:inherit;font-weight:700">💬 카톡 공유</button>'
+        +'<div style="display:flex;gap:4px;flex-wrap:wrap"><button onclick="shareReport(\''+docId+'\')" style="padding:3px 10px;border:1px solid #2CA5E0;border-radius:5px;background:#2CA5E0;color:#fff;font-size:10px;cursor:pointer;font-family:inherit;font-weight:700">✈️ 텔레그램</button>'
         +'<button onclick="adminEditReport(\''+docId+'\')" style="padding:3px 8px;border:1px solid var(--admin);border-radius:5px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">✏️ 수정</button>'
         +'<button onclick="adminDeleteReport(\''+docId+'\',\''+esc(e.name)+'\',\''+e.date+'\')" style="padding:3px 8px;border:1px solid var(--danger);border-radius:5px;background:transparent;color:var(--danger);font-size:10px;cursor:pointer;font-family:inherit">🗑️ 삭제</button></div>'
         +'</div>';
@@ -1166,60 +1169,23 @@ async function handleAudioUpload(event){
     const wKey=settings.whisperKey||"";
     if(wKey&&wKey.startsWith("sk-")){
       st.textContent="🎵 음성 처리 중...";
-      const supportedExts=["flac","mp3","mp4","mpeg","mpga","m4a","ogg","wav","webm"];
-      const ext=(file.name.split(".").pop()||"").toLowerCase();
-      const isSupported=supportedExts.includes(ext);
-      let uploadFile=file;
-      let uploadName=file.name;
-      if(!isSupported){
-        st.textContent="🔄 형식 변환 중 (WAV)...";
-        try{
-          const wavBlob=await convertToWav(file);
-          if(window._audioUploadCancelled)throw new Error("CANCELLED");
-          uploadFile=wavBlob;
-          uploadName=file.name.replace(/\.[^.]+$/,"")+".wav";
-        }catch(convErr){
-          if(convErr.message==="CANCELLED")throw convErr;
-          fill.style.width="100%";
-          st.style.color="var(--admin)";
-          st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">자동 변환 미지원 형식 (.'+esc(ext)+')<br>관리자가 보고서에서 직접 들을 수 있습니다.</span>';
-          cancelBtn.style.display="none";
-          renderAudioList();return;
-        }
-      }
-      st.textContent="🤖 Whisper 텍스트 변환 중...";
+      // transcribeAudio handles compression + chunking for any size
+      let uploadFile=file;let uploadName=file.name;
+      // Use unified transcribeAudio: auto 16kHz compress + auto chunk split for large files
       try{
-        const formData=new FormData();
-        formData.append("file",uploadFile,uploadName);
-        formData.append("model","whisper-1");
-        formData.append("language","ko");
-        formData.append("response_format","text");
-        const resp=await fetch("https://api.openai.com/v1/audio/transcriptions",{
-          method:"POST",
-          headers:{"Authorization":"Bearer "+wKey},
-          body:formData,
-          signal:window._audioAbortCtrl.signal
-        });
-        fill.style.width="90%";
-        if(resp.ok){
-          const transcribed=await resp.text();
-          if(transcribed&&transcribed.trim()){
-            const ta=document.getElementById("field2");
-            ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+"[음성변환] "+transcribed.trim();
-            fill.style.width="100%";
-            st.style.color="var(--success)";
-            st.textContent="✅ 변환 완료! 상담&특이사항에 추가됨";
-          }else{fill.style.width="100%";st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
-        }else{
-          fill.style.width="100%";
-          st.style.color="var(--admin)";
-          st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">텍스트 변환 실패 - 관리자가 직접 들을 수 있습니다</span>';
-        }
+        const text=await transcribeAudio(file,wKey,st,fill,window._audioAbortCtrl?.signal);
+        fill.style.width="100%";
+        if(text&&text.trim()){
+          const ta=document.getElementById("field2");
+          ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+"[음성변환] "+text.trim();
+          st.style.color="var(--success)";
+          st.textContent="✅ 변환 완료! ("+Math.round(file.size/1024)+"KB → 상담&특이사항에 추가됨)";
+        }else{st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
       }catch(wErr){
         if(wErr.name==="AbortError"||wErr.message==="CANCELLED")throw new Error("CANCELLED");
-        fill.style.width="100%";
-        st.style.color="var(--admin)";
-        st.innerHTML='✅ <strong>음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">변환 실패 - 직접 입력해주세요</span>';
+        fill.style.width="100%";st.style.color="var(--danger)";
+        st.innerHTML='⚠️ <strong>변환 실패: '+esc(wErr.message.slice(0,100))+'</strong><br><span style="font-size:9px;color:var(--ts)">음성 파일은 보고서에 첨부되었습니다</span>';
+        console.error("Transcribe:",wErr);
       }
     }else{
       fill.style.width="100%";
@@ -1268,59 +1234,136 @@ function cancelAudioUpload(){
   document.getElementById("audioStatus").textContent="취소 중...";
 }
 
-// Convert any audio file to WAV using Web Audio API
-async function convertToWav(file){
+// Convert to 16kHz mono WAV (Whisper-optimized: ~2MB/min, max ~13min per chunk)
+async function convertToWav(file,targetSampleRate=16000){
+  const arrayBuffer=await file.arrayBuffer();
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;
+  const audioCtx=new AudioCtx();
+  let audioBuffer;
+  try{audioBuffer=await audioCtx.decodeAudioData(arrayBuffer);}
+  catch(e){audioCtx.close();throw e;}
+  // Resample to 16kHz mono using OfflineAudioContext
+  const duration=audioBuffer.duration;
+  const offlineCtx=new OfflineAudioContext(1,Math.ceil(duration*targetSampleRate),targetSampleRate);
+  const src=offlineCtx.createBufferSource();
+  src.buffer=audioBuffer;
+  // Mix to mono if stereo
+  if(audioBuffer.numberOfChannels>1){
+    const merger=offlineCtx.createChannelMerger(1);
+    src.connect(merger);merger.connect(offlineCtx.destination);
+  }else{src.connect(offlineCtx.destination);}
+  src.start(0);
+  const rendered=await offlineCtx.startRendering();
+  audioCtx.close();
+  return new Blob([audioBufferToWav(rendered,1,targetSampleRate)],{type:"audio/wav"});
+}
+
+// Convert AudioBuffer to WAV bytes (mono, 16-bit PCM)
+function audioBufferToWav(buffer,numCh=1,sampleRate=16000){
+  const samples=buffer.length;
+  const byteRate=sampleRate*numCh*2;
+  const dataSize=samples*numCh*2;
+  const ab=new ArrayBuffer(44+dataSize);
+  const v=new DataView(ab);
+  const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  ws(0,"RIFF");v.setUint32(4,36+dataSize,true);ws(8,"WAVE");ws(12,"fmt ");
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,numCh,true);
+  v.setUint32(24,sampleRate,true);v.setUint32(28,byteRate,true);
+  v.setUint16(32,numCh*2,true);v.setUint16(34,16,true);
+  ws(36,"data");v.setUint32(40,dataSize,true);
+  let offset=44;const ch=buffer.getChannelData(0);
+  for(let i=0;i<samples;i++){
+    const s=Math.max(-1,Math.min(1,ch[i]));
+    v.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true);offset+=2;
+  }
+  return ab;
+}
+function writeString(view,offset,str){for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i))}
+
+// Split AudioBuffer into N-second chunks → WAV blobs
+async function splitAudioIntoChunks(file,chunkSeconds=600){
   const arrayBuffer=await file.arrayBuffer();
   const AudioCtx=window.AudioContext||window.webkitAudioContext;
   const audioCtx=new AudioCtx();
   const audioBuffer=await audioCtx.decodeAudioData(arrayBuffer);
-  // Encode as WAV
-  const wavBuffer=audioBufferToWav(audioBuffer);
   audioCtx.close();
-  return new Blob([wavBuffer],{type:"audio/wav"});
+  const sr=16000;const totalSamples=Math.ceil(audioBuffer.duration*sr);
+  const chunks=[];let start=0;
+  const ch=audioBuffer.numberOfChannels;
+  // Resample once to 16kHz mono
+  const offlineCtx=new OfflineAudioContext(1,totalSamples,sr);
+  const src=offlineCtx.createBufferSource();src.buffer=audioBuffer;
+  if(ch>1){const m=offlineCtx.createChannelMerger(1);src.connect(m);m.connect(offlineCtx.destination);}
+  else src.connect(offlineCtx.destination);
+  src.start(0);
+  const mono=await offlineCtx.startRendering();
+  const chunkSamples=chunkSeconds*sr;
+  while(start<mono.length){
+    const end=Math.min(start+chunkSamples,mono.length);
+    const tmpCtx=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(1,end-start,sr);
+    const chunkBuf=tmpCtx.createBuffer(1,end-start,sr);
+    const srcData=mono.getChannelData(0).slice(start,end);
+    chunkBuf.copyToChannel(srcData,0);
+    chunks.push(new Blob([audioBufferToWav(chunkBuf,1,sr)],{type:"audio/wav"}));
+    start=end;
+  }
+  return chunks;
 }
 
-function audioBufferToWav(buffer){
-  const numCh=buffer.numberOfChannels;
-  const sampleRate=buffer.sampleRate;
-  const format=1; // PCM
-  const bitDepth=16;
-  const bytesPerSample=bitDepth/8;
-  const blockAlign=numCh*bytesPerSample;
-  const byteRate=sampleRate*blockAlign;
-  // Mix down to mono if needed (smaller file for Whisper)
-  const samples=buffer.length;
-  const dataSize=samples*blockAlign;
-  const arrayBuffer=new ArrayBuffer(44+dataSize);
-  const view=new DataView(arrayBuffer);
-  // RIFF header
-  writeString(view,0,"RIFF");
-  view.setUint32(4,36+dataSize,true);
-  writeString(view,8,"WAVE");
-  writeString(view,12,"fmt ");
-  view.setUint32(16,16,true);
-  view.setUint16(20,format,true);
-  view.setUint16(22,numCh,true);
-  view.setUint32(24,sampleRate,true);
-  view.setUint32(28,byteRate,true);
-  view.setUint16(32,blockAlign,true);
-  view.setUint16(34,bitDepth,true);
-  writeString(view,36,"data");
-  view.setUint32(40,dataSize,true);
-  // PCM data
-  let offset=44;
-  const channels=[];
-  for(let ch=0;ch<numCh;ch++)channels.push(buffer.getChannelData(ch));
-  for(let i=0;i<samples;i++){
-    for(let ch=0;ch<numCh;ch++){
-      let s=Math.max(-1,Math.min(1,channels[ch][i]));
-      view.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true);
-      offset+=2;
+// Transcribe with auto compression + chunking for large files
+async function transcribeAudio(file,wKey,statusEl,fillEl,abortSignal){
+  const MAX=24*1024*1024; // 24MB safety margin
+  const CHUNK_SECONDS=600; // 10 min chunks
+  // Step 1: Compress to 16kHz mono WAV
+  statusEl.textContent="🗜 음성 압축 중 (16kHz 모노)...";
+  let compressed;
+  try{compressed=await convertToWav(file);}
+  catch(e){compressed=file;} // If conversion fails, try original
+  fillEl.style.width="72%";
+  const sizeAfter=Math.round(compressed.size/1024);
+  const sizeBefore=Math.round(file.size/1024);
+  // Step 2: If still over limit, split into chunks
+  let parts=[];
+  if(compressed.size>MAX){
+    statusEl.textContent="✂️ 파일 분할 중... ("+Math.round(compressed.size/1024/1024)+"MB → "+CHUNK_SECONDS/60+"분 단위)";
+    try{parts=await splitAudioIntoChunks(file,CHUNK_SECONDS);}
+    catch(e){
+      statusEl.innerHTML='⚠️ <strong>분할 실패</strong><br><span style="font-size:9px">파일이 너무 크거나 지원되지 않는 형식입니다</span>';
+      return null;
     }
+    statusEl.textContent="🤖 변환 중... ("+parts.length+"개 파트)";
+  }else{
+    parts=[compressed];
+    statusEl.textContent="🤖 Whisper 변환 중... (압축 "+sizeBefore+"KB → "+sizeAfter+"KB)";
   }
-  return arrayBuffer;
+  fillEl.style.width="78%";
+  // Step 3: Transcribe each part
+  const results=[];
+  for(let i=0;i<parts.length;i++){
+    if(abortSignal?.aborted)return null;
+    if(parts.length>1)statusEl.textContent="🤖 변환 중... ("+(i+1)+"/"+parts.length+"파트)";
+    const formData=new FormData();
+    formData.append("file",parts[i],"chunk_"+i+".wav");
+    formData.append("model","whisper-1");
+    formData.append("language","ko");
+    formData.append("response_format","text");
+    const resp=await fetch("https://api.openai.com/v1/audio/transcriptions",{
+      method:"POST",headers:{"Authorization":"Bearer "+wKey},body:formData,signal:abortSignal
+    });
+    if(!resp.ok){
+      let errMsg="HTTP "+resp.status;
+      try{const ej=await resp.json();errMsg=ej.error?.message||errMsg;}catch(e){}
+      let friendly=errMsg;
+      if(resp.status===401)friendly="API 키 오류 - ⚙️ 설정에서 확인";
+      else if(resp.status===429)friendly="API 한도 초과 또는 잔액 부족";
+      throw new Error(friendly);
+    }
+    const text=await resp.text();
+    if(text&&text.trim())results.push(text.trim());
+    fillEl.style.width=Math.round(78+(i+1)/parts.length*20)+"%";
+  }
+  return results.join("\n");
 }
-function writeString(view,offset,str){for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i))}
 
 async function renderAudioList(){
   if(!CU)return;
@@ -2137,11 +2180,11 @@ async function shareDailyReport(){
     h+='<textarea id="shareText" style="width:100%;min-height:280px;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:11px;font-family:inherit;background:#FAFBFC;line-height:1.6;resize:vertical">'+esc(txt)+'</textarea>';
     h+='<div style="font-size:10px;color:var(--ts);margin:4px 0 8px">※ textarea에서 직접 수정도 가능합니다</div>';
     h+='<div style="display:flex;flex-direction:column;gap:6px">';
-    h+='<button onclick="shareViaKakao()" style="padding:12px;border:none;border-radius:10px;background:#FEE500;color:#191919;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">💬 카카오톡으로 공유</button>';
-    h+='<button onclick="copyReportText()" style="padding:10px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>';
+    h+='<button onclick="shareViaTelegram()" style="padding:12px;border:none;border-radius:10px;background:#2CA5E0;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">✈️ 텔레그램으로 공유</button>';
+    h+='<button onclick="copyReportText()" style="padding:10px;border:1.5px solid var(--primary);border-radius:10px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📋 텍스트 복사 (붙여넣기용)</button>';
     h+='<button onclick="shareViaWebShare()" style="padding:10px;border:1.5px solid var(--admin);border-radius:10px;background:transparent;color:var(--admin);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">📤 다른 앱으로 공유 (모바일)</button>';
     h+='</div>';
-    document.getElementById("delTitle").textContent="💬 일일보고 카톡 공유";
+    document.getElementById("delTitle").textContent="✈️ 일일보고 텔레그램 공유";
     document.getElementById("delIcon").textContent="";
     document.getElementById("delMsg").innerHTML=h;
     document.getElementById("delCancelBtn").style.display="none";
