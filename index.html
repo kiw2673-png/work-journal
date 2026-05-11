@@ -105,13 +105,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v3.0.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v3.1.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.0.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -145,14 +145,14 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.0.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
 <div id="detailScreen" class="scr"><div class="hdr ah"><div style="display:flex;justify-content:space-between;align-items:center"><button class="blo" onclick="backAdm()">← 목록</button><span style="font-size:13px;font-weight:700">상세</span></div><div class="hi" style="margin-top:10px" id="detUsr"></div></div><div style="max-width:700px;margin:0 auto;padding:16px 12px 50px"><div id="detAct" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div><div id="detList"></div></div></div>
 
 <!-- Modals -->
-<div class="mo" id="editModal" onclick="clEM()"><div class="mc" onclick="event.stopPropagation()"><h3 style="font-size:15px;margin-bottom:14px">✏️ 수정</h3><div id="editErr" class="err" style="display:none"></div><div style="background:var(--ibg);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px">사번: <strong id="edEmpId"></strong></div><label class="fl">이름</label><input id="edName" class="fi-input" style="margin-bottom:10px"><label class="fl">지사</label><select id="edBranch" class="fi-sel"></select><label class="fl" style="margin-top:10px">권한</label><select id="edRole" class="fi-sel"><option value="user">사용자</option><option value="admin">관리자</option></select><div style="display:flex;gap:6px;margin-top:16px"><button onclick="clEM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button onclick="svEdit()" class="btn ba" style="flex:2;font-size:12px">저장</button></div></div></div>
+<div class="mo" id="editModal" onclick="clEM()"><div class="mc" onclick="event.stopPropagation()"><h3 style="font-size:15px;margin-bottom:14px">✏️ 수정</h3><div id="editErr" class="err" style="display:none"></div><div style="background:var(--ibg);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px">사번: <strong id="edEmpId"></strong></div><label class="fl">이름</label><input id="edName" class="fi-input" style="margin-bottom:10px"><label class="fl">지사</label><select id="edBranch" class="fi-sel"></select><label class="fl" style="margin-top:10px">권한</label><select id="edRole" class="fi-sel"><option value="user">👤 사용자 (자신의 보고서만)</option><option value="viewer">👁 조회자 (관리자 화면 조회만)</option><option value="editor">✏️ 편집자 (조회+수정, 사용자관리 X)</option><option value="admin">🛡 관리자 (전체 권한)</option></select><div style="font-size:9px;color:var(--ts);margin-top:4px;line-height:1.5" id="edRoleHelp"></div><div style="display:flex;gap:6px;margin-top:16px"><button onclick="clEM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button onclick="svEdit()" class="btn ba" style="flex:2;font-size:12px">저장</button></div></div></div>
 <div class="mo" id="delModal" onclick="clDM()"><div class="mc" onclick="event.stopPropagation()" id="delModalInner" style="max-width:480px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><h3 id="delTitle" style="font-size:15px;font-weight:700"></h3><button onclick="clDM()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ts);padding:0;line-height:1">✕</button></div><div id="delIcon" style="font-size:40px;text-align:center;margin-bottom:8px"></div><div id="delMsg" style="font-size:12px;color:var(--ts);margin-bottom:16px;max-height:55vh;overflow-y:auto"></div><div style="display:flex;gap:6px" id="delBtns"><button id="delCancelBtn" onclick="clDM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button id="delBtn" class="btn" style="flex:1;font-size:12px;background:var(--danger);color:#fff">삭제</button></div></div></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDomain:"work-journal-99e5a.firebaseapp.com",projectId:"work-journal-99e5a",storageBucket:"work-journal-99e5a.firebasestorage.app",messagingSenderId:"298252811540",appId:"1:298252811540:web:3a7e896a943bfa44ff5601"});
@@ -225,8 +225,8 @@ function liAs(u){CU=u;localStorage.setItem("session",JSON.stringify({type:"user"
 function showAL(){hiErr();document.getElementById("loginStep").style.display="none";document.getElementById("admStep").style.display="block";document.getElementById("authIcon").className="aico ai";document.getElementById("authIcon").textContent="🛡️";document.getElementById("authSub").textContent="관리자 인증";document.getElementById("admCodeInput").focus()}
 
 async function doAL(){hiErr();const code=document.getElementById("admCodeInput").value.trim();
-  if(SA.includes(code)){localStorage.setItem("session",JSON.stringify({type:"admin",code}));showS("adminScreen");await loadSettings();loadAdm();return}
-  try{const doc=await db.collection("users").doc(code).get();if(doc.exists&&doc.data().role==="admin"){localStorage.setItem("session",JSON.stringify({type:"admin",code,user:doc.data()}));showS("adminScreen");await loadSettings();loadAdm();return}}catch(e){}
+  if(SA.includes(code)){localStorage.setItem("session",JSON.stringify({type:"admin",code,role:"super"}));showS("adminScreen");await loadSettings();loadAdm();return}
+  try{const doc=await db.collection("users").doc(code).get();if(doc.exists){const u=doc.data();const r=u.role||"user";if(r==="admin"||r==="editor"||r==="viewer"){localStorage.setItem("session",JSON.stringify({type:"admin",code,role:r,user:u}));showS("adminScreen");await loadSettings();loadAdm();return}}}catch(e){}
   shErr("관리자 코드 오류")}
 
 function backTL(){hiErr();document.getElementById("loginStep").style.display="block";document.getElementById("regStep").style.display="none";document.getElementById("admStep").style.display="none";document.getElementById("authIcon").className="aico ui";document.getElementById("authIcon").textContent="📋";document.getElementById("authSub").textContent="사번을 입력하세요"}
@@ -595,10 +595,21 @@ function stV(){mS=true;isPaused=false;if(vT){clearInterval(vT);vT=null}fB+=sF+(l
 function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Chrome/Edge 필요");return}if(isVR||isVS){stV();return}btn.dataset.lb=btn.dataset.lb||"말하기";vB=btn;vF=fid;mS=false;isPaused=false;fB=document.getElementById(fid).value;if(fB&&!fB.endsWith("\n"))fB+="\n";sF="";lI="";lFT="";lFTm=0;vST=Date.now();upVT();vT=setInterval(upVT,1000);vR=mkV(fid);btn.className="vb recording";showPauseBtn(fid==="field2");if(vR){isVS=true;try{vR.start()}catch(e){stV()}}}
 
 /* ══ ADMIN ══ */
-function loadAdm(){buildATabs();switchAT("stats")}
-function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code);
+function loadAdm(){
+  const r=getMyRole();const badge=document.getElementById("adminRoleBadge");
+  if(badge){const map={super:"🌟 슈퍼관리자",admin:"🛡 관리자",editor:"✏️ 편집자",viewer:"👁 조회자",user:""};badge.textContent=map[r]||""}
+  buildATabs();switchAT("stats");
+}
+function getMyRole(){const s=JSON.parse(localStorage.getItem("session")||"{}");return s.role||(s.user?.role)||"user"}
+function canEdit(){const r=getMyRole();return r==="super"||r==="admin"||r==="editor"}
+function canManageUsers(){const r=getMyRole();return r==="super"||r==="admin"}
+function canChangeSettings(){const r=getMyRole();return r==="super"||r==="admin"}
+
+function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code)||sess.role==="super";
   let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"}];
-  if(sa)tabs.push({id:"settings",l:"⚙️ 설정"},{id:"users",l:"👥 사용자"},{id:"upload",l:"📤 업로드"});
+  if(canChangeSettings())tabs.push({id:"settings",l:"⚙️ 설정"});
+  if(canManageUsers())tabs.push({id:"users",l:"👥 사용자"});
+  if(sa)tabs.push({id:"upload",l:"📤 업로드"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
   ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSearch","tabCSR","tabSettings","tabUsers","tabUpload"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
@@ -1057,10 +1068,165 @@ async function saveSett(){try{const wk=document.getElementById("sWK")?.value||""
 
 /* ══ USERS ══ */
 async function loadUsers(){document.getElementById("tabUsers").innerHTML='<div class="loading">불러오는 중...</div>';
-  const snap=await db.collection("users").get();const users=snap.docs.map(d=>d.data());
-  let h='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">👥 사용자 관리</h3><div class="rw"><table class="rt" style="min-width:500px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th>관리</th></tr></thead><tbody>';
-  users.forEach(u=>{h+='<tr><td>'+esc(u.empId)+'</td><td style="font-weight:600">'+esc(u.name)+'</td><td>'+esc(u.branch)+'</td><td>'+(u.role==="admin"?'<span style="color:var(--admin);font-weight:700">관리자</span>':'사용자')+'</td><td><button onclick="openEM(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--admin);border-radius:4px;background:transparent;color:var(--admin);font-size:9px;cursor:pointer;font-family:inherit;margin-right:3px">수정</button><button onclick="cfDU(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></td></tr>'});
+  const snap=await db.collection("users").get();const users=snap.docs.map(d=>d.data()).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+  // Detect EMP-prefixed (auto-generated) sabuns
+  const empAuto=users.filter(u=>(u.empId||"").startsWith("EMP"));
+  const empReal=users.filter(u=>!(u.empId||"").startsWith("EMP")&&/^\d+$/.test(u.empId||""));
+  const dupNames={};
+  users.forEach(u=>{if(!u.name)return;if(!dupNames[u.name])dupNames[u.name]=[];dupNames[u.name].push(u)});
+  const duplicates=Object.entries(dupNames).filter(([n,arr])=>arr.length>1);
+  let h='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">👥 사용자 관리 <span style="font-size:10px;color:var(--ts);font-weight:400">(총 '+users.length+'명)</span></h3>';
+  // Cleanup tool banner if EMP-prefixed users exist
+  if(empAuto.length>0||duplicates.length>0){
+    h+='<div style="background:rgba(243,156,18,.1);border-left:3px solid #F39C12;padding:10px 12px;border-radius:8px;margin-bottom:14px">'
+      +'<div style="font-size:12px;font-weight:700;color:#D68910;margin-bottom:4px">🧹 사번 정리 필요</div>'
+      +'<div style="font-size:10px;color:var(--ts);margin-bottom:8px">';
+    if(empAuto.length>0)h+='• 자동생성 사번(EMP) '+empAuto.length+'명<br>';
+    if(duplicates.length>0)h+='• 이름이 중복된 사용자 '+duplicates.length+'명<br>';
+    h+='엑셀 업로드 시 자동생성된 EMP 사번을 정식 사번(숫자)으로 통합합니다.</div>'
+      +'<button onclick="openMergeUsers()" style="padding:8px 14px;border:none;border-radius:6px;background:#F39C12;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🔧 사번 통합 도구 열기</button>'
+      +'</div>';
+  }
+  h+='<div class="rw"><table class="rt" style="min-width:600px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th>관리</th></tr></thead><tbody>';
+  const roleMap={admin:'🛡 관리자',editor:'✏️ 편집자',viewer:'👁 조회자',user:'👤 사용자'};
+  const roleColor={admin:'var(--admin)',editor:'#3498DB',viewer:'#16A085',user:'var(--ts)'};
+  users.forEach(u=>{
+    const r=u.role||"user";
+    const isEmp=(u.empId||"").startsWith("EMP");
+    h+='<tr'+(isEmp?' style="background:rgba(243,156,18,.05)"':'')+'><td>'+(isEmp?'<span style="color:#F39C12;font-weight:600">'+esc(u.empId)+'</span>':esc(u.empId))+'</td><td style="font-weight:600">'+esc(u.name||"")+'</td><td>'+esc(u.branch||"")+'</td><td><span style="color:'+roleColor[r]+';font-weight:'+(r==="admin"||r==="editor"?700:400)+'">'+(roleMap[r]||r)+'</span></td><td><button onclick="openEM(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--admin);border-radius:4px;background:transparent;color:var(--admin);font-size:9px;cursor:pointer;font-family:inherit;margin-right:3px">수정</button><button onclick="cfDU(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></td></tr>'
+  });
   h+='</tbody></table></div>';document.getElementById("tabUsers").innerHTML=h}
+
+/* ══ 사번 통합 도구 ══ */
+async function openMergeUsers(){
+  const snap=await db.collection("users").get();
+  const users=snap.docs.map(d=>d.data());
+  // Group by name
+  const byName={};
+  users.forEach(u=>{if(!u.name)return;if(!byName[u.name])byName[u.name]=[];byName[u.name].push(u)});
+  // Build merge candidates: name has both EMP and real sabun OR multiple EMP
+  const groups=[];
+  Object.entries(byName).forEach(([name,arr])=>{
+    if(arr.length<2)return;
+    // Sort: numeric sabun first, EMP last
+    arr.sort((a,b)=>{const ae=a.empId.startsWith("EMP")?1:0;const be=b.empId.startsWith("EMP")?1:0;return ae-be});
+    groups.push({name,users:arr,keep:arr[0].empId,remove:arr.slice(1).map(u=>u.empId)});
+  });
+  // Also handle EMP-only users with no duplicates (just mark as needing manual sabun)
+  const empOnly=users.filter(u=>u.empId.startsWith("EMP")&&!groups.some(g=>g.users.some(uu=>uu.empId===u.empId)));
+  let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">이름이 같은 사용자를 통합합니다. 숫자 사번이 우선 유지되고, EMP 사번은 통합되어 삭제됩니다.</div>';
+  if(groups.length===0&&empOnly.length===0){
+    h+='<div style="text-align:center;padding:30px;color:var(--success)">✅ 정리할 항목이 없습니다</div>';
+  }else{
+    if(groups.length>0){
+      h+='<div style="font-size:11px;font-weight:700;margin:10px 0 6px">🔗 통합 대상 ('+groups.length+'명)</div>';
+      groups.forEach((g,i)=>{
+        h+='<div style="background:var(--ibg);padding:8px 10px;border-radius:6px;margin-bottom:6px;border-left:3px solid var(--success)">'
+          +'<div style="font-weight:700;font-size:11px;margin-bottom:4px">'+esc(g.name)+'</div>'
+          +'<div style="font-size:10px;color:var(--success);margin-bottom:2px">✅ 유지: <strong>'+esc(g.keep)+'</strong></div>'
+          +'<div style="font-size:10px;color:var(--danger)">🗑 삭제 (+보고서 이관): '+g.remove.map(esc).join(", ")+'</div>'
+          +'</div>';
+      });
+      h+='<button onclick="executeMerge()" style="margin-top:8px;padding:10px 16px;border:none;border-radius:8px;background:var(--success);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">🔗 '+groups.length+'명 자동 통합 실행</button>';
+      window._mergeGroups=groups;
+    }
+    if(empOnly.length>0){
+      h+='<div style="font-size:11px;font-weight:700;margin:14px 0 6px">⚠️ EMP 사번만 있는 사용자 ('+empOnly.length+'명)</div>'
+        +'<div style="font-size:10px;color:var(--ts);margin-bottom:8px">동명이인 없이 EMP 사번만 있는 사용자는 직접 정식 사번을 입력해주세요.</div>';
+      empOnly.forEach(u=>{
+        h+='<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:rgba(243,156,18,.05);border-radius:6px;margin-bottom:4px;flex-wrap:wrap">'
+          +'<span style="font-size:10px;color:#F39C12;font-weight:600;width:120px">'+esc(u.empId)+'</span>'
+          +'<span style="font-size:11px;font-weight:600;flex:1;min-width:80px">'+esc(u.name)+'</span>'
+          +'<span style="font-size:10px;color:var(--ts)">'+esc(u.branch||"")+'</span>'
+          +'<input type="text" placeholder="새 사번 (9자리)" maxlength="9" data-old="'+esc(u.empId)+'" class="empRename" style="padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:10px;width:110px;font-family:inherit">'
+          +'</div>';
+      });
+      h+='<button onclick="executeRenameEmpIds()" style="margin-top:8px;padding:10px 16px;border:none;border-radius:8px;background:#F39C12;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">🔧 입력한 사번으로 변경 (보고서 이관 포함)</button>';
+    }
+  }
+  document.getElementById("delTitle").textContent="🧹 사번 통합 도구";
+  document.getElementById("delIcon").textContent="";
+  document.getElementById("delMsg").innerHTML=h;
+  document.getElementById("delCancelBtn").style.display="";
+  document.getElementById("delCancelBtn").textContent="닫기";
+  document.getElementById("delCancelBtn").onclick=clDM;
+  document.getElementById("delBtn").style.display="none";
+  document.getElementById("delModal").classList.add("open");
+}
+
+async function executeMerge(){
+  if(!window._mergeGroups||!window._mergeGroups.length)return;
+  if(!confirm("⚠️ "+window._mergeGroups.length+"명을 통합합니다.\n\nEMP 사번의 보고서들이 정식 사번으로 이관되고,\nEMP 사번 사용자 데이터는 삭제됩니다.\n\n계속하시겠습니까?"))return;
+  document.getElementById("delMsg").innerHTML='<div class="loading">통합 처리 중...</div>';
+  let merged=0;let migrated=0;
+  try{
+    for(const g of window._mergeGroups){
+      for(const oldId of g.remove){
+        // Find all reports with oldId
+        const rs=await db.collection("reports").where("empId","==",oldId).get();
+        const batch=db.batch();
+        rs.docs.forEach(d=>{
+          const data=d.data();
+          const newDocId=data.date+"_"+g.keep;
+          batch.set(db.collection("reports").doc(newDocId),{...data,empId:g.keep});
+          batch.delete(d.ref);
+          migrated++;
+        });
+        if(rs.size>0)await batch.commit();
+        // Migrate audio files
+        const af=await db.collection("audioFiles").where("empId","==",oldId).get();
+        if(af.size>0){const b2=db.batch();af.docs.forEach(d=>{b2.update(d.ref,{empId:g.keep})});await b2.commit();}
+        // Migrate media files
+        const mf=await db.collection("mediaFiles").where("empId","==",oldId).get();
+        if(mf.size>0){const b3=db.batch();mf.docs.forEach(d=>{b3.update(d.ref,{empId:g.keep})});await b3.commit();}
+        // Delete old user
+        await db.collection("users").doc(oldId).delete();
+        merged++;
+      }
+    }
+    alert("✅ 통합 완료\n"+merged+"개 사용자 통합, "+migrated+"개 보고서 이관됨");
+    clDM();loadUsers();
+  }catch(e){alert("오류: "+e.message)}
+}
+
+async function executeRenameEmpIds(){
+  const inputs=document.querySelectorAll(".empRename");
+  const renames=[];
+  inputs.forEach(inp=>{const v=inp.value.trim();if(v&&v.length===9&&/^\d+$/.test(v))renames.push({old:inp.dataset.old,new:v})});
+  if(!renames.length){alert("9자리 숫자 사번을 입력해주세요");return}
+  if(!confirm("⚠️ "+renames.length+"명의 사번을 변경하시겠습니까?\n보고서/음성/사진 데이터도 함께 이관됩니다."))return;
+  document.getElementById("delMsg").innerHTML='<div class="loading">사번 변경 중...</div>';
+  let done=0,migrated=0;
+  try{
+    for(const r of renames){
+      // Check if new sabun already exists
+      const exists=await db.collection("users").doc(r.new).get();
+      if(exists.exists){alert("⚠️ 사번 "+r.new+"이(가) 이미 존재합니다. 통합 도구 사용하세요");continue}
+      // Get old user data
+      const oldUser=await db.collection("users").doc(r.old).get();
+      if(!oldUser.exists)continue;
+      const userData={...oldUser.data(),empId:r.new};
+      // Create new user
+      await db.collection("users").doc(r.new).set(userData);
+      // Migrate reports
+      const rs=await db.collection("reports").where("empId","==",r.old).get();
+      const batch=db.batch();
+      rs.docs.forEach(d=>{const data=d.data();batch.set(db.collection("reports").doc(data.date+"_"+r.new),{...data,empId:r.new});batch.delete(d.ref);migrated++});
+      if(rs.size>0)await batch.commit();
+      // Migrate audio files
+      const af=await db.collection("audioFiles").where("empId","==",r.old).get();
+      if(af.size>0){const b2=db.batch();af.docs.forEach(d=>{b2.update(d.ref,{empId:r.new})});await b2.commit();}
+      // Migrate media files
+      const mf=await db.collection("mediaFiles").where("empId","==",r.old).get();
+      if(mf.size>0){const b3=db.batch();mf.docs.forEach(d=>{b3.update(d.ref,{empId:r.new})});await b3.commit();}
+      // Delete old user
+      await db.collection("users").doc(r.old).delete();
+      done++;
+    }
+    alert("✅ 변경 완료\n"+done+"명 사번 변경, "+migrated+"개 보고서 이관됨");
+    clDM();loadUsers();
+  }catch(e){alert("오류: "+e.message)}
+}
 
 /* ══ DETAIL ══ */
 let dEmp=null;
@@ -1738,17 +1904,19 @@ function loadSolutions(){
   const MODEL_LIST=["DNB","DiB","DNC1","DNC","DNB_H","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV","기타"];
   let h='<div style="margin-bottom:12px">'
     +'<h3 style="font-size:14px;font-weight:700;margin-bottom:6px">💡 모델별 증상 해결법</h3>'
-    +'<p style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:12px">실제 처리 사례에서 학습된 데이터 + 등록된 표준 해결법을 바탕으로 모델별 증상 해결 방법을 제시합니다.<br>관리자가 직접 표준 해결법을 등록하거나 수정할 수 있습니다.</p>'
+    +'<p style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:12px">실제 처리 사례에서 학습된 데이터 + 등록된 표준 해결법을 바탕으로 모델별 증상 해결 방법을 제시합니다.</p>'
     +'</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
-    +'<select id="solModel" class="fi-sel" style="width:auto;padding:5px 10px;font-size:11px" onchange="renderSolutions()"><option value="">모델 선택...</option>';
-  MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
+    +'<select id="solModel" class="fi-sel" style="width:auto;padding:5px 10px;font-size:11px" onchange="renderSolutions()">';
+  MODEL_LIST.forEach((m,i)=>{h+='<option'+(i===0?' selected':'')+'>'+m+'</option>'});
   h+='</select>'
     +'<input id="solSymSearch" class="fi-input" placeholder="증상 검색..." style="flex:1;min-width:120px;padding:6px 10px;font-size:11px" oninput="renderSolutions()">'
     +'<button onclick="openAddSolution()" class="atab" style="padding:6px 12px;background:var(--admin);color:#fff;font-size:11px">➕ 해결법 등록</button>'
     +'</div>'
-    +'<div id="solBody"><div class="loading">모델을 선택해주세요</div></div>';
+    +'<div id="solBody"><div class="loading">불러오는 중...</div></div>';
   document.getElementById("tabCSR").innerHTML=h;
+  // Auto-load first model immediately
+  setTimeout(()=>renderSolutions(),100);
 }
 
 async function renderSolutions(){
@@ -2322,6 +2490,7 @@ function renderMediaLinks(media){
 
 /* ══ ADMIN: Edit/Delete Report ══ */
 async function adminEditReport(docId){
+  if(!canEdit()){alert("⚠️ 편집 권한이 없습니다.\n관리자 또는 편집자만 수정할 수 있습니다.");return}
   try{
     const doc=await db.collection("reports").doc(docId).get();
     if(!doc.exists){alert("보고서를 찾을 수 없습니다");return}
@@ -2418,6 +2587,7 @@ async function saveAdminEdit(oldDocId,oldEntry){
 }
 
 function adminDeleteReport(docId,name,date){
+  if(!canEdit()){alert("⚠️ 삭제 권한이 없습니다.\n관리자 또는 편집자만 삭제할 수 있습니다.");return}
   document.getElementById("delIcon").textContent="⚠️";
   document.getElementById("delTitle").textContent="보고서 삭제";
   document.getElementById("delMsg").innerHTML="<strong>"+esc(name)+"</strong>님의 <strong>"+esc(date)+"</strong> 보고서를 삭제하시겠습니까?<br><span style='color:var(--danger);font-size:10px'>※ 첨부된 음성파일은 별도로 유지됩니다</span>";
