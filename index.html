@@ -44,7 +44,7 @@
 .vb.idle{background:var(--primary)}.vb.recording{background:var(--rec);animation:pulse 1.4s infinite}
 .cgs{padding:4px 12px 12px}
 .cg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px 5px;padding:7px 8px 9px;background:linear-gradient(135deg,#F8F9FB,#F2F4F7);border-radius:8px;margin-bottom:5px;border-left:3px solid #3498DB;position:relative}
-.cg .cl{grid-column:1/-1;font-size:9px;font-weight:800;color:#3498DB;margin-bottom:1px;display:flex;justify-content:space-between}
+.cg .cl{grid-column:1/-1;font-size:13px;font-weight:800;color:#3498DB;margin-bottom:3px;display:flex;justify-content:space-between}
 .cg .cl .xb{background:none;border:none;color:var(--danger);font-size:14px;cursor:pointer;padding:0 2px}
 .cg select,.cg input{width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:5px;font-size:10px;font-family:inherit;background:#fff;outline:none;color:var(--text)}
 .cg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%237A8694' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;padding-right:14px}
@@ -105,13 +105,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v3.1.0</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:11px;color:var(--ts);letter-spacing:1px;font-weight:500;margin-bottom:2px">대성쎌틱에너시스(주)</div><h1 style="font-size:18px;font-weight:700">CS업무일지</h1><div style="font-size:9px;color:var(--ts);margin-top:2px;opacity:.7">v3.1.1</div><p id="authSub" style="margin-top:5px;color:var(--ts);font-size:12px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000"><div style="text-align:right;font-size:10px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px" disabled>로그인</button><div style="text-align:center;margin-top:16px"><button onclick="showAL()" style="background:none;border:none;color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit;text-decoration:underline">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px">사번: <strong id="regEmpId"></strong></div><label class="fl">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px"><label class="fl">지사명</label><select id="branchSelect" class="fi-sel"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3>🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -145,7 +145,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.1.1</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -168,7 +168,7 @@ const DEF_CATS=["설치","수리","점검","클레임","현장지원","품질상
 const DEF_SYM=["A-물보충","A1-통신/온도센서","A2-급기팬","A3-펌프/합선","A4-과열/순환","A5-헛불단선","A6-점화불량","A7-거버너/릴레이","A8-화염신호","A9-동파예방","AA-비등방지","Ac-온수센서","Ad-응축수센서","AE-역압발생","소음","작동불량","난방/온수불량","파손/누설","누수/동파","현장지원요청","기술문의","부품문의","민원","콜센터","특판","기타"];
 const DEF_ACT=["사용법 안내","정상 작동 확인","전화 상담 해결","설치 환경 개선","프로그램 수정","EEP데이터 수정","부품 교체","제품 교체","보상 판매","환불","재방문 예정","설비 및 타업체 이관","고객 취소/부재"];
 
-let CU=null,AF="전체",caseCount=2,admTab="stats";
+let CU=null,AF="전체",caseCount=1,admTab="stats";
 let _settings=null;
 
 // Settings cache
@@ -235,23 +235,25 @@ function doLO(){CU=null;localStorage.removeItem("session");eI.value="";document.
 /* ══ CASE GROUPS ══ */
 function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wrap)return;
   const models=getModels(),cats=getCats(),syms=getSyms(),acts=getActs();
-  caseCount=cases?Math.max(cases.length,2):2;
+  caseCount=cases?Math.max(cases.length,1):1;
   // Restore _caseMedia from saved case data
   if(!window._caseMedia)window._caseMedia={};
   // Always restore from saved case data (overwrite with saved if exists)
   if(cases){cases.forEach((c,n)=>{if(c&&c.media&&c.media.length)window._caseMedia[n]=c.media;else if(!window._caseMedia[n])window._caseMedia[n]=[];})}
   let html="";
-  for(let n=0;n<caseCount;n++){const c=cases?cases[n]:null;const mv=c?.model||"",cv=c?.capacity||"",ctv=c?.category||"",sv=c?.serial||"",mdv=c?.mfgDate||"",idv=c?.instDate||"",syv=c?.symptom||"",av=c?.action||"",nv=c?.note||"";
+  for(let n=0;n<caseCount;n++){const c=cases?cases[n]:null;const mv=c?.model||"",cv=c?.capacity||"",ctv=c?.category||"",sv=c?.serial||"",mdv=c?.mfgDate||"",idv=c?.instDate||"",syv=c?.symptom||"",av=c?.action||"",nv=c?.note||"",ov=c?.openclose||"";
     const mc=mv&&!models.find(m=>m.n===mv),syc=syv&&!syms.includes(syv),ac=av&&!acts.includes(av);
     const caps=models.find(m=>m.n===mv)?.c||[];
-    html+='<div class="cg" id="cg'+n+'"><div class="cl" style="display:flex;justify-content:space-between;align-items:center"><span>현장지원 '+(n+1)+' <span id="cgMediaCount'+n+'" style="font-size:9px;color:var(--accent);font-weight:600"></span></span>'+(n>=2?'<button class="xb" onclick="rmCase('+n+')">✕</button>':'')+'</div>'
+    html+='<div class="cg" id="cg'+n+'"><div class="cl" style="display:flex;justify-content:space-between;align-items:center"><span>🏗️ 현장지원 '+(n+1)+' <span id="cgMediaCount'+n+'" style="font-size:9px;color:var(--accent);font-weight:600"></span></span>'+(n>=1?'<button class="xb" onclick="rmCase('+n+')" style="font-size:14px;padding:2px 6px">✕</button>':'')+'</div>'
       +'<input type="file" id="cgMediaFile'+n+'" accept="image/*,video/*" multiple style="display:none" onchange="handleCaseMediaUpload(event,'+n+')">'
       +'<div><select id="cg'+n+'m" onchange="cgMC('+n+')"><option value="">모델명</option>';
     models.forEach(m=>{html+='<option'+(mv===m.n?' selected':'')+'>'+m.n+'</option>'});
     html+='<option value="__o"'+(mc?' selected':'')+'>직접입력</option></select><input id="cg'+n+'mX" placeholder="모델명" style="margin-top:2px;display:'+(mc?'block':'none')+'" value="'+(mc?esc(mv):'')+'"></div>'
       +'<div><select id="cg'+n+'cap"><option value="">용량</option>';
     caps.forEach(cp=>{html+='<option'+(cv===cp?' selected':'')+'>'+cp+'</option>'});
-    html+='</select></div><div><select id="cg'+n+'cat"><option value="">구분</option>';
+    html+='</select></div>'
+      +'<div><select id="cg'+n+'oc"><option value="">개방/차단</option><option value="개방"'+(ov==="개방"?' selected':'')+'>개방</option><option value="차단"'+(ov==="차단"?' selected':'')+'>차단</option></select></div>'
+      +'<div><select id="cg'+n+'cat"><option value="">구분</option>';
     cats.forEach(ct=>{html+='<option'+(ctv===ct?' selected':'')+'>'+ct+'</option>'});
     html+='</select></div><div><input id="cg'+n+'s" placeholder="제조번호" value="'+esc(sv)+'"></div>'
       +'<div><input id="cg'+n+'md" type="text" placeholder="제조일자" onfocus="this.type=\'date\'" onblur="if(!this.value)this.type=\'text\'" '+(mdv?'type="date" value="'+esc(mdv)+'"':'')+'></div>'
@@ -263,11 +265,10 @@ function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wra
     acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
     html+='<option value="__o"'+(ac?' selected':'')+'>직접입력</option></select><input id="cg'+n+'aX" placeholder="결과" style="margin-top:2px;display:'+(ac?'block':'none')+'" value="'+(ac?esc(av):'')+'"></div>'
       +'<div><button type="button" onclick="cgPickMedia('+n+')" style="width:100%;height:100%;min-height:30px;padding:6px 4px;border:1.5px dashed var(--accent);border-radius:6px;background:rgba(232,168,56,.06);color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px">📷 사진/영상</button></div>'
-      +'<div class="full"><input id="cg'+n+'n" placeholder="조치내용" value="'+esc(nv)+'"></div>'
+      +'<div class="full"><textarea id="cg'+n+'n" placeholder="조치내용" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(nv)+'</textarea></div>'
       +'<div class="full" id="cgMediaList'+n+'" style="margin-top:4px"></div>'
       +'</div>';}
   wrap.innerHTML=html;
-  // Render media for each case
   for(let n=0;n<caseCount;n++)renderCaseMediaList(n);}
 
 function cgMC(n){const sel=document.getElementById("cg"+n+"m"),capSel=document.getElementById("cg"+n+"cap"),mx=document.getElementById("cg"+n+"mX");
@@ -276,9 +277,9 @@ function cgMC(n){const sel=document.getElementById("cg"+n+"m"),capSel=document.g
   const m=getModels().find(x=>x.n===sel.value);if(m)m.c.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;capSel.appendChild(o)})}
 function cgC(sel,id){const inp=document.getElementById(id);if(sel.value==="__o"){inp.style.display="block";inp.focus()}else{inp.style.display="none";inp.value=""}}
 function addCase(){const saved=getCasesData();saved.push({});caseCount=saved.length;buildCG(saved);setTimeout(()=>{const el=document.getElementById("cg"+(caseCount-1));if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},100)}
-function rmCase(n){const saved=getCasesData();saved.splice(n,1);caseCount=Math.max(saved.length,2);buildCG(saved)}
+function rmCase(n){const saved=getCasesData();saved.splice(n,1);caseCount=Math.max(saved.length,1);buildCG(saved)}
 function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=document.getElementById("cg"+n+"m");if(!mEl)continue;
-  c.push({model:mEl.value==="__o"?document.getElementById("cg"+n+"mX").value:mEl.value,capacity:document.getElementById("cg"+n+"cap")?.value||"",category:document.getElementById("cg"+n+"cat")?.value||"",serial:document.getElementById("cg"+n+"s")?.value||"",mfgDate:document.getElementById("cg"+n+"md")?.value||"",instDate:document.getElementById("cg"+n+"id")?.value||"",symptom:(()=>{const s=document.getElementById("cg"+n+"sy");return s?.value==="__o"?document.getElementById("cg"+n+"syX")?.value||"":s?.value||""})(),action:(()=>{const a=document.getElementById("cg"+n+"a");return a?.value==="__o"?document.getElementById("cg"+n+"aX")?.value||"":a?.value||""})(),note:document.getElementById("cg"+n+"n")?.value||"",media:(window._caseMedia&&window._caseMedia[n])||[]})}return c}
+  c.push({model:mEl.value==="__o"?document.getElementById("cg"+n+"mX").value:mEl.value,capacity:document.getElementById("cg"+n+"cap")?.value||"",openclose:document.getElementById("cg"+n+"oc")?.value||"",category:document.getElementById("cg"+n+"cat")?.value||"",serial:document.getElementById("cg"+n+"s")?.value||"",mfgDate:document.getElementById("cg"+n+"md")?.value||"",instDate:document.getElementById("cg"+n+"id")?.value||"",symptom:(()=>{const s=document.getElementById("cg"+n+"sy");return s?.value==="__o"?document.getElementById("cg"+n+"syX")?.value||"":s?.value||""})(),action:(()=>{const a=document.getElementById("cg"+n+"a");return a?.value==="__o"?document.getElementById("cg"+n+"aX")?.value||"":a?.value||""})(),note:document.getElementById("cg"+n+"n")?.value||"",media:(window._caseMedia&&window._caseMedia[n])||[]})}return c}
 
 /* ══ 현장지원별 사진/동영상 ══ */
 function cgPickMedia(n){document.getElementById("cgMediaFile"+n)?.click()}
@@ -380,7 +381,7 @@ async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._
   try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
     // Restore case media from saved data
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
-  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);}}catch(e){buildCG(null);}
+  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=1;buildCG(null);}}catch(e){buildCG(null);}
   renderAudioList();renderMediaList();
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
@@ -412,7 +413,7 @@ async function doSave(){
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=2;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 /* ══ 카톡 공유 ══ */
@@ -425,7 +426,7 @@ function buildReportText(e){
   if(fc.length>0){
     txt+="━━━ 🏗️ 현장지원 ("+fc.length+"건) ━━━\n";
     fc.forEach((c,i)=>{
-      txt+="\n["+(i+1)+"] "+(c.model||"")+(c.capacity?" "+c.capacity:"")+(c.category?" / "+c.category:"")+"\n";
+      txt+="\n["+(i+1)+"] "+(c.model||"")+(c.capacity?" "+c.capacity:"")+(c.openclose?" ("+c.openclose+")":"")+(c.category?" / "+c.category:"")+"\n";
       if(c.serial)txt+="  S/N: "+c.serial+"\n";
       if(c.symptom)txt+="  증상: "+c.symptom+"\n";
       if(c.action)txt+="  처리: "+c.action+"\n";
@@ -658,8 +659,8 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
         +'</div>';
       // Case rows - one line each
       if(fc.length){
-        html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">제조일</th><th style="padding:3px 4px">설치일</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
-        fc.forEach((c,i)=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.mfgDate||"")+'</td><td style="padding:2px 4px">'+esc(c.instDate||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+        html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">개방/차단</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">제조일</th><th style="padding:3px 4px">설치일</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+        fc.forEach((c,i)=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.mfgDate||"")+'</td><td style="padding:2px 4px">'+esc(c.instDate||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
           if(c.note)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table>';
       }
@@ -767,8 +768,8 @@ async function renderWk(){
       +'</div>';
     if(fc.length){
       html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px">'
-        +'<thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
-      fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+        +'<thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">개방/차단</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
+      fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
         if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
       html+='</tbody></table></div>';
     }
@@ -1011,7 +1012,7 @@ function showAnDetail(model,symptom){
         +'<div><span style="font-weight:700;font-size:12px">'+esc(e.name)+'</span> <span style="font-size:10px;color:var(--ts)">'+esc(e.branch)+'</span></div>'
         +'<span style="font-size:10px;color:var(--ts);background:var(--card);padding:2px 8px;border-radius:4px">'+esc(e.date)+'</span></div>'
         +'<table style="width:100%;font-size:10px;border-collapse:collapse;background:#fff;border-radius:6px;overflow:hidden">';
-      const fields=[["모델",nm||c.model],["용량",c.capacity],["구분",c.category],["S/N",c.serial],["제조일",c.mfgDate],["설치일",c.instDate],["증상",c.symptom],["처리",c.action],["조치",c.note]];
+      const fields=[["모델",nm||c.model],["용량",c.capacity],["개방/차단",c.openclose],["구분",c.category],["S/N",c.serial],["제조일",c.mfgDate],["설치일",c.instDate],["증상",c.symptom],["처리",c.action],["조치",c.note]];
       fields.filter(([,v])=>v).forEach(([k,v])=>{body+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:3px 8px;font-weight:600;color:var(--ts);width:50px;font-size:9px">'+esc(k)+'</td><td style="padding:3px 8px">'+esc(v)+'</td></tr>'});
       body+='</table>';
       if(e.field1)body+='<div style="margin-top:6px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field1)+'</div></div>';
@@ -1713,7 +1714,7 @@ async function renderMonthly(){
         +'<button onclick="adminDeleteReport(\''+docId+'\',\''+esc(e.name)+'\',\''+e.date+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">🗑️</button></div>'
         +'</div>';
       if(fc.length){html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:360px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th></tr></thead><tbody>';
-        fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
+        fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
           if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
@@ -1885,7 +1886,7 @@ async function doSearch(){
         +'</div></div>'
         +'<div style="padding:8px 12px">';
       if(fc.length){h+='<div style="margin-bottom:6px"><table style="width:100%;border-collapse:collapse;font-size:9px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>증상</th><th>처리</th></tr></thead><tbody>';
-        fc.forEach(c=>{h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+hlText(c.model||"")+'</td><td style="padding:2px 4px">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+hlText(c.symptom||"")+'</td><td style="padding:2px 4px">'+hlText(c.action||"")+'</td></tr>';
+        fc.forEach(c=>{h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+hlText(c.model||"")+'</td><td style="padding:2px 4px">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+hlText(c.symptom||"")+'</td><td style="padding:2px 4px">'+hlText(c.action||"")+'</td></tr>';
           if(c.note)h+='<tr><td colspan="5" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="5" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
