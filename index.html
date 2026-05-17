@@ -2090,6 +2090,7 @@ async function doSearch(){
 /* ══ CSR 분석 ══ */
 /* ══ 모델별 증상 해결법 라이브러리 ══ */
 function loadSolutions(){
+  try{
   const MODEL_LIST=["DNB","DNB_H","DiB","DNC","DNC1","DOC","DPC","DQC","DRS","DRB","DRC","기타"];
   let h='<div style="margin-bottom:12px">'
     +'<h3 style="font-size:14px;font-weight:700;margin-bottom:4px">🤖 AI 진단 & 해결법</h3>'
@@ -2115,9 +2116,16 @@ function loadSolutions(){
     +'<button onclick="runAIDiag()" style="padding:7px 14px;border:none;border-radius:6px;background:#2980B9;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">AI 진단</button></div>'
     +'</div>'
     +'<div id="aiResult" style="margin-bottom:12px"></div>'
-    +'<div id="solBody"><div class="loading">모델을 선택해주세요...</div></div>';
-  document.getElementById("tabCSR").innerHTML=h;
-  setTimeout(()=>renderSolutions(),50);
+    +'<div id="solBody"><div class="loading">데이터 불러오는 중...</div></div>';
+  const tabEl=document.getElementById("tabCSR");
+  if(!tabEl){console.error("tabCSR element not found");return;}
+  tabEl.innerHTML=h;
+  setTimeout(()=>renderSolutions(),100);
+  }catch(err){
+    console.error("loadSolutions error:",err);
+    const tabEl=document.getElementById("tabCSR");
+    if(tabEl)tabEl.innerHTML='<div style="padding:20px;color:var(--danger);font-size:13px">⚠️ 해결법 탭 로드 오류: '+err.message+'</div>';
+  }
 }
 
 // Match model prefix: "DNB 16 FO LNG" → "DNB", "DRB 45 FC NG" → "DRB"
