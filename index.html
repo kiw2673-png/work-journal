@@ -416,6 +416,7 @@ async function doSave(){
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
+    autoRegisterSolutionsFromReport(e);
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
       document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
@@ -1063,7 +1064,7 @@ function renderSett(){const p=pendS;let h='';
   h+='<div class="stag"><h4>🔄 기종 구분 (OD/CD 등)</h4><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px" id="ocList">';
   (p.opencloseOpts||["OD","CD"]).forEach((o,i)=>{h+='<span class="stag-item">'+esc(o)+' <button class="rx" onclick="pendS.opencloseOpts.splice('+i+',1);renderSett()">✕</button></span>'});
   h+='</div><div class="stag-add"><input id="sNOC" placeholder="예: OD, CD, 기타"><button onclick="(function(){const v=document.getElementById(\'sNOC\').value.trim();if(v&&!pendS.opencloseOpts.includes(v)){pendS.opencloseOpts.push(v);renderSett()}})()">추가</button></div></div>';
-  h+='<div class="stag"><h4>🤖 OpenAI Whisper API (음성→텍스트)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">선택사항</span></div></div>';
+  h+='<div class="stag"><h4>🤖 OpenAI API Key (음성변환 + AI진단)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
   h+='<div class="stag"><h4>💬 카카오톡 공유 (선택사항)</h4><div class="stag-add"><input id="sKK" placeholder="JavaScript 키 (developers.kakao.com)" value="'+esc(p.kakaoKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">미등록 시 텍스트 복사로 공유</span></div></div>';
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
@@ -1921,6 +1922,14 @@ function loadSolutions(){
     +'<input id="solSymSearch" class="fi-input" placeholder="🔍 증상 검색..." style="flex:1;min-width:120px;padding:7px 10px;font-size:12px" oninput="renderSolutions()">'
     +'<button onclick="openAddSolution()" style="padding:7px 14px;border:none;border-radius:6px;background:var(--admin);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">➕ 해결법 등록</button>'
     +'</div>'
+    +'<div style="background:rgba(232,168,56,.06);border:1px solid rgba(232,168,56,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px">'
+    +'<div><div style="font-size:12px;font-weight:700;color:var(--accent)">📋 보고서 일괄 분석 → 해결법 자동 등록</div>'
+    +'<div style="font-size:10px;color:var(--ts);margin-top:2px">미등록 모델·증상 조합을 GPT가 분석해 해결법 라이브러리에 자동 추가합니다 (최대 15개)</div></div>'
+    +'<button id="batchAiBtn" onclick="runBatchAI()" style="padding:6px 14px;border:none;border-radius:7px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🚀 분석 시작</button>'
+    +'</div>'
+    +'<div id="batchAiStatus"></div>'
+    +'</div>'
     +'<div style="background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:10px 14px;margin-bottom:14px">'
     +'<div style="font-size:11px;font-weight:600;color:#2980B9;margin-bottom:6px">🤖 AI 직접 진단</div>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap"><input id="aiSymInput" class="fi-input" placeholder="증상을 입력하세요 (예: 점화불량, 누수, 온수미지근)" style="flex:1;padding:7px 10px;font-size:12px">'
@@ -2092,11 +2101,36 @@ async function renderSolutions(){
   }
 }
 
-async function runAIDiag(){
-  const model=document.getElementById("solModel")?.value||"";
-  const sym=document.getElementById("aiSymInput")?.value||"";
-  if(!sym){alert("증상을 입력해주세요");return}
-  await runAIDiagForSymptom(model,sym);
+async function callGPTForSolution(model,symptom,cases,stds,apiKey){
+  const actCount={};cases.forEach(c=>{if(c.action)actCount[c.action]=(actCount[c.action]||0)+1});
+  const topActs=Object.entries(actCount).sort((a,b)=>b[1]-a[1]);
+  const noteSamples=cases.filter(c=>c.note).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,5);
+  const actLines=topActs.map(([a,n])=>a+": "+n+"건 ("+Math.round(n/cases.length*100)+"%)").join("\n");
+  const noteLines=noteSamples.map((c,i)=>(i+1)+". ["+c.date+" / "+c.branch+(c.action?" · "+c.action:"")+"] "+c.note).join("\n");
+  const stdLines=stds.map(s=>s.solution||"").join("\n\n");
+  const userPrompt="제품 모델: "+model+"\n증상: "+symptom
+    +"\n\n[누적 처리 데이터 — "+cases.length+"건]\n처리 방법 분포:\n"+actLines
+    +(noteLines?"\n\n최근 현장 조치 내용:\n"+noteLines:"")
+    +(stdLines?"\n\n[기존 등록 해결법]\n"+stdLines:"")
+    +"\n\n위 실제 현장 데이터를 바탕으로 다음을 작성해주세요:\n1. 추정 원인 분석 (데이터 패턴 기반)\n2. 단계별 처리 절차 (현장 엔지니어가 즉시 따를 수 있도록)\n3. 주의사항 및 재발 방지\n\n실무적이고 간결하게 작성해주세요.";
+  const resp=await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+    body:JSON.stringify({
+      model:"gpt-4o-mini",
+      messages:[
+        {role:"system",content:"당신은 대성쎌틱에너시스(주) CS 기술지원 AI입니다. 보일러 및 가스 제품의 현장 고장 진단과 처리에 정통한 전문가로, 실제 현장 데이터를 분석하여 엔지니어가 바로 활용할 수 있는 실무적인 진단 결과를 제공합니다."},
+        {role:"user",content:userPrompt}
+      ],
+      max_tokens:900,
+      temperature:0.3
+    })
+  });
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||"API 오류 "+resp.status)}
+  const data=await resp.json();
+  const text=data.choices?.[0]?.message?.content||"";
+  if(!text)throw new Error("GPT 응답이 비어 있습니다");
+  return text;
 }
 
 async function runAIDiag(){
@@ -2109,9 +2143,10 @@ async function runAIDiag(){
 async function runAIDiagForSymptom(model,symptom){
   const resultEl=document.getElementById("aiResult");
   if(!resultEl)return;
-  resultEl.innerHTML='<div style="background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:14px"><div class="loading" style="padding:8px">🔍 데이터 분석 중...</div></div>';
+  resultEl.dataset.aiText="";
+  resultEl.innerHTML='<div style="background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:14px"><div class="loading" style="padding:8px">🔍 데이터 수집 중...</div></div>';
   try{
-    // Gather matching cases
+    // 1. Gather matching cases
     const snap=await db.collection("reports").get();
     const cases=[];
     snap.docs.forEach(doc=>{
@@ -2122,7 +2157,7 @@ async function runAIDiagForSymptom(model,symptom){
         if(c.action||c.note)cases.push({date:e.date,branch:e.branch,model:c.model,action:(c.action||"").trim(),note:(c.note||"").trim()});
       });
     });
-    // Fetch standard solutions
+    // 2. Fetch standard solutions
     const stdSnap=await db.collection("solutions").get();
     const stds=[];
     stdSnap.docs.forEach(doc=>{
@@ -2136,22 +2171,22 @@ async function runAIDiagForSymptom(model,symptom){
         +'<b>⚠️ 데이터 없음</b><br><span style="color:var(--ts)">'+esc(model)+' / '+esc(symptom)+'<br>관련 보고서가 없습니다. 해결법을 직접 등록해주세요.</span></div>';
       return;
     }
-    // Build summary from local data (no external API needed)
+    // 3. Build statistics
     const actCount={};cases.forEach(c=>{if(c.action)actCount[c.action]=(actCount[c.action]||0)+1});
     const topActs=Object.entries(actCount).sort((a,b)=>b[1]-a[1]);
     const noteSamples=cases.filter(c=>c.note).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+    // 4. Render statistics + GPT loading placeholder
     let h='<div style="background:linear-gradient(135deg,rgba(52,152,219,.07),rgba(108,52,131,.04));border:1px solid rgba(52,152,219,.25);border-radius:10px;padding:14px;margin-bottom:10px">'
-      +'<div style="font-size:13px;font-weight:700;color:#2980B9;margin-bottom:10px">📊 진단 요약 — '+esc(model)+' / '+esc(symptom)+'</div>';
+      +'<div style="font-size:13px;font-weight:700;color:#2980B9;margin-bottom:10px">📊 '+esc(model)+' / '+esc(symptom)+'</div>';
     if(stds.length>0){
       h+='<div style="background:rgba(108,52,131,.07);border-left:3px solid var(--admin);padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:10px">'
-        +'<div style="font-size:11px;font-weight:700;color:var(--admin);margin-bottom:4px">⭐ 표준 해결법</div>';
+        +'<div style="font-size:11px;font-weight:700;color:var(--admin);margin-bottom:4px">⭐ 등록된 표준 해결법</div>';
       stds.forEach(s=>{h+='<div style="font-size:12px;line-height:1.7;white-space:pre-wrap;margin-bottom:4px">'+esc(s.solution||"")+'</div>'});
       h+='</div>';
     }
-    h+='<div style="margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--ts);margin-bottom:5px">📈 총 '+cases.length+'건 처리 데이터 기반</div>';
+    h+='<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:var(--ts);margin-bottom:5px">📈 누적 데이터 '+cases.length+'건</div>';
     if(topActs.length>0){
-      h+='<div style="font-size:11px;font-weight:600;margin-bottom:4px;color:#333">✅ 처리 방법 (빈도순)</div>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
       topActs.forEach(([a,n],i)=>{
         const pct=Math.round(n/cases.length*100);
         h+='<span style="background:'+(i===0?'var(--primary)':'var(--ibg)')+';color:'+(i===0?'#fff':'#333')+';border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:'+(i===0?'700':'400')+'">'
@@ -2159,21 +2194,48 @@ async function runAIDiagForSymptom(model,symptom){
       });
       h+='</div>';
     }
-    h+='</div>';
     if(noteSamples.length>0){
-      h+='<div style="font-size:11px;font-weight:700;color:var(--ts);margin-bottom:5px">💬 최근 조치 내용 ('+noteSamples.length+'건)</div>';
       noteSamples.forEach(c=>{
         h+='<div style="background:#fff;border-left:3px solid #3498DB;padding:6px 10px;border-radius:0 6px 6px 0;margin-bottom:5px;font-size:12px;line-height:1.6">'
           +'<div style="font-size:10px;color:var(--ts);margin-bottom:2px">'+esc(c.date)+' · '+esc(c.branch)+(c.action?' · <b style="color:var(--primary)">'+esc(c.action)+'</b>':'')+' </div>'
           +esc(c.note)+'</div>';
       });
     }
-    h+='<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--border)">'
-      +'<button onclick="openAddSolution(\''+esc(model)+'\',\''+esc(symptom)+'\')" style="padding:6px 14px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💾 표준 해결법 직접 등록</button>'
-      +'</div></div>';
+    h+='</div></div>';
+    // GPT result box (loading state)
+    h+='<div id="aiGptBox" style="background:linear-gradient(135deg,rgba(41,128,185,.08),rgba(52,152,219,.04));border:1px solid rgba(52,152,219,.3);border-radius:10px;padding:14px">'
+      +'<div style="font-size:12px;font-weight:700;color:#2980B9;margin-bottom:8px">🤖 GPT 진단 분석 중...</div>'
+      +'<div class="loading" style="padding:6px 0;font-size:11px">누적 현장 데이터를 GPT가 분석하고 있습니다...</div>'
+      +'</div>';
     resultEl.innerHTML=h;
+    // 5. Call GPT API
+    const settings=await loadSettings();
+    const apiKey=settings.whisperKey||"";
+    const gptBox=document.getElementById("aiGptBox");
+    if(!apiKey||!apiKey.startsWith("sk-")){
+      if(gptBox)gptBox.innerHTML='<div style="font-size:12px;color:var(--ts);text-align:center;padding:10px">'
+        +'⚙️ AI 진단을 사용하려면 <b>설정 탭</b>에서 OpenAI API Key를 등록하세요</div>';
+      return;
+    }
+    // Build GPT prompt from accumulated data
+    const aiText=await callGPTForSolution(model,symptom,cases,stds,apiKey);
+    resultEl.dataset.aiText=aiText;
+    // Render GPT result with basic markdown
+    const aiHtml=aiText
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+      .replace(/\n/g,"<br>");
+    const freshBox=document.getElementById("aiGptBox");
+    if(freshBox)freshBox.innerHTML='<div style="font-size:12px;font-weight:700;color:#2980B9;margin-bottom:10px">🤖 GPT 진단 결과</div>'
+      +'<div style="font-size:12px;line-height:1.9;color:var(--text)">'+aiHtml+'</div>'
+      +'<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(52,152,219,.2);display:flex;gap:8px;flex-wrap:wrap">'
+      +'<button onclick="saveAISolution(\''+esc(model)+'\',\''+esc(symptom)+'\',this)" style="padding:7px 16px;border:none;border-radius:7px;background:var(--admin);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💾 AI 해결법으로 저장</button>'
+      +'<button onclick="openAddSolution(\''+esc(model)+'\',\''+esc(symptom)+'\')" style="padding:7px 14px;border:1px solid var(--admin);border-radius:7px;background:transparent;color:var(--admin);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 직접 수정 후 저장</button>'
+      +'</div>';
   }catch(e){
-    resultEl.innerHTML='<div style="background:rgba(231,76,60,.06);border-radius:10px;padding:14px;font-size:12px;color:var(--danger)">오류: '+esc(e.message)+'</div>';
+    const gptBox=document.getElementById("aiGptBox");
+    if(gptBox)gptBox.innerHTML='<div style="font-size:12px;color:var(--danger)">⚠️ GPT 오류: '+esc(e.message)+'</div>';
+    else resultEl.innerHTML='<div style="background:rgba(231,76,60,.06);border-radius:10px;padding:14px;font-size:12px;color:var(--danger)">오류: '+esc(e.message)+'</div>';
     console.error("runAIDiag:",e);
   }
 }
@@ -2188,6 +2250,120 @@ async function saveAISolution(model,symptom,btn){
     btn.textContent="✅ 저장됨";btn.disabled=true;
     setTimeout(()=>renderSolutions(),500);
   }catch(e){alert("저장 오류: "+e.message)}
+}
+
+// 보고서 제출 시 신규 모델·증상 조합을 백그라운드로 GPT 분석해 해결법 자동 등록
+async function autoRegisterSolutionsFromReport(entry){
+  try{
+    const settings=await loadSettings();
+    const apiKey=settings.whisperKey||"";
+    if(!apiKey||!apiKey.startsWith("sk-"))return;
+    const validCases=(entry.cases||[]).filter(c=>c.model&&c.symptom&&(c.note||c.action));
+    if(!validCases.length)return;
+    // 기존 해결법 키 목록
+    const stdSnap=await db.collection("solutions").get();
+    const existingKeys=new Set(stdSnap.docs.map(d=>{const s=d.data();return normModel(s.model||"")+"||"+(s.symptom||"")}));
+    // 이 보고서의 신규 모델+증상 조합 수집
+    const combos=new Map();
+    validCases.forEach(c=>{
+      const nm=normModel(c.model||"");
+      if(!nm||nm==="기타")return;
+      const key=nm+"||"+c.symptom;
+      if(existingKeys.has(key))return;
+      if(!combos.has(key))combos.set(key,{model:nm,symptom:c.symptom,cases:[]});
+      combos.get(key).cases.push({date:entry.date||"",branch:entry.branch||"",action:c.action||"",note:c.note||""});
+    });
+    if(!combos.size)return;
+    // 신규 조합마다 DB의 동일 조합 누적 데이터도 포함해 GPT 호출
+    const allReportsSnap=await db.collection("reports").get();
+    for(const[key,combo]of combos){
+      // 같은 모델+증상 과거 케이스 추가
+      allReportsSnap.docs.forEach(doc=>{
+        const e=doc.data();if(!e.cases)return;
+        e.cases.forEach(c=>{
+          if(normModel(c.model||"")!==combo.model)return;
+          if((c.symptom||"")!==combo.symptom)return;
+          if(!(c.action||c.note))return;
+          combo.cases.push({date:e.date||"",branch:e.branch||"",action:c.action||"",note:c.note||""});
+        });
+      });
+      const aiText=await callGPTForSolution(combo.model,combo.symptom,combo.cases,[],apiKey);
+      if(aiText){
+        await db.collection("solutions").add({
+          model:combo.model,symptom:combo.symptom,
+          solution:"[AI 자동생성]\n"+aiText,
+          author:"AI",autoGenerated:true,
+          createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
+        });
+      }
+    }
+  }catch(e){console.error("autoRegisterSolutions:",e)}
+}
+
+// 관리자: 미등록 모델·증상 조합 일괄 GPT 분석 → 해결법 자동 등록
+async function runBatchAI(){
+  const btn=document.getElementById("batchAiBtn");
+  const statusEl=document.getElementById("batchAiStatus");
+  if(!btn||!statusEl)return;
+  const settings=await loadSettings();
+  const apiKey=settings.whisperKey||"";
+  if(!apiKey||!apiKey.startsWith("sk-")){
+    statusEl.innerHTML='<div style="font-size:11px;color:var(--danger)">⚙️ 설정 탭에서 OpenAI API Key를 먼저 등록하세요</div>';
+    return;
+  }
+  btn.disabled=true;btn.textContent="분석 중...";
+  statusEl.innerHTML='<div style="font-size:11px;color:var(--ts)">보고서 수집 중...</div>';
+  try{
+    // 기존 해결법 키
+    const stdSnap=await db.collection("solutions").get();
+    const existingKeys=new Set(stdSnap.docs.map(d=>{const s=d.data();return normModel(s.model||"")+"||"+(s.symptom||"")}));
+    // 전체 보고서 케이스 집계
+    const reportsSnap=await db.collection("reports").get();
+    const caseMap=new Map();
+    reportsSnap.docs.forEach(doc=>{
+      const e=doc.data();if(!e.cases)return;
+      e.cases.forEach(c=>{
+        const nm=normModel(c.model||"");
+        if(!nm||nm==="기타"||!c.symptom||!(c.action||c.note))return;
+        const key=nm+"||"+c.symptom;
+        if(existingKeys.has(key))return;
+        if(!caseMap.has(key))caseMap.set(key,{model:nm,symptom:c.symptom,cases:[]});
+        caseMap.get(key).cases.push({date:e.date||"",branch:e.branch||"",action:c.action||"",note:c.note||""});
+      });
+    });
+    // 발생 빈도 내림차순, 최대 15개
+    const sorted=[...caseMap.values()].sort((a,b)=>b.cases.length-a.cases.length).slice(0,15);
+    if(!sorted.length){
+      statusEl.innerHTML='<div style="font-size:11px;color:var(--success)">✅ 미등록 조합이 없습니다. 해결법 라이브러리가 최신 상태입니다.</div>';
+      btn.disabled=false;btn.textContent="분석 시작";return;
+    }
+    statusEl.innerHTML='<div style="font-size:11px;color:var(--ts)">총 '+sorted.length+'개 조합 분석 시작...</div>';
+    let done=0,saved=0,errors=0;
+    for(const{model,symptom,cases}of sorted){
+      statusEl.innerHTML='<div style="font-size:11px;color:var(--ts)">'
+        +'<div style="background:var(--border);border-radius:3px;height:4px;overflow:hidden;margin-bottom:5px">'
+        +'<div style="height:100%;background:var(--accent);border-radius:3px;width:'+Math.round(done/sorted.length*100)+'%;transition:width .3s"></div></div>'
+        +'('+done+'/'+sorted.length+') '+esc(model)+' / '+esc(symptom)+' 분석 중... ('+cases.length+'건 데이터)</div>';
+      try{
+        const aiText=await callGPTForSolution(model,symptom,cases,[],apiKey);
+        if(aiText){
+          await db.collection("solutions").add({
+            model,symptom,solution:"[AI 자동생성]\n"+aiText,
+            author:"AI",autoGenerated:true,
+            createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
+          });
+          saved++;
+        }
+      }catch(err){console.error("batchAI:",model,symptom,err);errors++;}
+      done++;
+      await new Promise(r=>setTimeout(r,600));
+    }
+    statusEl.innerHTML='<div style="font-size:11px;color:var(--success);font-weight:600">✅ 완료: '+saved+'개 해결법 자동 등록'+(errors?' ('+errors+'개 오류)':'')+' </div>';
+    setTimeout(()=>renderSolutions(),600);
+  }catch(e){
+    statusEl.innerHTML='<div style="font-size:11px;color:var(--danger)">오류: '+esc(e.message)+'</div>';
+    console.error("runBatchAI:",e);
+  }finally{btn.disabled=false;btn.textContent="분석 시작";}
 }
 
 async function renderSolutions(){
