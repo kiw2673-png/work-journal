@@ -1220,7 +1220,7 @@ function showAnDetail(model,symptom){
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||""};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00"};renderSett()}
 function renderSett(){const p=pendS;let h='';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
@@ -1245,19 +1245,22 @@ function renderSett(){const p=pendS;let h='';
   h+='<div class="stag"><h4>🔄 기종 구분 (OD/CD 등)</h4><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px" id="ocList">';
   (p.opencloseOpts||["OD","CD"]).forEach((o,i)=>{h+='<span class="stag-item">'+esc(o)+' <button class="rx" onclick="pendS.opencloseOpts.splice('+i+',1);renderSett()">✕</button></span>'});
   h+='</div><div class="stag-add"><input id="sNOC" placeholder="예: OD, CD, 기타"><button onclick="(function(){const v=document.getElementById(\'sNOC\').value.trim();if(v&&!pendS.opencloseOpts.includes(v)){pendS.opencloseOpts.push(v);renderSett()}})()">추가</button></div></div>';
-  h+='<div class="stag"><h4>🤖 OpenAI API Key (음성변환 + AI진단)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
+  h+='<div class="stag"><h4 style="display:flex;align-items:center;gap:6px">🤖 OpenAI API Key (음성변환 + AI진단)<span id="oaiDot" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0"></span></h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3" oninput="checkOAIStatus(this.value)"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
+  setTimeout(checkOAIStatus,100);
   h+='<div class="stag"><h4>💬 카카오톡 공유 (선택사항)</h4><div class="stag-add"><input id="sKK" placeholder="JavaScript 키 (developers.kakao.com)" value="'+esc(p.kakaoKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">미등록 시 텍스트 복사로 공유</span></div></div>';
-  h+='<div class="stag"><h4>✈️ 텔레그램 자동 전송 (21:00)</h4>'
+  h+='<div class="stag"><h4 style="display:flex;align-items:center;gap:6px">✈️ 텔레그램 자동 전송<span id="tgDot" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0"></span></h4>'
     +'<div style="font-size:10px;color:var(--ts);margin-bottom:8px;line-height:1.6">① <a href="https://t.me/BotFather" target="_blank" style="color:var(--primary)">@BotFather</a>에서 봇 생성 → 토큰 복사<br>② 봇을 그룹에 초대 후 그룹에서 아무 메시지 전송<br>③ 아래 "채팅 ID 자동감지" 클릭 → 저장</div>'
     +'<div style="display:flex;flex-direction:column;gap:6px">'
-    +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">봇 토큰</span><input id="sTGT" type="password" placeholder="123456789:ABC..." value="'+esc(p.tgBotToken||"")+'" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"></div>'
+    +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">봇 토큰</span><input id="sTGT" type="password" placeholder="123456789:ABC..." value="'+esc(p.tgBotToken||"")+'" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit" oninput="checkTGStatus(this.value)"></div>'
     +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">채팅 ID</span><input id="sTGC" placeholder="-100xxxxxxxxxx" value="'+esc(p.tgChatId||"")+'" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"><button onclick="detectTgChatId()" style="padding:5px 10px;border:1px solid var(--primary);border-radius:6px;background:transparent;color:var(--primary);font-size:10px;cursor:pointer;font-family:inherit;white-space:nowrap">🔍 자동감지</button></div>'
+    +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">전송 시간</span><input id="sTGAT" type="time" value="'+esc(p.tgAutoTime||"21:00")+'" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"><span style="font-size:10px;color:var(--ts)">매일 자동 전송</span></div>'
     +'<div style="display:flex;gap:6px">'
     +'<button onclick="testTgSend()" style="padding:6px 12px;border:none;border-radius:6px;background:#2CA5E0;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">📤 지금 테스트 전송</button>'
     +'<button onclick="sendDailyReportNow()" style="padding:6px 12px;border:none;border-radius:6px;background:var(--admin);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">📋 오늘 보고서 즉시 전송</button>'
     +'</div>'
     +'<div id="tgStatus" style="font-size:10px;color:var(--ts);min-height:14px"></div>'
     +'</div></div>';
+  setTimeout(checkTGStatus,100);
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
 function addBrToRegion(ri){const sel=document.getElementById("addBr"+ri);if(!sel||!sel.value)return;pendS.regions[ri].branches.push(sel.value);renderSett()}
@@ -1272,10 +1275,31 @@ async function saveSett(){
     const kk=document.getElementById("sKK")?.value||"";
     const tgt=document.getElementById("sTGT")?.value.trim()||"";
     const tgc=document.getElementById("sTGC")?.value.trim()||"";
-    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc});
+    const tgat=document.getElementById("sTGAT")?.value||"21:00";
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat});
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
   }catch(e){alert("오류: "+e.message)}
+}
+
+async function checkOAIStatus(keyOverride){
+  const dot=document.getElementById("oaiDot");if(!dot)return;
+  const key=keyOverride!==undefined?keyOverride:(document.getElementById("sWK")?.value||_settings?.whisperKey||"");
+  if(!key){dot.style.background="#ef4444";return;}
+  try{
+    const r=await fetch("https://api.openai.com/v1/models",{method:"GET",headers:{Authorization:"Bearer "+key}});
+    dot.style.background=r.ok?"#22c55e":"#ef4444";
+  }catch(e){dot.style.background="#ef4444";}
+}
+async function checkTGStatus(tokenOverride){
+  const dot=document.getElementById("tgDot");if(!dot)return;
+  const token=tokenOverride!==undefined?tokenOverride:(document.getElementById("sTGT")?.value||_settings?.tgBotToken||"");
+  if(!token){dot.style.background="#ef4444";return;}
+  try{
+    const r=await fetch("https://api.telegram.org/bot"+token+"/getMe");
+    const j=await r.json();
+    dot.style.background=j.ok?"#22c55e":"#ef4444";
+  }catch(e){dot.style.background="#ef4444";}
 }
 
 /* ══ 텔레그램 봇 자동 전송 ══ */
@@ -1285,10 +1309,11 @@ function startAutoTgScheduler(){
   if(_tgTimer)clearInterval(_tgTimer);
   _tgTimer=setInterval(async()=>{
     const now=new Date();
-    if(now.getHours()!==21||now.getMinutes()!==0)return;
+    const s=await loadSettings();
+    const [hh,mm]=(s.tgAutoTime||"21:00").split(":").map(Number);
+    if(now.getHours()!==hh||now.getMinutes()!==mm)return;
     const todayKey='tg_sent_'+now.toISOString().slice(0,10);
     if(localStorage.getItem(todayKey))return;
-    const s=await loadSettings();
     if(!s.tgBotToken||!s.tgChatId)return;
     localStorage.setItem(todayKey,'1');
     await sendDailyReportNow(true);
