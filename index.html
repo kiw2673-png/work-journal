@@ -785,6 +785,7 @@ function loadAdm(){
   const r=getMyRole();const badge=document.getElementById("adminRoleBadge");
   if(badge){const map={super:"🌟 슈퍼관리자",admin:"🛡 관리자",editor:"✏️ 편집자",viewer:"👁 조회자",user:""};badge.textContent=map[r]||""}
   buildATabs();switchAT("stats");
+  startAutoTgScheduler();
 }
 function getMyRole(){const s=JSON.parse(localStorage.getItem("session")||"{}");return s.role||(s.user?.role)||"user"}
 function canEdit(){const r=getMyRole();return r==="super"||r==="admin"||r==="editor"}
@@ -1219,7 +1220,7 @@ function showAnDetail(model,symptom){
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||""};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||""};renderSett()}
 function renderSett(){const p=pendS;let h='';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
@@ -1246,6 +1247,17 @@ function renderSett(){const p=pendS;let h='';
   h+='</div><div class="stag-add"><input id="sNOC" placeholder="예: OD, CD, 기타"><button onclick="(function(){const v=document.getElementById(\'sNOC\').value.trim();if(v&&!pendS.opencloseOpts.includes(v)){pendS.opencloseOpts.push(v);renderSett()}})()">추가</button></div></div>';
   h+='<div class="stag"><h4>🤖 OpenAI API Key (음성변환 + AI진단)</h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
   h+='<div class="stag"><h4>💬 카카오톡 공유 (선택사항)</h4><div class="stag-add"><input id="sKK" placeholder="JavaScript 키 (developers.kakao.com)" value="'+esc(p.kakaoKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">미등록 시 텍스트 복사로 공유</span></div></div>';
+  h+='<div class="stag"><h4>✈️ 텔레그램 자동 전송 (21:00)</h4>'
+    +'<div style="font-size:10px;color:var(--ts);margin-bottom:8px;line-height:1.6">① <a href="https://t.me/BotFather" target="_blank" style="color:var(--primary)">@BotFather</a>에서 봇 생성 → 토큰 복사<br>② 봇을 그룹에 초대 후 그룹에서 아무 메시지 전송<br>③ 아래 "채팅 ID 자동감지" 클릭 → 저장</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">'
+    +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">봇 토큰</span><input id="sTGT" type="password" placeholder="123456789:ABC..." value="'+esc(p.tgBotToken||"")+'" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"></div>'
+    +'<div style="display:flex;gap:6px;align-items:center"><span style="font-size:10px;color:var(--ts);min-width:60px">채팅 ID</span><input id="sTGC" placeholder="-100xxxxxxxxxx" value="'+esc(p.tgChatId||"")+'" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"><button onclick="detectTgChatId()" style="padding:5px 10px;border:1px solid var(--primary);border-radius:6px;background:transparent;color:var(--primary);font-size:10px;cursor:pointer;font-family:inherit;white-space:nowrap">🔍 자동감지</button></div>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button onclick="testTgSend()" style="padding:6px 12px;border:none;border-radius:6px;background:#2CA5E0;color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">📤 지금 테스트 전송</button>'
+    +'<button onclick="sendDailyReportNow()" style="padding:6px 12px;border:none;border-radius:6px;background:var(--admin);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">📋 오늘 보고서 즉시 전송</button>'
+    +'</div>'
+    +'<div id="tgStatus" style="font-size:10px;color:var(--ts);min-height:14px"></div>'
+    +'</div></div>';
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
 function addBrToRegion(ri){const sel=document.getElementById("addBr"+ri);if(!sel||!sel.value)return;pendS.regions[ri].branches.push(sel.value);renderSett()}
@@ -1254,7 +1266,127 @@ function bSL(t,k,iid){let h='<div class="stag"><h4>'+t+'</h4><div class="stag-li
   h+='</div><div class="stag-add"><input id="'+iid+'" placeholder="새 항목"><button onclick="addSI(\''+k+'\',\''+iid+'\')">추가</button></div></div>';return h}
 function addSM(){const n=document.getElementById("sNM").value.trim(),c=document.getElementById("sNMC").value.trim();if(!n)return;pendS.models.push({n,c:c?c.split(",").map(s=>s.trim()):[]});renderSett()}
 function addSI(k,iid){const v=document.getElementById(iid).value.trim();if(!v)return;pendS[k].push(v);renderSett()}
-async function saveSett(){try{const wk=document.getElementById("sWK")?.value||"";const kk=document.getElementById("sKK")?.value||"";await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk});alert("설정이 저장되었습니다.")}catch(e){alert("오류: "+e.message)}}
+async function saveSett(){
+  try{
+    const wk=document.getElementById("sWK")?.value||"";
+    const kk=document.getElementById("sKK")?.value||"";
+    const tgt=document.getElementById("sTGT")?.value.trim()||"";
+    const tgc=document.getElementById("sTGC")?.value.trim()||"";
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc});
+    alert("설정이 저장되었습니다.");
+    startAutoTgScheduler();
+  }catch(e){alert("오류: "+e.message)}
+}
+
+/* ══ 텔레그램 봇 자동 전송 ══ */
+let _tgTimer=null;
+
+function startAutoTgScheduler(){
+  if(_tgTimer)clearInterval(_tgTimer);
+  _tgTimer=setInterval(async()=>{
+    const now=new Date();
+    if(now.getHours()!==21||now.getMinutes()!==0)return;
+    const todayKey='tg_sent_'+now.toISOString().slice(0,10);
+    if(localStorage.getItem(todayKey))return;
+    const s=await loadSettings();
+    if(!s.tgBotToken||!s.tgChatId)return;
+    localStorage.setItem(todayKey,'1');
+    await sendDailyReportNow(true);
+  },30000);
+}
+
+async function buildDailyText(dateStr){
+  const snap=await db.collection("reports").where("date","==",dateStr).get();
+  const entries=snap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  if(!entries.length)return null;
+  const dObj=new Date(dateStr+"T00:00:00");
+  const wd=["일","월","화","수","목","금","토"][dObj.getDay()];
+  const dtLabel=dObj.getFullYear()+"년 "+String(dObj.getMonth()+1).padStart(2,"0")+"월 "+String(dObj.getDate()).padStart(2,"0")+"일 ("+wd+")";
+  const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
+  let totalCases=0;entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
+  let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
+  txt+="📊 제출 "+entries.length+"명 · 현장지원 "+totalCases+"건\n";
+  Object.entries(grouped).forEach(([branch,list])=>{
+    const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
+    txt+="\n━━━ 🏢 "+branch+" ("+list.length+"명, "+brCases+"건) ━━━\n";
+    list.forEach(e=>{
+      const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+      txt+="👤 "+e.name+"\n";
+      fc.forEach(c=>{
+        const parts=[c.model,c.capacity,c.category].filter(Boolean).join(" ");
+        txt+="  • "+(parts||"현장지원")+(c.symptom?" / "+c.symptom:"")+(c.action?" → "+c.action:"")+"\n";
+        if(c.note)txt+=c.note.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
+      });
+      if(e.field2&&e.field2.trim())txt+="  💬 "+e.field2.trim().slice(0,120)+"\n";
+    });
+  });
+  txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";
+  return txt;
+}
+
+async function sendTgMessage(token,chatId,text){
+  const chunks=[];for(let i=0;i<text.length;i+=4000)chunks.push(text.slice(i,i+4000));
+  for(const chunk of chunks){
+    const r=await fetch("https://api.telegram.org/bot"+token+"/sendMessage",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({chat_id:chatId,text:chunk})
+    });
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.description||"Telegram 오류 "+r.status)}
+  }
+}
+
+async function sendDailyReportNow(silent=false){
+  const s=await loadSettings();
+  const token=s.tgBotToken||document.getElementById("sTGT")?.value.trim()||"";
+  const chatId=s.tgChatId||document.getElementById("sTGC")?.value.trim()||"";
+  const st=document.getElementById("tgStatus");
+  if(!token||!chatId){if(st)st.textContent="⚠️ 봇 토큰과 채팅 ID를 먼저 저장하세요";if(!silent)alert("봇 토큰과 채팅 ID를 입력 후 저장하세요");return;}
+  if(st)st.textContent="📤 전송 중...";
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const txt=await buildDailyText(today);
+    if(!txt){if(st)st.textContent="📭 오늘 제출된 보고서가 없습니다";if(!silent)alert("오늘 제출된 보고서가 없습니다");return;}
+    await sendTgMessage(token,chatId,txt);
+    if(st)st.textContent="✅ 전송 완료! "+new Date().toLocaleTimeString("ko-KR");
+    if(!silent)alert("✅ 텔레그램 전송 완료!");
+  }catch(e){
+    if(st)st.textContent="❌ 오류: "+e.message;
+    if(!silent)alert("전송 오류: "+e.message);
+  }
+}
+
+async function testTgSend(){
+  const token=document.getElementById("sTGT")?.value.trim()||"";
+  const chatId=document.getElementById("sTGC")?.value.trim()||"";
+  const st=document.getElementById("tgStatus");
+  if(!token||!chatId){if(st)st.textContent="⚠️ 토큰과 채팅 ID를 입력하세요";return;}
+  if(st)st.textContent="📤 테스트 전송 중...";
+  try{
+    await sendTgMessage(token,chatId,"✅ CS업무일지 텔레그램 연동 테스트 메시지입니다.\n매일 21:00에 일일 보고서가 자동 전송됩니다.");
+    if(st)st.textContent="✅ 테스트 전송 성공!";
+  }catch(e){if(st)st.textContent="❌ 오류: "+e.message;}
+}
+
+async function detectTgChatId(){
+  const token=document.getElementById("sTGT")?.value.trim()||"";
+  const st=document.getElementById("tgStatus");
+  if(!token){if(st)st.textContent="⚠️ 봇 토큰을 먼저 입력하세요";return;}
+  if(st)st.textContent="🔍 채팅 ID 감지 중...";
+  try{
+    const r=await fetch("https://api.telegram.org/bot"+token+"/getUpdates");
+    const data=await r.json();
+    if(!data.ok)throw new Error(data.description||"API 오류");
+    const updates=data.result||[];
+    const groupMsg=updates.reverse().find(u=>u.message?.chat?.type==="group"||u.message?.chat?.type==="supergroup");
+    if(groupMsg){
+      const id=String(groupMsg.message.chat.id);
+      document.getElementById("sTGC").value=id;
+      if(st)st.textContent="✅ 채팅 ID 감지 완료: "+id+" (저장 버튼을 눌러주세요)";
+    }else{
+      if(st)st.textContent="⚠️ 그룹 메시지 없음. 봇을 그룹에 초대 후 그룹에서 메시지를 전송하세요";
+    }
+  }catch(e){if(st)st.textContent="❌ 오류: "+e.message;}
+}
 
 /* ══ USERS ══ */
 async function loadUsers(){document.getElementById("tabUsers").innerHTML='<div class="loading">불러오는 중...</div>';
