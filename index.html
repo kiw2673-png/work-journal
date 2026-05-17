@@ -663,14 +663,26 @@ async function shareViaWebShare(){
   copyReportText();
 }
 
+const TG_GROUP="https://t.me/+wsEFZvApOsk3M2U1";
 function shareViaTelegram(){
   const text=document.getElementById("shareText")?.value||"";
   if(!text){alert("공유할 내용이 없습니다");return}
-  const limited=text.length>4000?text.slice(0,4000):text;
-  if(text.length>4000&&!confirm("텍스트가 길어 4000자까지만 전송됩니다 ("+text.length+"자).\n계속하시겠습니까?"))return;
-  const url="https://t.me/share/url?text="+encodeURIComponent(limited);
-  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  // 1) 클립보드 복사
+  const copyFn=()=>{
+    if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text);
+    const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand("copy")}catch(e){}
+    document.body.removeChild(ta);return Promise.resolve();
+  };
+  copyFn().then(()=>{
+    // 2) 안내 후 그룹 열기
+    alert("✅ 보고서가 클립보드에 복사되었습니다!\n\n텔레그램 그룹이 열리면\n메시지 입력창에 붙여넣기 하세요.\n(모바일: 길게 누르기 → 붙여넣기)");
+    const a=document.createElement("a");a.href=TG_GROUP;a.target="_blank";a.rel="noopener noreferrer";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }).catch(()=>{
+    alert("❗ 복사 실패. \"📋 텍스트 복사\" 버튼을 눌러 직접 복사 후 텔레그램에 붙여넣기 하세요.");
+  });
 }
 
 function copyReportText(){
