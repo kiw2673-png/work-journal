@@ -666,36 +666,11 @@ async function shareViaWebShare(){
 function shareViaTelegram(){
   const text=document.getElementById("shareText")?.value||"";
   if(!text){alert("공유할 내용이 없습니다");return}
-  // Copy to clipboard first, then open Telegram
-  const doCopy=()=>{
-    if(navigator.clipboard){return navigator.clipboard.writeText(text)}
-    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);return Promise.resolve();
-  };
-  doCopy().then(()=>{
-    const msg="✅ 보고 내용이 복사되었습니다!\n\n텔레그램이 열리면 원하는 채팅방에 붙여넣기(길게 누르기) 하세요.";
-    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      alert(msg);window.location.href="tg://";
-    }else{
-      alert(msg);window.open("https://web.telegram.org","_blank");
-    }
-  }).catch(()=>{alert("클립보드 복사에 실패했습니다. \"📋 텍스트 복사\" 버튼을 사용해주세요.")});
-}
-function shareViaTelegram_unused(){
-  const text=document.getElementById("shareText")?.value||"";
-  if(!text){alert("공유할 내용이 없습니다");return}
-  if(text.length>4000){
-    if(!confirm("텍스트가 길어 일부가 잘릴 수 있습니다 ("+text.length+"자).\n\n계속하시겠습니까?\n\n※ 잘리는 경우 \"📋 텍스트 복사\" 후 텔레그램에 직접 붙여넣기 하세요.")){return}
-  }
-  const encoded=encodeURIComponent(text);
-  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    const appUrl="tg://msg?text="+encoded;
-    const webUrl="https://t.me/share/url?text="+encoded;
-    window.location.href=appUrl;
-    setTimeout(()=>{window.open(webUrl,"_blank")},2000);
-  }else{
-    // Desktop: open Telegram web
-    window.open("https://t.me/share/url?text="+encoded,"_blank","width=600,height=500");
-  }
+  const limited=text.length>4000?text.slice(0,4000):text;
+  if(text.length>4000&&!confirm("텍스트가 길어 4000자까지만 전송됩니다 ("+text.length+"자).\n계속하시겠습니까?"))return;
+  const url="https://t.me/share/url?text="+encodeURIComponent(limited);
+  const a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
 }
 
 function copyReportText(){
