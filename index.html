@@ -86,6 +86,9 @@
 .stag-item .rx{background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px}
 .stag-add{display:flex;gap:4px}.stag-add input{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:10px;font-family:inherit;outline:none}
 .stag-add button{padding:5px 10px;border:none;border-radius:6px;background:var(--primary);color:#fff;font-size:10px;cursor:pointer;font-family:inherit}
+.qtag{display:inline-flex;align-items:center;padding:2px 9px;background:var(--ibg);border:1px solid var(--border);border-radius:10px;font-size:10px;cursor:pointer;font-family:inherit;transition:all .15s;color:inherit;line-height:1.7}
+.qtag:hover,.qtag.sel{background:var(--primary);color:#fff;border-color:var(--primary)}
+.qtag-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
 .mo{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;padding:14px}.mo.open{display:flex}
 .mc{background:#fff;border-radius:16px;width:100%;max-width:400px;padding:24px 20px;max-height:85vh;overflow-y:auto}
 .de{background:var(--card);border-radius:10px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden}
@@ -117,7 +120,7 @@
 <div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.3</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;margin-bottom:4px"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
 <div class="audio-upload">
   <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
   <label for="audioFile">🎵 음성파일 추가</label>
@@ -444,16 +447,43 @@ function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wra
       +'<div><select id="cg'+n+'sy" onchange="cgC(this,\'cg'+n+'syX\')"><option value="">증상</option>';
     syms.forEach(s=>{html+='<option'+(syv===s?' selected':'')+'>'+s+'</option>'});
     html+='<option value="__o"'+(syc?' selected':'')+'>직접입력</option></select><input id="cg'+n+'syX" placeholder="증상" style="margin-top:2px;display:'+(syc?'block':'none')+'" value="'+(syc?esc(syv):'')+'"></div>'
+      +'<div class="full qtag-row">'+syms.map(s=>'<button class="qtag'+(syv===s?' sel':'')+'" type="button" onclick="cgTagSy('+n+',this)">'+esc(s)+'</button>').join('')+'</div>'
       +'<div><select id="cg'+n+'a" onchange="cgC(this,\'cg'+n+'aX\')"><option value="">처리결과</option>';
     acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
     html+='<option value="__o"'+(ac?' selected':'')+'>직접입력</option></select><input id="cg'+n+'aX" placeholder="결과" style="margin-top:2px;display:'+(ac?'block':'none')+'" value="'+(ac?esc(av):'')+'"></div>'
+      +'<div class="full qtag-row">'+acts.map(a=>'<button class="qtag'+(av===a?' sel':'')+'" type="button" onclick="cgTagAct('+n+',this)">'+esc(a)+'</button>').join('')+'</div>'
       +'<div><button type="button" onclick="cgPickMedia('+n+')" style="width:100%;height:100%;min-height:30px;padding:6px 4px;border:1.5px dashed var(--accent);border-radius:6px;background:rgba(232,168,56,.06);color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px">📷 사진/영상</button></div>'
       +'<div class="full"><textarea id="cg'+n+'n" placeholder="조치내용" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(nv)+'</textarea></div>'
+      +((_settings?.noteTags||[]).length?'<div class="full qtag-row">'+(_settings.noteTags).map(t=>'<button class="qtag" type="button" onclick="cgTagNote('+n+',this)">'+esc(t)+'</button>').join('')+'</div>':'')
       +'<div class="full" id="cgMediaList'+n+'" style="margin-top:4px"></div>'
       +'</div>';}
   wrap.innerHTML=html;
   for(let n=0;n<caseCount;n++)renderCaseMediaList(n);}
 
+function cgTagSy(n,btn){
+  const val=btn.textContent;const sel=document.getElementById("cg"+n+"sy");const inp=document.getElementById("cg"+n+"syX");
+  if(!sel)return;
+  const opt=[...sel.options].find(o=>o.text===val);
+  if(opt){sel.value=opt.value;if(inp){inp.style.display="none";inp.value="";}}
+  else{sel.value="__o";if(inp){inp.style.display="block";inp.value=val;}}
+  btn.closest('.qtag-row').querySelectorAll('.qtag').forEach(b=>b.classList.toggle('sel',b===btn));
+}
+function cgTagAct(n,btn){
+  const val=btn.textContent;const sel=document.getElementById("cg"+n+"a");const inp=document.getElementById("cg"+n+"aX");
+  if(!sel)return;
+  const opt=[...sel.options].find(o=>o.text===val);
+  if(opt){sel.value=opt.value;if(inp){inp.style.display="none";inp.value="";}}
+  else{sel.value="__o";if(inp){inp.style.display="block";inp.value=val;}}
+  btn.closest('.qtag-row').querySelectorAll('.qtag').forEach(b=>b.classList.toggle('sel',b===btn));
+}
+function cgTagNote(n,btn){const ta=document.getElementById("cg"+n+"n");if(!ta)return;ta.value=ta.value?ta.value+"\n"+btn.textContent:btn.textContent;}
+function tagField2(btn){const ta=document.getElementById("field2");if(!ta)return;ta.value=ta.value?ta.value+"\n"+btn.textContent:btn.textContent;}
+function renderF2Tags(){
+  const el=document.getElementById("f2TagArea");if(!el)return;
+  const tags=_settings?.field2Tags||[];
+  el.innerHTML=tags.map(t=>'<button class="qtag" type="button" onclick="tagField2(this)">'+esc(t)+'</button>').join("");
+  el.style.display=tags.length?"flex":"none";
+}
 function cgMC(n){const sel=document.getElementById("cg"+n+"m"),capSel=document.getElementById("cg"+n+"cap"),mx=document.getElementById("cg"+n+"mX");
   if(sel.value==="__o"){mx.style.display="block";mx.focus();capSel.innerHTML='<option value="">용량</option>';return}
   mx.style.display="none";mx.value="";capSel.innerHTML='<option value="">용량</option>';
@@ -573,7 +603,7 @@ async function initJ(){document.getElementById("jBr").textContent=CU.branch;docu
   try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
   }else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
-  startDraftTimer();loadH();renderAudioList();renderMediaList();}
+  startDraftTimer();loadH();renderAudioList();renderMediaList();renderF2Tags();}
 
 async function doSave(){
   if(window._audioUploadInProgress||window._mediaUploadInProgress){
@@ -1220,7 +1250,7 @@ function showAnDetail(model,symptom){
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00"};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])]};renderSett()}
 function renderSett(){const p=pendS;let h='';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
@@ -1245,6 +1275,8 @@ function renderSett(){const p=pendS;let h='';
   h+='<div class="stag"><h4>🔄 기종 구분 (OD/CD 등)</h4><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px" id="ocList">';
   (p.opencloseOpts||["OD","CD"]).forEach((o,i)=>{h+='<span class="stag-item">'+esc(o)+' <button class="rx" onclick="pendS.opencloseOpts.splice('+i+',1);renderSett()">✕</button></span>'});
   h+='</div><div class="stag-add"><input id="sNOC" placeholder="예: OD, CD, 기타"><button onclick="(function(){const v=document.getElementById(\'sNOC\').value.trim();if(v&&!pendS.opencloseOpts.includes(v)){pendS.opencloseOpts.push(v);renderSett()}})()">추가</button></div></div>';
+  h+=bSL("🏷️ 조치내용 태그 (현장지원)","noteTags","sNNT");
+  h+=bSL("🏷️ 상담&특이사항 태그","field2Tags","sNF2");
   h+='<div class="stag"><h4 style="display:flex;align-items:center;gap:6px">🤖 OpenAI API Key (음성변환 + AI진단)<span id="oaiDot" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0"></span></h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3" oninput="checkOAIStatus(this.value)"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
   setTimeout(checkOAIStatus,100);
   h+='<div class="stag"><h4>💬 카카오톡 공유 (선택사항)</h4><div class="stag-add"><input id="sKK" placeholder="JavaScript 키 (developers.kakao.com)" value="'+esc(p.kakaoKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">미등록 시 텍스트 복사로 공유</span></div></div>';
@@ -1276,7 +1308,8 @@ async function saveSett(){
     const tgt=document.getElementById("sTGT")?.value.trim()||"";
     const tgc=document.getElementById("sTGC")?.value.trim()||"";
     const tgat=document.getElementById("sTGAT")?.value||"21:00";
-    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat});
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[]});
+    renderF2Tags();
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
   }catch(e){alert("오류: "+e.message)}
