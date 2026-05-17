@@ -148,7 +148,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -666,14 +666,28 @@ async function shareViaWebShare(){
 function shareViaTelegram(){
   const text=document.getElementById("shareText")?.value||"";
   if(!text){alert("공유할 내용이 없습니다");return}
-  // Telegram has 4096 char limit per message - warn if over
+  // Copy to clipboard first, then open Telegram
+  const doCopy=()=>{
+    if(navigator.clipboard){return navigator.clipboard.writeText(text)}
+    const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);return Promise.resolve();
+  };
+  doCopy().then(()=>{
+    const msg="✅ 보고 내용이 복사되었습니다!\n\n텔레그램이 열리면 원하는 채팅방에 붙여넣기(길게 누르기) 하세요.";
+    if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      alert(msg);window.location.href="tg://";
+    }else{
+      alert(msg);window.open("https://web.telegram.org","_blank");
+    }
+  }).catch(()=>{alert("클립보드 복사에 실패했습니다. \"📋 텍스트 복사\" 버튼을 사용해주세요.")});
+}
+function shareViaTelegram_unused(){
+  const text=document.getElementById("shareText")?.value||"";
+  if(!text){alert("공유할 내용이 없습니다");return}
   if(text.length>4000){
     if(!confirm("텍스트가 길어 일부가 잘릴 수 있습니다 ("+text.length+"자).\n\n계속하시겠습니까?\n\n※ 잘리는 경우 \"📋 텍스트 복사\" 후 텔레그램에 직접 붙여넣기 하세요.")){return}
   }
   const encoded=encodeURIComponent(text);
-  // On mobile: open Telegram app directly
   if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-    // Try app scheme first, fallback to web
     const appUrl="tg://msg?text="+encoded;
     const webUrl="https://t.me/share/url?text="+encoded;
     window.location.href=appUrl;
