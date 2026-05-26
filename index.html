@@ -132,7 +132,7 @@
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 <div id="audioList" style="margin-top:6px"></div>
 </div>
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(155,89,182,.05),rgba(142,68,173,.03))"><h3>📢 대리점 건의사항 (VOC)</h3></div><textarea id="field3" class="sta" placeholder="대리점 건의사항 입력..."></textarea></div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(155,89,182,.05),rgba(142,68,173,.03))"><h3>📢 대리점 건의사항 (VOC)</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField3" onclick="toggleV(this,'field3')"><span>🎙</span> 말하기</button><button id="vpField3" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field3" class="sta" placeholder="대리점 건의사항 입력..."></textarea></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(232,168,56,.06),transparent)"><h3>📷 사진/동영상 첨부 <span style="font-size:9px;font-weight:400;color:var(--ts)">(사진 최대 5장, 동영상 가능)</span></h3></div>
 <div class="audio-upload" style="background:rgba(232,168,56,.05)">
   <label for="mediaFile" style="background:var(--accent)">📷 사진/동영상 선택</label>
@@ -149,7 +149,7 @@
 </div>
 <div id="draftStatus" style="font-size:10px;color:var(--ts);margin-top:4px;text-align:center"></div>
 <button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3);margin-top:14px" onclick="doSave()">📤 제출하기</button>
-<div id="histSec" style="margin-top:24px;display:none"><h3 style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--ts)">📅 최근 기록</h3><div id="histList"></div></div></div></div>
+<div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
 <div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
@@ -732,6 +732,7 @@ async function loadH(){try{const snap=await db.collection("reports").where("empI
   if(!docs.length){sec.style.display="none";return}sec.style.display="block";
   list.innerHTML=docs.map(h=>{const cs=h.cases?h.cases.filter(c=>c.model).map(c=>c.model).join(","):"";
     return'<div class="hc"><div class="hd">'+esc(h.dateLabel||h.date)+'</div>'+(h.field1?'<div class="hl">🏗️ '+esc(h.field1.slice(0,35))+(cs?" ["+esc(cs)+"]":"")+'</div>':'')+(h.field2?'<div class="hl">💬 '+esc(h.field2.slice(0,50))+'</div>':'')+(h.field3?'<div class="hl">📢 '+esc(h.field3.slice(0,50))+'</div>':'')+'</div>'}).join("")}catch(e){}}
+function toggleHistList(){const list=document.getElementById("histList");const btn=document.getElementById("histToggleBtn");if(!list||!btn)return;const hidden=list.style.display==="none";list.style.display=hidden?"":"none";btn.textContent=hidden?"−":"+";}
 
 /* ══ VOICE ══ */
 /* ══ 임시저장 (DRAFT) ══ */
@@ -788,21 +789,20 @@ function clearDraft(){if(CU)localStorage.removeItem("draft:"+CU.empId)}
 let vT=null,vST=null,vB=null,vF=null,vR=null,isVR=false,isVS=false,mS=false,fB="",sF="",lI="",lFT="",lFTm=0,isPaused=false;
 const VM=180;
 function upVT(){if(!vB||!vST)return;const r=VM-Math.floor((Date.now()-vST)/1000);if(r<=0){stV();return}vB.innerHTML='<span>⏹</span> '+Math.floor(r/60)+":"+String(r%60).padStart(2,"0")}
-function showPauseBtn(show){const pb=document.getElementById("vpField2");if(pb)pb.style.display=show?"inline-flex":"none"}
+function showPauseBtn(show){const pbId=vF==="field3"?"vpField3":"vpField2";const pb=document.getElementById(pbId);if(pb)pb.style.display=show?"inline-flex":"none"}
 function pauseV(){
   if(!vR||mS)return;
+  const pbId=vF==="field3"?"vpField3":"vpField2";
   if(!isPaused){
-    // 일시정지
     isPaused=true;
     fB+=sF+(lI?" "+lI:"");sF="";lI="";
     if(vF){const ta=document.getElementById(vF);if(fB)ta.value=fB}
     try{vR.stop()}catch(e){}
-    const pb=document.getElementById("vpField2");if(pb){pb.textContent="▶ 재개";pb.style.background="#27AE60"}
+    const pb=document.getElementById(pbId);if(pb){pb.textContent="▶ 재개";pb.style.background="#27AE60"}
     if(vB)vB.innerHTML='<span>⏸</span> 일시정지';
   }else{
-    // 재개
     isPaused=false;
-    const pb=document.getElementById("vpField2");if(pb){pb.textContent="⏸ 일시정지";pb.style.background="#F39C12"}
+    const pb=document.getElementById(pbId);if(pb){pb.textContent="⏸ 일시정지";pb.style.background="#F39C12"}
     try{vR.start();isVR=true;}catch(e){}
   }
 }
@@ -812,7 +812,7 @@ rec.onresult=(e)=>{let int="",nf="";for(let i=e.resultIndex;i<e.results.length;i
 rec.onerror=(e)=>{isVS=false;isVR=false;if(e.error==="not-allowed"){mS=true;stV();alert("마이크 권한 필요")}};
 rec.onend=()=>{isVS=false;isVR=false;if(!mS&&!isPaused){fB+=sF;sF="";lI="";const ta=document.getElementById(fid);if(fB)ta.value=fB;if(vST&&(Date.now()-vST)/1000<VM){setTimeout(()=>{if(!mS&&!isPaused&&vST){isVS=true;try{rec.start()}catch(e){stV()}}},300);return}stV()}};return rec}
 function stV(){mS=true;isPaused=false;if(vT){clearInterval(vT);vT=null}fB+=sF+(lI?" "+lI:"");sF="";lI="";if(vF){const ta=document.getElementById(vF);if(fB)ta.value=fB}if(vR){try{vR.stop()}catch(e){}}vR=null;isVR=false;isVS=false;vST=null;fB="";lFT="";lFTm=0;showPauseBtn(false);document.querySelectorAll(".vb").forEach(b=>{b.className="vb idle";b.innerHTML='<span>🎙</span> '+(b.dataset.lb||"말하기")})}
-function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Chrome/Edge 필요");return}if(isVR||isVS){stV();return}btn.dataset.lb=btn.dataset.lb||"말하기";vB=btn;vF=fid;mS=false;isPaused=false;fB=document.getElementById(fid).value;if(fB&&!fB.endsWith("\n"))fB+="\n";sF="";lI="";lFT="";lFTm=0;vST=Date.now();upVT();vT=setInterval(upVT,1000);vR=mkV(fid);btn.className="vb recording";showPauseBtn(fid==="field2");if(vR){isVS=true;try{vR.start()}catch(e){stV()}}}
+function toggleV(btn,fid){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert("Chrome/Edge 필요");return}if(isVR||isVS){stV();return}btn.dataset.lb=btn.dataset.lb||"말하기";vB=btn;vF=fid;mS=false;isPaused=false;fB=document.getElementById(fid).value;if(fB&&!fB.endsWith("\n"))fB+="\n";sF="";lI="";lFT="";lFTm=0;vST=Date.now();upVT();vT=setInterval(upVT,1000);vR=mkV(fid);btn.className="vb recording";showPauseBtn(fid==="field2"||fid==="field3");if(vR){isVS=true;try{vR.start()}catch(e){stV()}}}
 
 /* ══ ADMIN ══ */
 function loadAdm(){
@@ -1934,8 +1934,9 @@ async function renderAudioList(){
     const snap=await db.collection("audioFiles").where("empId","==",CU.empId).get();
     if(!snap.empty){
       const docs=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.uploadedAt||"").localeCompare(a.data.uploadedAt||"")).slice(0,10);
-      h+='<div style="margin-top:8px"><div style="font-size:10px;font-weight:700;color:var(--ts);margin-bottom:4px">📂 내 음성파일 누적 (최근 10개)</div>';
-      docs.forEach(({id:docId,data:r})=>{
+      const aHidden=window._audioAccHidden||false;
+      h+='<div style="margin-top:8px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;font-weight:700;color:var(--ts)">📂 내 음성파일 누적 (최근 10개)</span><button onclick="window._audioAccHidden=!window._audioAccHidden;renderAudioList()" style="width:22px;height:22px;border:1px solid var(--border);border-radius:5px;background:var(--ibg);color:var(--ts);font-size:14px;line-height:1;cursor:pointer;font-family:inherit;padding:0">'+(aHidden?"+":"−")+'</button></div>';
+      if(!aHidden){docs.forEach(({id:docId,data:r})=>{
         const dt=r.uploadedAt?new Date(r.uploadedAt).toLocaleString("ko-KR",{month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
         const sz=r.fileSize?Math.round(r.fileSize/1024)+"KB":"";
         h+='<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--ibg);border-radius:6px;margin-bottom:3px;flex-wrap:wrap">'
@@ -1945,7 +1946,7 @@ async function renderAudioList(){
           +'<span style="font-size:9px;color:var(--ts)">'+dt+'</span>'
           +(r.downloadUrl?'<a href="'+r.downloadUrl+'" target="_blank" style="font-size:9px;color:var(--primary);text-decoration:none;padding:2px 6px;border:1px solid var(--border);border-radius:4px">▶</a>':"")
           +'<button onclick="deleteAudioFile(\''+docId+'\',\''+esc(r.fileName||"").replace(/\x27/g,"&#39;")+'\')" style="font-size:9px;color:var(--danger);background:transparent;border:1px solid var(--danger);border-radius:4px;padding:2px 6px;cursor:pointer;font-family:inherit">✕</button>'
-          +'</div>'});
+          +'</div>'});}
       h+='</div>';
     }
     listEl.innerHTML=h;
