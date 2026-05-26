@@ -904,6 +904,8 @@ function loadVOC(){
     +'<input type="month" id="vocMonth" class="fi-input" style="width:auto;padding:7px 10px;font-size:12px" value="'+ym+'" onchange="renderVOC()">'
     +'<button onclick="renderVOC()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:11px;cursor:pointer;font-family:inherit;color:var(--success);font-weight:700">🔄</button>'
     +'<button onclick="document.getElementById(\'vocMonth\').value=\'\';renderVOC()" style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:11px;cursor:pointer;font-family:inherit;color:var(--ts)">전체보기</button>'
+    +'<button onclick="downloadVOCExcel()" style="padding:6px 12px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📥 엑셀 다운</button>'
+    +'<button onclick="copyVOCText()" style="padding:6px 12px;border:none;border-radius:6px;background:#9B59B6;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>'
     +'</div>'
     +'<div id="vocSummary" style="margin-bottom:12px"></div>'
     +'<div id="vocBody"></div>';
@@ -930,6 +932,7 @@ async function renderVOC(){
   }catch(e){vocBody.innerHTML='<div style="color:var(--danger);padding:20px">오류: '+e.message+'</div>';return;}
   const entries=snap.docs.map(d=>d.data()).filter(e=>e.field3&&e.field3.trim());
   entries.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  window._vocEntries=entries;
   if(vocSummary){
     const label=ym?(ym.split("-")[0]+"년 "+ym.split("-")[1]+"월"):"전체";
     vocSummary.innerHTML='<div style="background:rgba(155,89,182,.08);border-left:3px solid #9B59B6;border-radius:6px;padding:9px 14px;font-size:12px;display:flex;align-items:center;gap:8px">'
@@ -953,6 +956,42 @@ async function renderVOC(){
     html+='</div>';
   });
   vocBody.innerHTML=html;
+}
+function downloadVOCExcel(){
+  const entries=window._vocEntries||[];
+  if(!entries.length){alert("다운로드할 VOC 데이터가 없습니다.");return;}
+  const ym=document.getElementById("vocMonth")?.value||"";
+  const label=ym?(ym.replace("-","년 ")+"월"):"전체";
+  const rows=[["날짜","지사","이름","대리점 건의사항(VOC)"]];
+  entries.forEach(e=>rows.push([e.date||"",e.branch||"",e.name||"",(e.field3||"").trim()]));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  // 열 너비 설정
+  ws["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:60}];
+  // 헤더 행 스타일
+  ["A1","B1","C1","D1"].forEach(cell=>{
+    if(ws[cell])ws[cell].s={font:{bold:true},fill:{fgColor:{rgb:"EDE7F6"}}};
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"VOC");
+  const fname="VOC_"+label+"_"+new Date().toISOString().slice(0,10)+".xlsx";
+  XLSX.writeFile(wb,fname);
+}
+function copyVOCText(){
+  const entries=window._vocEntries||[];
+  if(!entries.length){alert("복사할 VOC 데이터가 없습니다.");return;}
+  const ym=document.getElementById("vocMonth")?.value||"";
+  const label=ym?(ym.split("-")[0]+"년 "+ym.split("-")[1]+"월"):"전체";
+  let txt="━━━━━━━━━━━━━━━━━━\n📢 대리점 건의사항(VOC)\n📅 "+label+" | 총 "+entries.length+"건\n━━━━━━━━━━━━━━━━━━\n";
+  const grouped={};entries.forEach(e=>{if(!grouped[e.date])grouped[e.date]=[];grouped[e.date].push(e)});
+  Object.entries(grouped).sort((a,b)=>b[0].localeCompare(a[0])).forEach(([date,list])=>{
+    txt+="\n["+fds(date)+"]\n";
+    list.forEach(e=>{txt+="• "+e.branch+" "+e.name+"\n"+e.field3.trim().split("\n").map(l=>"  "+l).join("\n")+"\n";});
+  });
+  txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.querySelector('[onclick="copyVOCText()"]');
+    if(btn){const orig=btn.textContent;btn.textContent="✅ 복사됨!";setTimeout(()=>{btn.textContent=orig;},1800);}
+  }).catch(()=>alert("클립보드 복사 실패. 브라우저 권한을 확인하세요."));
 }
 
 /* ══ WEEKLY ══ */
