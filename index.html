@@ -132,6 +132,7 @@
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 <div id="audioList" style="margin-top:6px"></div>
 </div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(155,89,182,.05),rgba(142,68,173,.03))"><h3>📢 대리점 건의사항 (VOC)</h3></div><textarea id="field3" class="sta" placeholder="대리점 건의사항 입력..."></textarea></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(232,168,56,.06),transparent)"><h3>📷 사진/동영상 첨부 <span style="font-size:9px;font-weight:400;color:var(--ts)">(사진 최대 5장, 동영상 가능)</span></h3></div>
 <div class="audio-upload" style="background:rgba(232,168,56,.05)">
   <label for="mediaFile" style="background:var(--accent)">📷 사진/동영상 선택</label>
@@ -591,16 +592,16 @@ function removeCaseMedia(caseIdx,mediaIdx){
 function getSelectedDate(){return document.getElementById("jDtInput")?.value||tk()}
 function fdsKor(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
 async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
-  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
     // Restore case media from saved data
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
-  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=1;buildCG(null);}}catch(e){buildCG(null);}
+  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);}}catch(e){buildCG(null);}
   renderAudioList();renderMediaList();
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
   const dInp=document.getElementById("jDtInput");dInp.value=tk();
   window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
   }else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
   startDraftTimer();loadH();renderAudioList();renderMediaList();renderF2Tags();}
@@ -612,22 +613,23 @@ async function doSave(){
   }
   const f1=document.getElementById("field1").value.trim();
   const f2=document.getElementById("field2").value.trim();
+  const f3=document.getElementById("field3").value.trim();
   const cases=getCasesData();
   const hasCases=cases.some(c=>c.model||c.serial||c.symptom||c.action||c.note);
   const hasAudio=(window._currentAudios||[]).length>0;
   const hasMedia=(window._currentMedia||[]).length>0;
-  if(!f1&&!f2&&!hasCases&&!hasAudio&&!hasMedia){
+  if(!f1&&!f2&&!f3&&!hasCases&&!hasAudio&&!hasMedia){
     alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항, 첨부 중\n최소 하나 이상 입력해주세요.");
     return;
   }
-  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,cases,audios:window._currentAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
+  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,field3:f3,cases,audios:window._currentAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     autoRegisterSolutionsFromReport(e);
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 /* ══ 카톡 공유 ══ */
@@ -649,6 +651,7 @@ function buildReportText(e){
     txt+="\n";
   }
   if(e.field2&&e.field2.trim()){txt+="━━━ 💬 상담 & 특이사항 ━━━\n"+e.field2.trim()+"\n\n"}
+  if(e.field3&&e.field3.trim()){txt+="━━━ 📢 대리점 건의사항(VOC) ━━━\n"+e.field3.trim()+"\n\n"}
   if(e.audios&&e.audios.length)txt+="🎵 음성 첨부: "+e.audios.length+"개\n";
   if(e.media&&e.media.length){const imgs=e.media.filter(m=>m.kind==="image").length;const vids=e.media.filter(m=>m.kind==="video").length;txt+="📷 첨부: 사진 "+imgs+"장, 동영상 "+vids+"개\n"}
   return txt;
@@ -728,7 +731,7 @@ async function loadH(){try{const snap=await db.collection("reports").where("empI
   const sec=document.getElementById("histSec"),list=document.getElementById("histList");
   if(!docs.length){sec.style.display="none";return}sec.style.display="block";
   list.innerHTML=docs.map(h=>{const cs=h.cases?h.cases.filter(c=>c.model).map(c=>c.model).join(","):"";
-    return'<div class="hc"><div class="hd">'+esc(h.dateLabel||h.date)+'</div>'+(h.field1?'<div class="hl">🏗️ '+esc(h.field1.slice(0,35))+(cs?" ["+esc(cs)+"]":"")+'</div>':'')+(h.field2?'<div class="hl">💬 '+esc(h.field2.slice(0,50))+'</div>':'')+'</div>'}).join("")}catch(e){}}
+    return'<div class="hc"><div class="hd">'+esc(h.dateLabel||h.date)+'</div>'+(h.field1?'<div class="hl">🏗️ '+esc(h.field1.slice(0,35))+(cs?" ["+esc(cs)+"]":"")+'</div>':'')+(h.field2?'<div class="hl">💬 '+esc(h.field2.slice(0,50))+'</div>':'')+(h.field3?'<div class="hl">📢 '+esc(h.field3.slice(0,50))+'</div>':'')+'</div>'}).join("")}catch(e){}}
 
 /* ══ VOICE ══ */
 /* ══ 임시저장 (DRAFT) ══ */
@@ -739,7 +742,7 @@ function startDraftTimer(){
 }
 function autoSaveDraft(){
   if(!CU)return;
-  const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
+  const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",field3:document.getElementById("field3")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
   localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
 }
 function toggleDraft(){
@@ -772,6 +775,7 @@ function loadDraft(){
     if(age>60*24)return false; // 24시간 초과면 무시
     document.getElementById("field1").value=draft.field1||"";
     document.getElementById("field2").value=draft.field2||"";
+    document.getElementById("field3").value=draft.field3||"";
     buildCG(draft.cases||null);
     const st=document.getElementById("draftStatus");
     if(st){const m=new Date(draft.ts);st.textContent="임시저장 "+m.getHours()+":"+String(m.getMinutes()).padStart(2,"0")+" 복원됨";st.style.color="var(--success)";setTimeout(()=>{st.style.color="var(--ts)"},3000)}
@@ -883,6 +887,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       }
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+      if(e.field3)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
       if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
       html+='</div>';
@@ -992,7 +997,8 @@ async function renderWk(){
     }
     html+='<div style="padding:6px 10px">';
     if(e.field1)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
-    if(e.field2)html+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+    if(e.field2)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
+    if(e.field3)html+='<div style="font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field3)+'</div></div>';
     if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
       if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
     html+='</div></div>';
@@ -1234,6 +1240,7 @@ function showAnDetail(model,symptom){
       body+='</table>';
       if(e.field1)body+='<div style="margin-top:6px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)body+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field2)+'</div></div>';
+      if(e.field3)body+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;margin-top:2px;line-height:1.5">'+esc(e.field3)+'</div></div>';
       body+='</div>';
     });
     body+='</div>';
@@ -1376,6 +1383,7 @@ async function buildDailyText(dateStr){
         if(c.note)txt+=c.note.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
       });
       if(e.field2&&e.field2.trim())txt+="  💬 "+e.field2.trim().slice(0,120)+"\n";
+      if(e.field3&&e.field3.trim())txt+="  📢 [VOC] "+e.field3.trim().slice(0,120)+"\n";
     });
   });
   txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";
@@ -1618,7 +1626,7 @@ async function showDet(empId){dEmp=empId;
   document.getElementById("detAct").innerHTML='<button onclick="openEM(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--admin);border-radius:7px;background:transparent;color:var(--admin);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">✏️</button><button onclick="cfDU(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--danger);border-radius:7px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🗑️</button>';
   if(!entries.length){document.getElementById("detList").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';showS("detailScreen");return}
   document.getElementById("detList").innerHTML=entries.map(({id,data:e})=>{
-    const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"}].filter(x=>x.f);
+    const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"},{f:e.field3,l:"VOC",c:"#9B59B6"}].filter(x=>x.f);
     const audioH=(e.audios&&e.audios.length?renderAudioLinks(e.audios):"")+(e.media&&e.media.length?renderMediaLinks(e.media):"");
     let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>"}}
     return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>"}).join("");
@@ -2098,6 +2106,7 @@ async function renderMonthly(){
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
+      if(e.field3)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)html+='<div style="padding:0 10px 8px">'+renderAudioLinks(e.audios)+'</div>';
       if(e.media&&e.media.length)html+='<div style="padding:0 10px 8px">'+renderMediaLinks(e.media)+'</div>';
       html+='</div>';
@@ -2209,7 +2218,7 @@ function loadSearch(){
     +'<input id="srchFrom" type="date" class="fi-input" style="width:auto;padding:6px 8px;font-size:10px" title="시작일">'
     +'<input id="srchTo" type="date" class="fi-input" style="width:auto;padding:6px 8px;font-size:10px" title="종료일">'
     +'<select id="srchField" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px">'
-    +'<option value="all">전체 필드</option><option value="name">이름</option><option value="branch">지사</option><option value="model">모델명</option><option value="symptom">증상</option><option value="action">처리결과</option><option value="note">조치내용</option><option value="field1">현장업무</option><option value="field2">상담내용</option></select>'
+    +'<option value="all">전체 필드</option><option value="name">이름</option><option value="branch">지사</option><option value="model">모델명</option><option value="symptom">증상</option><option value="action">처리결과</option><option value="note">조치내용</option><option value="field1">현장업무</option><option value="field2">상담내용</option><option value="field3">VOC</option></select>'
     +'</div>'
     +'<div style="font-size:10px;color:var(--ts)">※ 날짜 미입력 시 최근 3개월 검색</div>'
     +'</div>'
@@ -2239,7 +2248,7 @@ async function doSearch(){
     // Score-based search
     const scored=[];
     entries.forEach(e=>{
-      const searchables={name:e.name||"",branch:e.branch||"",field1:e.field1||"",field2:e.field2||"",model:(e.cases||[]).map(c=>c.model||"").join(" "),symptom:(e.cases||[]).map(c=>c.symptom||"").join(" "),action:(e.cases||[]).map(c=>c.action||"").join(" "),note:(e.cases||[]).map(c=>c.note||"").join(" ")};
+      const searchables={name:e.name||"",branch:e.branch||"",field1:e.field1||"",field2:e.field2||"",field3:e.field3||"",model:(e.cases||[]).map(c=>c.model||"").join(" "),symptom:(e.cases||[]).map(c=>c.symptom||"").join(" "),action:(e.cases||[]).map(c=>c.action||"").join(" "),note:(e.cases||[]).map(c=>c.note||"").join(" ")};
       const text=fieldF==="all"?Object.values(searchables).join(" ").toLowerCase():( searchables[fieldF]||"").toLowerCase();
       let score=0;const matched=[];
       keywords.forEach(kw=>{if(text.includes(kw)){score++;matched.push(kw);// Bonus for exact name/model match
@@ -2269,7 +2278,8 @@ async function doSearch(){
           if(c.note)h+='<tr><td colspan="5" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="5" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
-      if(e.field2)h+='<div style="font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
+      if(e.field2)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
+      if(e.field3)h+='<div style="font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)h+=renderAudioLinks(e.audios);
       if(e.media&&e.media.length)h+=renderMediaLinks(e.media);
       h+='</div></div>';
@@ -3074,6 +3084,7 @@ async function openMyReports(){
       if(cs)h+='<div style="font-size:10px;color:#3498DB;margin-bottom:3px">🏗 '+esc(cs)+' ('+fc.length+'건)</div>';
       if(f1Preview)h+='<div style="font-size:10px;color:#2980B9;margin-bottom:2px">🔧 '+esc(f1Preview)+(e.field1.length>40?"...":"")+'</div>';
       if(f2Preview)h+='<div style="font-size:10px;color:#00B894;margin-bottom:2px">💬 '+esc(f2Preview)+(e.field2.length>40?"...":"")+'</div>';
+      const f3Preview=(e.field3||"").slice(0,40);if(f3Preview)h+='<div style="font-size:10px;color:#9B59B6;margin-bottom:2px">📢 '+esc(f3Preview)+(e.field3.length>40?"...":"")+'</div>';
       if(audioCount>0)h+='<div style="font-size:10px;color:var(--accent)">🎵 음성 '+audioCount+'개 첨부</div>';
       h+='</div>';
     });
@@ -3091,6 +3102,7 @@ async function userEditReport(docId){
     let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">'+esc(e.dateLabel||e.date)+'</div>';
     h+='<label class="fl">보고일자</label><input type="date" id="aeDate" class="fi-input" value="'+esc(e.date)+'" style="margin-bottom:10px">';
     h+='<label class="fl">상담 & 특이사항</label><textarea id="aeF2" class="fi-input" style="min-height:80px;font-family:inherit;margin-bottom:10px">'+esc(e.field2||"")+'</textarea>';
+    h+='<label class="fl">대리점 건의사항 (VOC)</label><textarea id="aeF3" class="fi-input" style="min-height:80px;font-family:inherit;margin-bottom:10px">'+esc(e.field3||"")+'</textarea>';
     h+='<label class="fl">현장지원</label><div id="aeCases" style="margin-bottom:10px"></div>';
     if(e.audios&&e.audios.length){
       h+='<label class="fl">첨부 음성</label><div style="margin-bottom:10px" id="aeAudios">';
@@ -3115,15 +3127,16 @@ async function saveUserEdit(oldDocId,oldEntry){
     const newDate=document.getElementById("aeDate").value;
     const f1=document.getElementById("aeF1")?.value||oldEntry.field1||"";
     const f2=document.getElementById("aeF2").value;
+    const f3=document.getElementById("aeF3")?.value||"";
     const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial);
     const audioElems=document.querySelectorAll("#aeAudios > div");
     const remainingAudios=[];
     audioElems.forEach(el=>{const idx=+el.dataset.idx;if(oldEntry.audios&&oldEntry.audios[idx])remainingAudios.push(oldEntry.audios[idx])});
     // Validate not all empty
-    if(!f1.trim()&&!f2.trim()&&!cases.length&&!remainingAudios.length){
+    if(!f1.trim()&&!f2.trim()&&!f3.trim()&&!cases.length&&!remainingAudios.length){
       alert("⚠️ 작성되지 않았습니다.\n최소 하나 이상 입력해주세요.");return;
     }
-    const updated={...oldEntry,date:newDate,dateLabel:fdsKor(newDate),field1:f1,field2:f2,cases,audios:remainingAudios,savedAt:new Date().toISOString()};
+    const updated={...oldEntry,date:newDate,dateLabel:fdsKor(newDate),field1:f1,field2:f2,field3:f3,cases,audios:remainingAudios,savedAt:new Date().toISOString()};
     const newDocId=newDate+"_"+oldEntry.empId;
     if(newDocId!==oldDocId)await db.collection("reports").doc(oldDocId).delete();
     await db.collection("reports").doc(newDocId).set(updated);
