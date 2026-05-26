@@ -1009,6 +1009,8 @@ function loadWeek(){
     +'<select id="wkBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderWk()"><option value="전체">전체</option>';
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
   h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderWk()">🔄</button>'
+    +'<button onclick="downloadWkExcel()" style="padding:6px 12px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📥 엑셀 다운</button>'
+    +'<button onclick="copyWkText()" style="padding:6px 12px;border:none;border-radius:6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>'
     +'</div><div id="wkBody"></div>';
   document.getElementById("tabWeekly").innerHTML=h;
   document.getElementById("tabWeekly").dataset.mon=mon.toISOString().slice(0,10);
@@ -1062,6 +1064,7 @@ async function renderWk(){
   }
   if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
   entries.sort((a,b)=>a.date.localeCompare(b.date)||(a.branch||"").localeCompare(b.branch||""));
+  window._wkEntries=entries;window._wkLabel=label;
   // Summary stats for monthly
   let summaryHtml="";
   if(mode==="month"&&entries.length>0){
@@ -1102,6 +1105,65 @@ async function renderWk(){
     html+='</div></div>';
   });
   document.getElementById("wkBody").innerHTML=html}
+
+function downloadWkExcel(){
+  const entries=window._wkEntries||[];
+  if(!entries.length){alert("다운로드할 데이터가 없습니다.");return;}
+  const label=window._wkLabel||"주간";
+  // 시트1: 보고서 요약
+  const rptRows=[["날짜","지사","이름","현장지원(건)","현장업무","상담&특이사항","VOC"]];
+  entries.forEach(e=>{
+    const caseCount=(e.cases||[]).filter(c=>c.model||c.symptom).length;
+    rptRows.push([e.date||"",e.branch||"",e.name||"",caseCount,(e.field1||"").trim(),(e.field2||"").trim(),(e.field3||"").trim()]);
+  });
+  // 시트2: 현장지원 케이스
+  const caseRows=[["날짜","지사","이름","모델","용량","기종구분","구분","S/N","증상","처리결과","조치내용"]];
+  entries.forEach(e=>{
+    (e.cases||[]).filter(c=>c.model||c.symptom).forEach(c=>{
+      caseRows.push([e.date||"",e.branch||"",e.name||"",c.model||"",c.capacity||"",c.openclose||"",c.category||"",c.serial||"",c.symptom||"",c.action||"",c.note||""]);
+    });
+  });
+  const wsR=XLSX.utils.aoa_to_sheet(rptRows);
+  wsR["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:8},{wch:30},{wch:30},{wch:30}];
+  ["A1","B1","C1","D1","E1","F1","G1"].forEach(c=>{if(wsR[c])wsR[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
+  const wsC=XLSX.utils.aoa_to_sheet(caseRows);
+  wsC["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:10},{wch:6},{wch:8},{wch:8},{wch:14},{wch:20},{wch:20},{wch:20}];
+  ["A1","B1","C1","D1","E1","F1","G1","H1","I1","J1","K1"].forEach(c=>{if(wsC[c])wsC[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,wsR,"보고서요약");
+  if(caseRows.length>1)XLSX.utils.book_append_sheet(wb,wsC,"현장지원");
+  const fname="주간보고_"+label.replace(/\s/g,"_").replace(/~/g,"-")+"_"+new Date().toISOString().slice(0,10)+".xlsx";
+  XLSX.writeFile(wb,fname);
+}
+function copyWkText(){
+  const entries=window._wkEntries||[];
+  if(!entries.length){alert("복사할 데이터가 없습니다.");return;}
+  const label=window._wkLabel||"주간";
+  const totalCases=entries.reduce((s,e)=>s+(e.cases||[]).filter(c=>c.model||c.symptom).length,0);
+  let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 주간보고\n📅 "+label+"\n━━━━━━━━━━━━━━━━━━\n";
+  txt+="📊 제출 "+entries.length+"건 · 현장지원 "+totalCases+"건\n";
+  // 날짜별로 그룹핑
+  const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e)});
+  Object.entries(byDate).forEach(([date,list])=>{
+    txt+="\n━━━ 📅 "+fds(date)+" ━━━\n";
+    list.forEach(e=>{
+      txt+="👤 "+e.branch+" "+e.name+"\n";
+      const fc=(e.cases||[]).filter(c=>c.model||c.symptom);
+      fc.forEach(c=>{
+        const parts=[c.model,c.capacity,c.category].filter(Boolean).join(" ");
+        txt+="  • "+(parts||"현장지원")+(c.symptom?" / "+c.symptom:"")+(c.action?" → "+c.action:"")+"\n";
+        if(c.note)txt+=c.note.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
+      });
+      if(e.field2&&e.field2.trim())txt+="  💬 "+e.field2.trim().slice(0,120)+"\n";
+      if(e.field3&&e.field3.trim())txt+="  📢 [VOC] "+e.field3.trim().slice(0,120)+"\n";
+    });
+  });
+  txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.querySelector('[onclick="copyWkText()"]');
+    if(btn){const orig=btn.textContent;btn.textContent="✅ 복사됨!";setTimeout(()=>{btn.textContent=orig;},1800);}
+  }).catch(()=>alert("클립보드 복사 실패. 브라우저 권한을 확인하세요."));
+}
 
 /* ══ ANALYSIS ══ */
 function loadAnal(){const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
