@@ -1856,16 +1856,20 @@ function renderDetEntries(){
   const allEntries=window._detAllEntries||[];
   const today=tk();const curMonth=today.slice(0,7);const curWeekStr=dateToWeekStr(today);
   let filtered=allEntries;
-  if(detPeriod.type==='month')filtered=allEntries.filter(({data:e})=>e.date&&e.date.startsWith(detPeriod.value));
+  if(detPeriod.type==='date')filtered=allEntries.filter(({data:e})=>e.date===detPeriod.value);
+  else if(detPeriod.type==='month')filtered=allEntries.filter(({data:e})=>e.date&&e.date.startsWith(detPeriod.value));
   else if(detPeriod.type==='week'&&detPeriod.range)filtered=allEntries.filter(({data:e})=>e.date>=detPeriod.range.s&&e.date<=detPeriod.range.e);
   const cnt=filtered.length;
   let periodLabel='';
-  if(detPeriod.type==='month')periodLabel=detPeriod.value.slice(0,4)+'년 '+detPeriod.value.slice(5)+'월';
+  if(detPeriod.type==='date')periodLabel=fds(detPeriod.value);
+  else if(detPeriod.type==='month')periodLabel=detPeriod.value.slice(0,4)+'년 '+detPeriod.value.slice(5)+'월';
   else if(detPeriod.type==='week'&&detPeriod.range)periodLabel=detPeriod.range.s+' ~ '+detPeriod.range.e;
+  const datePick=detPeriod.type==='date'?detPeriod.value:today;
   let h='<div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'
     +'<button class="atab'+(detPeriod.type==='all'?' active':'')+'" onclick="setDetPeriod(\'all\',\'\')" style="padding:5px 10px;font-size:10px">전체</button>'
     +'<button class="atab'+(detPeriod.type==='month'&&detPeriod.value===curMonth?' active':'')+'" onclick="setDetPeriod(\'month\',\''+curMonth+'\')" style="padding:5px 10px;font-size:10px">이번달</button>'
     +'<button class="atab'+(detPeriod.type==='week'?' active':'')+'" onclick="setDetPeriod(\'week\',\''+curWeekStr+'\')" style="padding:5px 10px;font-size:10px">이번주</button>'
+    +'<input type="date" class="fi-input" value="'+datePick+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setDetPeriod(\'date\',this.value)" title="날짜 지정">'
     +'<input type="month" class="fi-input" value="'+(detPeriod.type==='month'?detPeriod.value:curMonth)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setDetPeriod(\'month\',this.value)">'
     +'<input type="week" class="fi-input" value="'+(detPeriod.type==='week'?detPeriod.value:curWeekStr)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setDetPeriod(\'week\',this.value)">'
     +'</div>';
