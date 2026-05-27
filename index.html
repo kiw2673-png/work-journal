@@ -9,6 +9,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -204,6 +205,8 @@ const DEF_MODELS=[{n:"DNB",c:["13","16","20","25","30"]},{n:"DNB_H",c:["13","16"
 const DEF_CATS=["설치","수리","점검","클레임","현장지원","품질상담","기술상담","부품상담","콜센터상담","민원상담","기타"];
 const DEF_SYM=["A-물보충","A1-통신/온도센서","A2-급기팬","A3-펌프/합선","A4-과열/순환","A5-헛불단선","A6-점화불량","A7-거버너/릴레이","A8-화염신호","A9-동파예방","AA-비등방지","Ac-온수센서","Ad-응축수센서","AE-역압발생","소음","작동불량","난방/온수불량","파손/누설","누수/동파","현장지원요청","기술문의","부품문의","민원","콜센터","특판","기타"];
 const DEF_ACT=["사용법 안내","정상 작동 확인","전화 상담 해결","설치 환경 개선","프로그램 수정","EEP데이터 수정","부품 교체","제품 교체","보상 판매","환불","재방문 예정","설비 및 타업체 이관","고객 취소/부재"];
+const DEF_MODEL_CATS=[{name:"보일러",models:["DEC","DNB","DNB_H","DiB","DNC","DNC1","DQC","DOC","DPC"]},{name:"가스온수기",models:["HW","DSW"]},{name:"전기온수기",models:["RZB","RZL","DSF"]},{name:"캐스케이드",models:["DRB","DRS","DRP"]},{name:"기름보일러",models:["DSO"]},{name:"기타",models:[]}];
+function getModelCats(){return _settings?.modelCategories||DEF_MODEL_CATS}
 
 let CU=null,AF="전체",caseCount=1,admTab="stats";
 let statPeriod={type:'all',value:''};let detPeriod={type:'all',value:''};
@@ -1337,14 +1340,20 @@ async function renderAn(){
   const DEF_SLICE_MODELS=["DNB","DiB","DNC1","DQC","DOC","DPC"];
   if(!window._anSliceModels)window._anSliceModels=[...DEF_SLICE_MODELS];
   const sliceModels=window._anSliceModels;
-  const availableModels=[...new Set([...DEF_SLICE_MODELS,...Object.keys(rows)])].sort();
+  const modelCatDefs=getModelCats();
+  const allCatModels=[].concat(...modelCatDefs.map(c=>c.models||[]));
+  const availableModels=[...new Set([...allCatModels,...Object.keys(rows)])].sort();
+  const assignedModels=new Set(allCatModels);
 
   html+='<div class="chart-wrap" style="margin-bottom:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">'
     +'<h4 style="font-size:12px;font-weight:700">📊 모델별 증상현황 분포</h4>'
     +'<span style="font-size:9px;color:var(--ts)">클릭으로 선택/해제</span></div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sliceChips">';
-  availableModels.forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:4px 10px;border-radius:20px;border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>'});
+    +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
+  modelCatDefs.forEach(cat=>{const cm=cat.models||[];const allSel=cm.length>0&&cm.every(m=>sliceModels.includes(m));const someSel=cm.some(m=>sliceModels.includes(m));html+='<button onclick="selectSliceCat(\''+esc(cat.name)+'\')" style="padding:4px 12px;border-radius:6px;border:1.5px solid '+(allSel?'var(--admin)':someSel?'var(--primary)':'var(--border)')+';background:'+(allSel?'var(--admin)':someSel?'rgba(52,152,219,.12)':'transparent')+';color:'+(allSel?'#fff':someSel?'var(--primary)':'var(--ts)')+';font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(cat.name)+'</button>'});
+  html+='</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sliceChips">';
+  modelCatDefs.forEach(cat=>{(cat.models||[]).filter(m=>availableModels.includes(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>')})});
+  availableModels.filter(m=>!assignedModels.has(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px dashed '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>'});
   html+='</div>';
 
   if(sliceModels.length===0){html+='<div style="text-align:center;padding:16px;color:var(--ts);font-size:11px">모델을 선택해주세요</div>';}
@@ -1417,7 +1426,8 @@ async function renderAn(){
     if(_anChart){try{_anChart.destroy()}catch(e){}_anChart=null}
     const ctx=document.getElementById("anPie");
     if(ctx&&typeof Chart!=="undefined"){
-      _anChart=new Chart(ctx,{type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
+      const _dlPlugin=typeof ChartDataLabels!=="undefined"?[ChartDataLabels]:[];
+      _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
     }
   }
 }
@@ -1427,6 +1437,17 @@ function toggleSliceModel(model){
   const idx=window._anSliceModels.indexOf(model);
   if(idx>=0)window._anSliceModels.splice(idx,1);
   else window._anSliceModels.push(model);
+  renderAn();
+}
+function selectSliceCat(catName){
+  const cats=getModelCats();
+  const cat=cats.find(c=>c.name===catName);
+  if(!cat)return;
+  const cm=cat.models||[];
+  if(!window._anSliceModels)window._anSliceModels=[];
+  const allSel=cm.length>0&&cm.every(m=>window._anSliceModels.includes(m));
+  if(allSel){window._anSliceModels=window._anSliceModels.filter(m=>!cm.includes(m));}
+  else{cm.forEach(m=>{if(!window._anSliceModels.includes(m))window._anSliceModels.push(m)});}
   renderAn();
 }
 
@@ -1481,7 +1502,7 @@ function showAnDetail(model,symptom){
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])]};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])],modelCategories:JSON.parse(JSON.stringify(getModelCats()))};renderSett()}
 function renderSett(){const p=pendS;let h='';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
@@ -1502,6 +1523,19 @@ function renderSett(){const p=pendS;let h='';
   h+='<div class="stag"><h4>📦 모델명 & 용량</h4>';
   p.models.forEach((m,i)=>{h+='<div style="display:flex;align-items:center;gap:4px;margin-bottom:4px"><span class="stag-item"><b>'+esc(m.n)+'</b> ['+m.c.join(",")+'] <button class="rx" onclick="pendS.models.splice('+i+',1);renderSett()">✕</button></span></div>'});
   h+='<div class="stag-add"><input id="sNM" placeholder="모델명"><input id="sNMC" placeholder="용량(쉼표)"><button onclick="addSM()">추가</button></div></div>';
+  h+='<div class="stag"><h4>📊 분석탭 모델 카테고리</h4><p style="font-size:10px;color:var(--ts);margin:0 0 8px">카테고리 버튼으로 모델을 한번에 선택/해제합니다. 카테고리명 수정, 모델 추가/삭제 가능.</p>';
+  (p.modelCategories||[]).forEach((cat,ci)=>{
+    h+='<div style="background:var(--ibg);border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid var(--primary)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<input value="'+esc(cat.name)+'" onchange="pendS.modelCategories['+ci+'].name=this.value" style="font-weight:700;font-size:11px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:inherit;background:#fff;width:100px">'
+      +'<button class="rx" onclick="pendS.modelCategories.splice('+ci+',1);renderSett()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px">✕</button></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">';
+    (cat.models||[]).forEach((m,mi)=>{
+      h+='<span class="stag-item">'+esc(m)+' <button class="rx" onclick="pendS.modelCategories['+ci+'].models.splice('+mi+',1);renderSett()">✕</button></span>';
+    });
+    h+='</div><div style="display:flex;gap:3px"><input id="addMC'+ci+'" placeholder="모델명 추가" style="flex:1;padding:4px;font-size:10px;border:1px solid var(--border);border-radius:4px;font-family:inherit"><button onclick="addModelToCat('+ci+')" style="padding:4px 8px;border:none;border-radius:5px;background:var(--primary);color:#fff;font-size:10px;cursor:pointer;font-family:inherit">추가</button></div></div>';
+  });
+  h+='<button onclick="addNewCat()" style="padding:5px 12px;border:1.5px dashed var(--border);border-radius:6px;background:transparent;font-size:10px;cursor:pointer;font-family:inherit;color:var(--ts);margin-top:4px">+ 카테고리 추가</button></div>';
   h+=bSL("구분","cats","sNC");h+=bSL("문제증상","syms","sNS");h+=bSL("처리결과","acts","sNA");
   h+='<div class="stag"><h4>🔄 기종 구분 (OD/CD 등)</h4><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px" id="ocList">';
   (p.opencloseOpts||["OD","CD"]).forEach((o,i)=>{h+='<span class="stag-item">'+esc(o)+' <button class="rx" onclick="pendS.opencloseOpts.splice('+i+',1);renderSett()">✕</button></span>'});
@@ -1532,6 +1566,8 @@ function bSL(t,k,iid){let h='<div class="stag"><h4>'+t+'</h4><div class="stag-li
   h+='</div><div class="stag-add"><input id="'+iid+'" placeholder="새 항목"><button onclick="addSI(\''+k+'\',\''+iid+'\')">추가</button></div></div>';return h}
 function addSM(){const n=document.getElementById("sNM").value.trim(),c=document.getElementById("sNMC").value.trim();if(!n)return;pendS.models.push({n,c:c?c.split(",").map(s=>s.trim()):[]});renderSett()}
 function addSI(k,iid){const v=document.getElementById(iid).value.trim();if(!v)return;pendS[k].push(v);renderSett()}
+function addModelToCat(ci){const input=document.getElementById("addMC"+ci);if(!input||!input.value.trim())return;const m=input.value.trim();if(!pendS.modelCategories[ci].models)pendS.modelCategories[ci].models=[];if(!pendS.modelCategories[ci].models.includes(m))pendS.modelCategories[ci].models.push(m);renderSett()}
+function addNewCat(){const name=prompt("새 카테고리명을 입력하세요:");if(!name||!name.trim())return;if(!pendS.modelCategories)pendS.modelCategories=[];if(pendS.modelCategories.find(c=>c.name===name.trim())){alert("이미 존재하는 카테고리명입니다.");return;}pendS.modelCategories.push({name:name.trim(),models:[]});renderSett()}
 async function saveSett(){
   try{
     const wk=document.getElementById("sWK")?.value||"";
@@ -1539,7 +1575,7 @@ async function saveSett(){
     const tgt=document.getElementById("sTGT")?.value.trim()||"";
     const tgc=document.getElementById("sTGC")?.value.trim()||"";
     const tgat=document.getElementById("sTGAT")?.value||"21:00";
-    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[]});
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[],modelCategories:pendS.modelCategories||DEF_MODEL_CATS});
     renderF2Tags();
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
