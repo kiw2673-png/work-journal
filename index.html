@@ -74,8 +74,8 @@
 .bcard .nm{font-size:11px;font-weight:600;margin-bottom:4px}.bcard.active .nm{color:var(--admin)}
 .bbar{margin-top:4px;height:3px;border-radius:2px;background:var(--border)}.bbar-f{height:100%;border-radius:2px;background:var(--admin)}
 .utbl{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
-.uth{display:grid;grid-template-columns:1.2fr .8fr 60px 90px;padding:10px 14px;background:var(--ibg);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--ts);gap:6px}
-.utr{display:grid;grid-template-columns:1.2fr .8fr 60px 90px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;gap:6px;align-items:center;font-size:11px}
+.uth{display:grid;grid-template-columns:1.2fr .8fr 50px 60px 55px;padding:10px 14px;background:var(--ibg);border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--ts);gap:6px}
+.utr{display:grid;grid-template-columns:1.2fr .8fr 50px 60px 55px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;gap:6px;align-items:center;font-size:11px}
 .utr:last-child{border-bottom:none}.utr:hover{background:rgba(108,52,131,.02)}
 .cbf{flex:1;height:5px;border-radius:3px;background:var(--border);overflow:hidden}.cbf-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--admin),var(--al))}
 .sd{width:7px;height:7px;border-radius:50%;flex-shrink:0}.sd.y{background:var(--success)}.sd.n{background:#DFE6E9;border:1px solid #B2BEC3}
@@ -106,7 +106,7 @@
 .prog-fill{height:100%;background:var(--success);border-radius:2px;transition:width .3s}
 .cell-wrap{white-space:normal;word-break:break-all;min-width:60px;max-width:120px;font-size:9px;line-height:1.4}
 .cell-note{white-space:normal;word-break:break-word;font-size:9px;line-height:1.5;color:#555}
-@media(max-width:480px){.acard{padding:28px 20px}.cw,.aw{padding:14px 8px 80px}.cg{grid-template-columns:1fr 1fr}.uth,.utr{grid-template-columns:1fr .6fr 45px 70px;font-size:10px;padding:8px 10px}}
+@media(max-width:480px){.acard{padding:28px 20px}.cw,.aw{padding:14px 8px 80px}.cg{grid-template-columns:1fr 1fr}.uth,.utr{grid-template-columns:1fr .5fr 38px 40px 38px;font-size:10px;padding:8px 10px}}
 </style>
 </head>
 <body>
@@ -206,6 +206,7 @@ const DEF_SYM=["A-물보충","A1-통신/온도센서","A2-급기팬","A3-펌프/
 const DEF_ACT=["사용법 안내","정상 작동 확인","전화 상담 해결","설치 환경 개선","프로그램 수정","EEP데이터 수정","부품 교체","제품 교체","보상 판매","환불","재방문 예정","설비 및 타업체 이관","고객 취소/부재"];
 
 let CU=null,AF="전체",caseCount=1,admTab="stats";
+let statPeriod={type:'all',value:''};let detPeriod={type:'all',value:''};
 let _settings=null;
 
 // Settings cache
@@ -838,21 +839,84 @@ function switchAT(tab){admTab=tab;buildATabs();
   const el=document.getElementById(tabIdMap[tab]||"tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
   if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="search")loadSearch();else if(tab==="csr")loadSolutions();else if(tab==="voc")loadVOC();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload()}
 
+function weekToRange(yw){
+  if(!yw||!yw.includes('-W'))return null;
+  const[y,w]=yw.split('-W');const yr=+y,wn=+w;
+  const jan4=new Date(yr,0,4);const mon=new Date(jan4);mon.setDate(jan4.getDate()-(jan4.getDay()||7)+1+(wn-1)*7);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  return{s:fmt(mon),e:fmt(sun)};
+}
+function dateToWeekStr(ds){
+  const d=new Date(ds+'T12:00:00');const tmp=new Date(d);tmp.setDate(d.getDate()-(d.getDay()||7)+4);
+  const yr=tmp.getFullYear();const jan1=new Date(yr,0,1);const wk=Math.ceil(((tmp-jan1)/864e5+1)/7);
+  return yr+'-W'+String(wk).padStart(2,'0');
+}
+function setStatPeriod(type,value){statPeriod={type,value,range:type==='week'?weekToRange(value):null};renderStatsTable();}
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
   const usersSnap=await db.collection("users").get();const users=usersSnap.docs.map(d=>d.data());
-  const rptSnap=await db.collection("reports").get();const today=tk();
-  const stats={};rptSnap.docs.forEach(d=>{const e=d.data();if(!stats[e.empId])stats[e.empId]={count:0,dates:[]};stats[e.empId].count++;stats[e.empId].dates.push(e.date)});
-  const ts=Object.values(stats).reduce((s,v)=>s+v.count,0),tds=Object.values(stats).reduce((s,v)=>s+(v.dates.includes(today)?1:0),0);
+  const rptSnap=await db.collection("reports").get();const allEntries=rptSnap.docs.map(d=>d.data());
+  window._aU=users;window._aAllE=allEntries;
+  const today=tk();
+  const allStats={};allEntries.forEach(e=>{if(!allStats[e.empId])allStats[e.empId]={count:0,dates:[]};allStats[e.empId].count++;allStats[e.empId].dates.push(e.date)});
+  const ts=Object.values(allStats).reduce((s,v)=>s+v.count,0),tds=Object.values(allStats).reduce((s,v)=>s+(v.dates.includes(today)?1:0),0);
   document.getElementById("admStats").innerHTML=[{i:"👥",v:users.length,l:"등록"},{i:"📝",v:tds,l:"오늘"},{i:"📊",v:ts,l:"누적"},{i:"🚨",v:Math.max(0,users.length-tds),l:"미제출"}].map(c=>'<div class="stci"><div style="font-size:14px">'+c.i+'</div><div class="v">'+c.v+'</div><div class="l">'+c.l+'</div></div>').join("");
+  renderStatsTable();
+}
+function renderStatsTable(){
+  const users=window._aU||[];const allEntries=window._aAllE||[];
+  const today=tk();const curMonth=today.slice(0,7);const curWeekStr=dateToWeekStr(today);
+  let filtered=allEntries;
+  if(statPeriod.type==='month')filtered=allEntries.filter(e=>e.date&&e.date.startsWith(statPeriod.value));
+  else if(statPeriod.type==='week'&&statPeriod.range)filtered=allEntries.filter(e=>e.date>=statPeriod.range.s&&e.date<=statPeriod.range.e);
+  const stats={};filtered.forEach(e=>{
+    if(!stats[e.empId])stats[e.empId]={count:0,cases:0,consult:0,dates:[]};
+    stats[e.empId].count++;stats[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);
+    if(e.field2&&e.field2.trim())stats[e.empId].consult++;stats[e.empId].dates.push(e.date);
+  });
+  window._aS=stats;
   const bs={};users.forEach(u=>{if(!bs[u.branch])bs[u.branch]={t:0,s:0,c:0};bs[u.branch].t++;bs[u.branch].c+=(stats[u.empId]?.count||0);if(stats[u.empId]?.dates.includes(today))bs[u.branch].s++});
-  let h='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">🏢 지사별</h3><div class="bgrid">'+DEF_BR.map(b=>{const s=bs[b]||{t:0,s:0,c:0};const a=AF===b;const p=s.t>0?s.s/s.t*100:0;return'<div class="bcard'+(a?" active":"")+'" onclick="AF=AF===\''+b+'\'?\'전체\':\''+b+'\';loadStats()"><div class="nm">'+b+'</div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ts)"><span>'+s.t+'명</span><span>'+s.s+'/'+s.t+'</span></div><div class="bbar"><div class="bbar-f" style="width:'+p+'%"></div></div></div>'}).join("")+'</div>';
-  const f=users.filter(u=>AF==="전체"||u.branch===AF),mx=Math.max(1,...Object.values(stats).map(s=>s.count)),so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
+  let periodLabel='';
+  if(statPeriod.type==='month')periodLabel='📅 '+statPeriod.value.slice(0,4)+'년 '+statPeriod.value.slice(5)+'월';
+  else if(statPeriod.type==='week'&&statPeriod.range)periodLabel='📅 '+statPeriod.range.s+' ~ '+statPeriod.range.e;
+  let h='<div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'
+    +'<button class="atab'+(statPeriod.type==='all'?' active':'')+'" onclick="setStatPeriod(\'all\',\'\')" style="padding:5px 10px;font-size:10px">전체</button>'
+    +'<button class="atab'+(statPeriod.type==='month'&&statPeriod.value===curMonth?' active':'')+'" onclick="setStatPeriod(\'month\',\''+curMonth+'\')" style="padding:5px 10px;font-size:10px">이번달</button>'
+    +'<button class="atab'+(statPeriod.type==='week'?' active':'')+'" onclick="setStatPeriod(\'week\',\''+curWeekStr+'\')" style="padding:5px 10px;font-size:10px">이번주</button>'
+    +'<input type="month" class="fi-input" value="'+(statPeriod.type==='month'?statPeriod.value:curMonth)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setStatPeriod(\'month\',this.value)">'
+    +'<input type="week" class="fi-input" value="'+(statPeriod.type==='week'?statPeriod.value:curWeekStr)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setStatPeriod(\'week\',this.value)">'
+    +'<div style="flex:1"></div>'
+    +'<button onclick="downloadStatsExcel()" style="padding:5px 10px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">📥 엑셀</button>'
+    +'<button onclick="copyStatsText()" style="padding:5px 10px;border:none;border-radius:6px;background:#9B59B6;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit">📋 복사</button>'
+    +'</div>';
+  if(periodLabel)h+='<div style="font-size:11px;color:var(--primary);font-weight:600;margin-bottom:8px">'+periodLabel+'</div>';
+  h+='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">🏢 지사별</h3><div class="bgrid">'+DEF_BR.map(b=>{const s=bs[b]||{t:0,s:0,c:0};const a=AF===b;const p=s.t>0?s.s/s.t*100:0;return'<div class="bcard'+(a?" active":"")+'" onclick="AF=AF===\''+b+'\'?\'전체\':\''+b+'\';renderStatsTable()"><div class="nm">'+b+'</div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ts)"><span>'+s.t+'명</span><span>'+s.s+'/'+s.t+'</span></div><div class="bbar"><div class="bbar-f" style="width:'+p+'%"></div></div></div>'}).join("")+'</div>';
+  const f=users.filter(u=>AF==="전체"||u.branch===AF);const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
   h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="font-size:13px;font-weight:700">👤 담당자</h3><button onclick="loadStats()" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);font-size:10px;cursor:pointer;font-family:inherit;color:var(--ts)">🔄</button></div>';
-  h+='<div class="utbl"><div class="uth"><div>이름</div><div>지사</div><div style="text-align:center">등록</div><div>현황</div></div>';
-  so.forEach(u=>{const s=stats[u.empId]||{count:0,dates:[]};const sb=s.dates.includes(today);const rl=u.role==="admin"?'<span style="color:var(--admin);font-size:8px">관리자</span>':"";
-    h+='<div class="utr" onclick="showDet(\''+u.empId+'\')"><div><div style="font-weight:600">'+esc(u.name)+' '+rl+'</div><div style="font-size:9px;color:var(--ts)">'+u.empId+'</div></div><div style="color:var(--ts)">'+esc(u.branch)+'</div><div style="text-align:center"><span style="font-size:16px;font-weight:800;color:var(--admin)">'+s.count+'</span></div><div style="display:flex;align-items:center;gap:5px"><div class="cbf"><div class="cbf-f" style="width:'+(s.count/mx*100)+'%"></div></div><div class="sd '+(sb?"y":"n")+'"></div></div></div>'});
-  h+='</div>';document.getElementById("tabStats").innerHTML=h;window._aU=users;window._aS=stats}
+  h+='<div class="utbl"><div class="uth"><div>이름</div><div>지사</div><div style="text-align:center">등록</div><div style="text-align:center">현장지원</div><div style="text-align:center">상담건</div></div>';
+  so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0,dates:[]};const sb=s.dates.includes(today);const rl=u.role==="admin"?'<span style="color:var(--admin);font-size:8px">관리자</span>':"";
+    h+='<div class="utr" onclick="showDet(\''+u.empId+'\')"><div><div style="font-weight:600">'+esc(u.name)+' '+rl+'</div><div style="font-size:9px;color:var(--ts)">'+u.empId+'</div></div><div style="color:var(--ts)">'+esc(u.branch)+'</div><div style="text-align:center"><span style="font-size:16px;font-weight:800;color:var(--admin)">'+s.count+'</span></div><div style="text-align:center"><span style="font-size:14px;font-weight:700;color:#3498DB">'+s.cases+'</span></div><div style="text-align:center"><span style="font-size:14px;font-weight:700;color:#00B894">'+s.consult+'</span></div></div>';});
+  h+='</div>';document.getElementById("tabStats").innerHTML=h;
+}
+function downloadStatsExcel(){
+  const users=window._aU||[];const stats=window._aS||{};
+  const f=users.filter(u=>AF==="전체"||u.branch===AF);const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
+  let pl='전체';if(statPeriod.type==='month')pl=statPeriod.value;else if(statPeriod.type==='week'&&statPeriod.range)pl=statPeriod.range.s+'~'+statPeriod.range.e;
+  const rows=[['기간','이름','지사','등록건수','현장지원','상담건']];
+  so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0};rows.push([pl,u.name,u.branch,s.count,s.cases,s.consult]);});
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='담당자통계_'+pl+'.csv';a.click();URL.revokeObjectURL(url);
+}
+function copyStatsText(){
+  const users=window._aU||[];const stats=window._aS||{};
+  const f=users.filter(u=>AF==="전체"||u.branch===AF);const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
+  let pl='전체';if(statPeriod.type==='month')pl=statPeriod.value;else if(statPeriod.type==='week'&&statPeriod.range)pl=statPeriod.range.s+' ~ '+statPeriod.range.e;
+  let txt='[담당자별 통계] '+pl+'\n이름\t지사\t등록\t현장지원\t상담건\n'+'─'.repeat(36)+'\n';
+  so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0};txt+=u.name+'\t'+u.branch+'\t'+s.count+'\t'+s.cases+'\t'+s.consult+'\n';});
+  navigator.clipboard.writeText(txt).then(()=>alert('✅ 복사되었습니다')).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('✅ 복사되었습니다');});
+}
 
 /* ══ REPORT ══ */
 function loadRpt(){let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap"><button class="atab" style="padding:6px 10px" onclick="mvRD(-1)">◀</button><input type="date" id="rptDate" class="fi-input" style="width:auto;padding:7px 10px;font-size:12px" onchange="renderRpt()"><button class="atab" style="padding:6px 10px" onclick="mvRD(1)">▶</button><button class="atab" style="padding:6px 10px;color:var(--admin);font-weight:700" onclick="goTD()">오늘</button><button class="atab" style="padding:6px 10px;color:var(--success);font-weight:700" onclick="renderRpt()">🔄</button><button onclick="shareDailyReport()" style="padding:6px 12px;border:none;border-radius:6px;background:#2CA5E0;color:#fff;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">✈️ 일괄 텔레그램</button></div><div id="rptLabel" style="font-size:14px;font-weight:700;margin-bottom:12px"></div><div id="rptBody"></div>';
@@ -1778,19 +1842,44 @@ async function executeRenameEmpIds(){
 
 /* ══ DETAIL ══ */
 let dEmp=null;
-async function showDet(empId){dEmp=empId;
+function setDetPeriod(type,value){detPeriod={type,value,range:type==='week'?weekToRange(value):null};renderDetEntries();}
+async function showDet(empId){dEmp=empId;detPeriod={type:'all',value:''};
   const userDoc=await db.collection("users").doc(empId).get();const user=userDoc.data();if(!user)return;
   const snap=await db.collection("reports").where("empId","==",empId).get();
-  const entries=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.date||"").localeCompare(a.data.date||""));const count=entries.length;const today=tk();const hasToday=entries.some(e=>e.data.date===today);
-  document.getElementById("detUsr").innerHTML='<div><div style="font-size:16px;font-weight:700">'+esc(user.name)+(user.role==="admin"?' <span style="font-size:10px;color:var(--admin)">관리자</span>':'')+'</div><div style="font-size:11px;opacity:.7">'+esc(user.branch)+" · "+empId+'</div></div><div style="display:flex;gap:8px"><div style="background:rgba(255,255,255,.1);padding:6px 12px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:800">'+count+'</div><div style="font-size:9px;opacity:.7">등록</div></div></div>';
+  const allEntries=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>(b.data.date||"").localeCompare(a.data.date||""));
+  window._detAllEntries=allEntries;window._detEmpId=empId;
+  const count=allEntries.length;
+  document.getElementById("detUsr").innerHTML='<div><div style="font-size:16px;font-weight:700">'+esc(user.name)+(user.role==="admin"?' <span style="font-size:10px;color:var(--admin)">관리자</span>':'')+'</div><div style="font-size:11px;opacity:.7">'+esc(user.branch)+" · "+empId+'</div></div><div style="display:flex;gap:8px"><div style="background:rgba(255,255,255,.1);padding:6px 12px;border-radius:8px;text-align:center"><div style="font-size:20px;font-weight:800">'+count+'</div><div style="font-size:9px;opacity:.7">전체</div></div></div>';
   document.getElementById("detAct").innerHTML='<button onclick="openEM(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--admin);border-radius:7px;background:transparent;color:var(--admin);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">✏️</button><button onclick="cfDU(\''+empId+'\')" style="padding:6px 12px;border:1.5px solid var(--danger);border-radius:7px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🗑️</button>';
-  if(!entries.length){document.getElementById("detList").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';showS("detailScreen");return}
-  document.getElementById("detList").innerHTML=entries.map(({id,data:e})=>{
+  renderDetEntries();showS("detailScreen");}
+function renderDetEntries(){
+  const allEntries=window._detAllEntries||[];
+  const today=tk();const curMonth=today.slice(0,7);const curWeekStr=dateToWeekStr(today);
+  let filtered=allEntries;
+  if(detPeriod.type==='month')filtered=allEntries.filter(({data:e})=>e.date&&e.date.startsWith(detPeriod.value));
+  else if(detPeriod.type==='week'&&detPeriod.range)filtered=allEntries.filter(({data:e})=>e.date>=detPeriod.range.s&&e.date<=detPeriod.range.e);
+  const cnt=filtered.length;
+  let periodLabel='';
+  if(detPeriod.type==='month')periodLabel=detPeriod.value.slice(0,4)+'년 '+detPeriod.value.slice(5)+'월';
+  else if(detPeriod.type==='week'&&detPeriod.range)periodLabel=detPeriod.range.s+' ~ '+detPeriod.range.e;
+  let h='<div style="display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;align-items:center">'
+    +'<button class="atab'+(detPeriod.type==='all'?' active':'')+'" onclick="setDetPeriod(\'all\',\'\')" style="padding:5px 10px;font-size:10px">전체</button>'
+    +'<button class="atab'+(detPeriod.type==='month'&&detPeriod.value===curMonth?' active':'')+'" onclick="setDetPeriod(\'month\',\''+curMonth+'\')" style="padding:5px 10px;font-size:10px">이번달</button>'
+    +'<button class="atab'+(detPeriod.type==='week'?' active':'')+'" onclick="setDetPeriod(\'week\',\''+curWeekStr+'\')" style="padding:5px 10px;font-size:10px">이번주</button>'
+    +'<input type="month" class="fi-input" value="'+(detPeriod.type==='month'?detPeriod.value:curMonth)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setDetPeriod(\'month\',this.value)">'
+    +'<input type="week" class="fi-input" value="'+(detPeriod.type==='week'?detPeriod.value:curWeekStr)+'" style="padding:4px 8px;font-size:10px;width:auto" onchange="setDetPeriod(\'week\',this.value)">'
+    +'</div>';
+  if(periodLabel)h+='<div style="font-size:11px;color:var(--primary);font-weight:600;margin-bottom:8px">📅 '+periodLabel+' · '+cnt+'건</div>';
+  else h+='<div style="font-size:11px;color:var(--ts);margin-bottom:6px">전체 '+cnt+'건</div>';
+  if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:var(--ts)">해당 기간 데이터 없음</div>';document.getElementById("detList").innerHTML=h;return;}
+  h+=filtered.map(({id,data:e})=>{
     const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"},{f:e.field3,l:"VOC",c:"#9B59B6"}].filter(x=>x.f);
     const audioH=(e.audios&&e.audios.length?renderAudioLinks(e.audios):"")+(e.media&&e.media.length?renderMediaLinks(e.media):"");
-    let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>"}}
-    return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>"}).join("");
-  showS("detailScreen")}
+    let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>";}}
+    return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>";
+  }).join("");
+  document.getElementById("detList").innerHTML=h;
+}
 
 /* ══ EDIT/DELETE ══ */
 async function openEM(empId){const doc=await db.collection("users").doc(empId).get();if(!doc.exists)return;const user=doc.data();
