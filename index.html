@@ -876,7 +876,7 @@ function renderStatsTable(){
   const stats={};filtered.forEach(e=>{
     if(!stats[e.empId])stats[e.empId]={count:0,cases:0,consult:0,dates:[]};
     stats[e.empId].count++;stats[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);
-    if(e.field2&&e.field2.trim()){const m=e.field2.match(/^\d+\./gm);stats[e.empId].consult+=m?m.length:1;}stats[e.empId].dates.push(e.date);
+    if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);stats[e.empId].consult+=m?m.length:1;}stats[e.empId].dates.push(e.date);
   });
   window._aS=stats;
   const bs={};users.forEach(u=>{if(!bs[u.branch])bs[u.branch]={t:0,s:0,c:0};bs[u.branch].t++;bs[u.branch].c+=(stats[u.empId]?.count||0);if(stats[u.empId]?.dates.includes(today))bs[u.branch].s++});
