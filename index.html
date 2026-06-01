@@ -860,7 +860,7 @@ function setStatPeriod(type,value){statMode='normal';statPeriod={type,value,rang
 function setStatMode(m){statMode=m;renderStatsTable();}
 function isBusinessDay(ds){const d=new Date(ds+'T00:00:00');return d.getDay()>=1&&d.getDay()<=5&&!getHolidays().includes(ds);}
 function getWeekMonFri(){const t=tk();const d=new Date(t+'T00:00:00');const dow=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));const fri=new Date(mon);fri.setDate(mon.getDate()+4);return{s:mon.toISOString().slice(0,10),e:fri.toISOString().slice(0,10)};}
-function countBizDays(s,e){let n=0;const d=new Date(s+'T00:00:00');const en=new Date(e+'T00:00:00');while(d<=en){if(d.getDay()>=1&&d.getDay()<=5)n++;d.setDate(d.getDate()+1);}return n;}
+function countBizDays(s,e){let n=0;const d=new Date(s+'T00:00:00');const en=new Date(e+'T00:00:00');while(d<=en){if(isBusinessDay(d.toISOString().slice(0,10)))n++;d.setDate(d.getDate()+1);}return n;}
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
   const usersSnap=await db.collection("users").get();const users=usersSnap.docs.map(d=>d.data());
