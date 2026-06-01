@@ -218,6 +218,7 @@ _settings={models:DEF_MODELS,categories:DEF_CATS,symptoms:DEF_SYM,actions:DEF_AC
 async function saveSettings(s){_settings=s;await db.collection("settings").doc("config").set(s)}
 function getModels(){return _settings?.models||DEF_MODELS}
 function getCats(){return _settings?.categories||DEF_CATS}
+function getHolidays(){return _settings?.holidays||[]}
 function getSyms(){return _settings?.symptoms||DEF_SYM}
 function getActs(){return _settings?.actions||DEF_ACT}
 
@@ -857,7 +858,7 @@ function dateToWeekStr(ds){
 }
 function setStatPeriod(type,value){statMode='normal';statPeriod={type,value,range:type==='week'?weekToRange(value):null};renderStatsTable();}
 function setStatMode(m){statMode=m;renderStatsTable();}
-function isBusinessDay(ds){const d=new Date(ds+'T00:00:00');return d.getDay()>=1&&d.getDay()<=5;}
+function isBusinessDay(ds){const d=new Date(ds+'T00:00:00');return d.getDay()>=1&&d.getDay()<=5&&!getHolidays().includes(ds);}
 function getWeekMonFri(){const t=tk();const d=new Date(t+'T00:00:00');const dow=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));const fri=new Date(mon);fri.setDate(mon.getDate()+4);return{s:mon.toISOString().slice(0,10),e:fri.toISOString().slice(0,10)};}
 function countBizDays(s,e){let n=0;const d=new Date(s+'T00:00:00');const en=new Date(e+'T00:00:00');while(d<=en){if(d.getDay()>=1&&d.getDay()<=5)n++;d.setDate(d.getDate()+1);}return n;}
 async function loadStats(){
@@ -1552,7 +1553,7 @@ function showAnDetail(model,symptom){
 
 /* ══ SETTINGS ══ */
 let pendS=null;
-function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])],modelCategories:JSON.parse(JSON.stringify(getModelCats()))};renderSett()}
+function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])],modelCategories:JSON.parse(JSON.stringify(getModelCats())),holidays:[...(_settings?.holidays||[])]};renderSett()}
 function renderSett(){const p=pendS;let h='';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
@@ -1608,6 +1609,9 @@ function renderSett(){const p=pendS;let h='';
     +'<div id="tgStatus" style="font-size:10px;color:var(--ts);min-height:14px"></div>'
     +'</div></div>';
   setTimeout(checkTGStatus,100);
+  h+='<div class="stag"><h4>📅 휴일 지정 (영업일 제외)</h4><p style="font-size:10px;color:var(--ts);margin:0 0 8px">대체휴일·공휴일 등 영업일에서 제외할 날짜를 등록하세요. 영업일기준 통계에 자동 반영됩니다.</p><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
+  (pendS.holidays||[]).slice().sort().forEach((d,i)=>{const idx=(pendS.holidays||[]).indexOf(d);h+='<span class="stag-item" style="background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.3)">🔴 '+d+' <button class="rx" onclick="pendS.holidays.splice('+idx+',1);renderSett()" style="color:var(--danger)">✕</button></span>';});
+  h+='</div><div class="stag-add"><input type="date" id="sNHD" class="fi-input" style="padding:4px 8px;font-size:11px;width:auto"><button onclick="addHoliday()">추가</button></div></div>';
   h+='<button class="btn ba" style="margin-top:12px;font-size:13px" onclick="saveSett()">💾 설정 저장</button>';
   document.getElementById("tabSettings").innerHTML=h}
 function addBrToRegion(ri){const sel=document.getElementById("addBr"+ri);if(!sel||!sel.value)return;pendS.regions[ri].branches.push(sel.value);renderSett()}
@@ -1618,6 +1622,7 @@ function addSM(){const n=document.getElementById("sNM").value.trim(),c=document.
 function addSI(k,iid){const v=document.getElementById(iid).value.trim();if(!v)return;pendS[k].push(v);renderSett()}
 function addModelToCat(ci){const input=document.getElementById("addMC"+ci);if(!input||!input.value.trim())return;const m=input.value.trim();if(!pendS.modelCategories[ci].models)pendS.modelCategories[ci].models=[];if(!pendS.modelCategories[ci].models.includes(m))pendS.modelCategories[ci].models.push(m);renderSett()}
 function addNewCat(){const name=prompt("새 카테고리명을 입력하세요:");if(!name||!name.trim())return;if(!pendS.modelCategories)pendS.modelCategories=[];if(pendS.modelCategories.find(c=>c.name===name.trim())){alert("이미 존재하는 카테고리명입니다.");return;}pendS.modelCategories.push({name:name.trim(),models:[]});renderSett()}
+function addHoliday(){const v=document.getElementById("sNHD")?.value;if(!v)return;if(!pendS.holidays)pendS.holidays=[];if(!pendS.holidays.includes(v)){pendS.holidays.push(v);}renderSett()}
 async function saveSett(){
   try{
     const wk=document.getElementById("sWK")?.value||"";
@@ -1625,7 +1630,7 @@ async function saveSett(){
     const tgt=document.getElementById("sTGT")?.value.trim()||"";
     const tgc=document.getElementById("sTGC")?.value.trim()||"";
     const tgat=document.getElementById("sTGAT")?.value||"21:00";
-    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[],modelCategories:pendS.modelCategories||DEF_MODEL_CATS});
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[],modelCategories:pendS.modelCategories||DEF_MODEL_CATS,holidays:pendS.holidays||[]});
     renderF2Tags();
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
