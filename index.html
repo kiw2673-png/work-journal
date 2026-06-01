@@ -902,16 +902,16 @@ function renderStatsTable(){
   h+='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">🏢 지사별</h3><div class="bgrid">'+DEF_BR.map(b=>{const s=bs[b]||{t:0,s:0,c:0};const a=AF===b;const p=s.t>0?s.s/s.t*100:0;return'<div class="bcard'+(a?" active":"")+'" onclick="AF=AF===\''+b+'\'?\'전체\':\''+b+'\';renderStatsTable()"><div class="nm">'+b+'</div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ts)"><span>'+s.t+'명</span><span>'+s.s+'/'+s.t+'</span></div><div class="bbar"><div class="bbar-f" style="width:'+p+'%"></div></div></div>'}).join("")+'</div>';
   const f=users.filter(u=>AF==="전체"||u.branch===AF);
   if(statMode==='bizday'){
-    const today2=tk();const curMonth2=today2.slice(0,7);const wr=getWeekMonFri();const monthStart=curMonth2+'-01';
-    const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=today2&&isBusinessDay(e.date));
-    const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=today2&&isBusinessDay(e.date));
+    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const capDate=today2<wr.e?today2:wr.e;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
+    const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=capDate&&isBusinessDay(e.date));
+    const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=monthEnd&&isBusinessDay(e.date));
     const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
     const wst=calcBU(we.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
     const mst=calcBU(me.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
     const wt=Object.values(wst).reduce((a,s)=>({count:a.count+s.count,cases:a.cases+s.cases,consult:a.consult+s.consult}),{count:0,cases:0,consult:0});
     const mt=Object.values(mst).reduce((a,s)=>({count:a.count+s.count,cases:a.cases+s.cases,consult:a.consult+s.consult}),{count:0,cases:0,consult:0});
-    const wbd=countBizDays(wr.s,today2<wr.e?today2:wr.e);const mbd=countBizDays(monthStart,today2);
-    const weekEndLabel=today2<wr.e?today2.slice(5):wr.e.slice(5);
+    const wbd=countBizDays(wr.s,capDate);const mbd=countBizDays(monthStart,monthEnd);
+    const weekEndLabel=capDate.slice(5);
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">';
     h+='<div style="background:var(--card);border:2px solid var(--primary);border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:700;color:var(--primary);margin-bottom:4px">📅 금주 · '+wbd+'영업일</div><div style="font-size:9px;color:var(--ts);margin-bottom:8px">'+wr.s.slice(5)+' ~ '+weekEndLabel+'</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px"><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:var(--admin)">'+wt.count+'</div><div style="font-size:8px;color:var(--ts)">등록건</div></div><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:#3498DB">'+wt.cases+'</div><div style="font-size:8px;color:var(--ts)">현장지원</div></div><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:#00B894">'+wt.consult+'</div><div style="font-size:8px;color:var(--ts)">상담건</div></div></div></div>';
     h+='<div style="background:var(--card);border:2px solid #3498DB;border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:700;color:#3498DB;margin-bottom:4px">📆 당월누계 · '+mbd+'영업일</div><div style="font-size:9px;color:var(--ts);margin-bottom:8px">'+monthStart.slice(5)+' ~ '+today2.slice(5)+'</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px"><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:var(--admin)">'+mt.count+'</div><div style="font-size:8px;color:var(--ts)">등록건</div></div><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:#3498DB">'+mt.cases+'</div><div style="font-size:8px;color:var(--ts)">현장지원</div></div><div style="text-align:center;background:var(--ibg);border-radius:8px;padding:8px 2px"><div style="font-size:18px;font-weight:800;color:#00B894">'+mt.consult+'</div><div style="font-size:8px;color:var(--ts)">상담건</div></div></div></div>';
@@ -936,14 +936,14 @@ function downloadStatsExcel(){
   const users=window._aU||[];const f=users.filter(u=>AF==="전체"||u.branch===AF);
   if(statMode==='bizday'){
     const allEntries=window._aAllE||[];
-    const today2=tk();const curMonth2=today2.slice(0,7);const wr=getWeekMonFri();const monthStart=curMonth2+'-01';
-    const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=today2&&isBusinessDay(e.date));
-    const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=today2&&isBusinessDay(e.date));
+    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const capDate=today2<wr.e?today2:wr.e;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
+    const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=capDate&&isBusinessDay(e.date));
+    const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=monthEnd&&isBusinessDay(e.date));
     const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
     const wst=calcBU(we.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
     const mst=calcBU(me.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
-    const wbd=countBizDays(wr.s,today2<wr.e?today2:wr.e);const mbd=countBizDays(monthStart,today2);
-    const weekEndLabel=today2<wr.e?today2.slice(5):wr.e.slice(5);
+    const wbd=countBizDays(wr.s,capDate);const mbd=countBizDays(monthStart,monthEnd);
+    const weekEndLabel=capDate.slice(5);
     const so=[...f].sort((a,b)=>(mst[b.empId]?.count||0)-(mst[a.empId]?.count||0));
     const pl='금주('+wr.s.slice(5)+'~'+weekEndLabel+')_'+wbd+'영업일';
     const rows=[['이름','지사','금주등록','금주현장÷'+wbd+'일','금주상담÷'+wbd+'일','당월누계등록','당월누계현장','당월누계상담']];
