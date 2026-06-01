@@ -933,14 +933,34 @@ function renderStatsTable(){
   document.getElementById("tabStats").innerHTML=h;
 }
 function downloadStatsExcel(){
-  const users=window._aU||[];const stats=window._aS||{};
-  const f=users.filter(u=>AF==="전체"||u.branch===AF);const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
-  let pl='전체';if(statPeriod.type==='month')pl=statPeriod.value;else if(statPeriod.type==='week'&&statPeriod.range)pl=statPeriod.range.s+'~'+statPeriod.range.e;
-  const rows=[['기간','이름','지사','등록건수','현장지원','상담건']];
-  so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0};rows.push([pl,u.name,u.branch,s.count,s.cases,s.consult]);});
-  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
-  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='담당자통계_'+pl+'.csv';a.click();URL.revokeObjectURL(url);
+  const users=window._aU||[];const f=users.filter(u=>AF==="전체"||u.branch===AF);
+  if(statMode==='bizday'){
+    const allEntries=window._aAllE||[];
+    const today2=tk();const curMonth2=today2.slice(0,7);const wr=getWeekMonFri();const monthStart=curMonth2+'-01';
+    const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=today2&&isBusinessDay(e.date));
+    const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=today2&&isBusinessDay(e.date));
+    const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
+    const wst=calcBU(we.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
+    const mst=calcBU(me.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
+    const wbd=countBizDays(wr.s,today2<wr.e?today2:wr.e);const mbd=countBizDays(monthStart,today2);
+    const weekEndLabel=today2<wr.e?today2.slice(5):wr.e.slice(5);
+    const so=[...f].sort((a,b)=>(mst[b.empId]?.count||0)-(mst[a.empId]?.count||0));
+    const pl='금주('+wr.s.slice(5)+'~'+weekEndLabel+')_'+wbd+'영업일';
+    const rows=[['이름','지사','금주등록','금주현장÷'+wbd+'일','금주상담÷'+wbd+'일','당월누계등록','당월누계현장','당월누계상담']];
+    so.forEach(u=>{const ws=wst[u.empId]||{count:0,cases:0,consult:0};const ms2=mst[u.empId]||{count:0,cases:0,consult:0};rows.push([u.name,u.branch,ws.count,wbd>0?(ws.cases/wbd).toFixed(1):0,wbd>0?(ws.consult/wbd).toFixed(1):0,ms2.count,ms2.cases,ms2.consult]);});
+    const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='영업일실적_'+pl+'.csv';a.click();URL.revokeObjectURL(url);
+  } else {
+    const stats=window._aS||{};
+    const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
+    let pl='전체';if(statPeriod.type==='month')pl=statPeriod.value;else if(statPeriod.type==='week'&&statPeriod.range)pl=statPeriod.range.s+'~'+statPeriod.range.e;
+    const rows=[['기간','이름','지사','등록건수','현장지원','상담건']];
+    so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0};rows.push([pl,u.name,u.branch,s.count,s.cases,s.consult]);});
+    const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='담당자통계_'+pl+'.csv';a.click();URL.revokeObjectURL(url);
+  }
 }
 function copyStatsText(){
   const users=window._aU||[];const stats=window._aS||{};
