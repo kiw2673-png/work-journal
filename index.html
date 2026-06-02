@@ -1489,42 +1489,71 @@ function downloadAnExcel(){
   const brF=document.getElementById("anBr")?.value||"전체";
   const mdF=document.getElementById("anModel")?.value||"전체";
   const sliceModels=window._anSliceModels||[];
-  const rows=window._anRows,cols=window._anCols||[];
+  const rows=window._anRows;
   const wb=XLSX.utils.book_new();
 
-  // ── 시트1: 증상분포 ──
-  const s1=[["기간: "+range.lblText],[]];
-  s1.push(["▣ 모델별 증상현황 분포"]);
-  s1.push(["모델",...cols,"합계"]);
-  const sortedR=Object.entries(rows).map(([rk,sv])=>[rk,sv,Object.values(sv).reduce((a,b)=>a+b,0)]).sort((a,b)=>b[2]-a[2]);
-  sortedR.forEach(([rk,sv,rt])=>s1.push([rk,...cols.map(c=>sv[c]||0),rt]));
-  const ct={};cols.forEach(c=>{ct[c]=sortedR.reduce((s,[,sv])=>s+(sv[c]||0),0)});
-  s1.push(["합계",...cols.map(c=>ct[c]||0),sortedR.reduce((s,[,,rt])=>s+rt,0)]);
+  // 표시할 모델 결정 (선택된 모델만)
+  const modelsToShow=mdF!=="전체"?[mdF]:(sliceModels.length>0?sliceModels:Object.keys(rows).sort());
+
+  // ── 시트1: 증상분포 (대시보드 동일 레이아웃: 증상=행, 모델=열) ──
+  const s1=[["기간: "+range.lblText,"","",""],[]];
+
+  // ▣ 모델별 증상현황 분포
+  s1.push(["▣ 모델별 증상현황 분포  [선택 모델: "+modelsToShow.join(", ")+"]"]);
+  s1.push(["증상유형",...modelsToShow,"합계","비율(%)","분포"]);
+
+  // 선택 모델 기준 증상별 합산
+  const symTotals={};
+  modelsToShow.forEach(m=>{Object.entries(rows[m]||{}).forEach(([sym,v])=>{symTotals[sym]=(symTotals[sym]||0)+v})});
+  const sortedSyms=Object.entries(symTotals).sort((a,b)=>b[1]-a[1]);
+  const grandTotal=sortedSyms.reduce((s,[,v])=>s+v,0);
+  const maxSym=sortedSyms.length?sortedSyms[0][1]:1;
+
+  sortedSyms.forEach(([sym,total])=>{
+    const pct=grandTotal?Math.round(total/grandTotal*100):0;
+    const barLen=Math.round(total/maxSym*20);
+    const bar="■".repeat(barLen)+"□".repeat(20-barLen);
+    s1.push([sym,...modelsToShow.map(m=>(rows[m]||{})[sym]||0),total,pct+"%",bar]);
+  });
+  // 합계 행
+  const modelTotals=modelsToShow.map(m=>Object.values(rows[m]||{}).reduce((a,b)=>a+b,0));
+  s1.push(["합계",...modelTotals,grandTotal,"100%",""]);
+
   s1.push([],[]);
+
+  // ▣ 선택 모델 증상 분포 (도넛 차트 데이터)
   let pieTitle,pieAgg={};
   if(mdF==="전체"){
-    if(sliceModels.length>0){pieTitle="선택 모델 증상 분포 ("+sliceModels.join(", ")+")";sliceModels.forEach(m=>{const sv=rows[m]||{};Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+    if(sliceModels.length>0){pieTitle="선택 모델 증상 분포 ("+sliceModels.join(", ")+")";sliceModels.forEach(m=>{Object.entries(rows[m]||{}).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
     else{pieTitle="전체 모델 증상 분포";Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
   }else{pieTitle=mdF+" 증상 분포";pieAgg=rows[mdF]||{};}
   const pL=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]);
   const pTot=pL.reduce((s,k)=>s+pieAgg[k],0);
+
   s1.push(["▣ "+pieTitle]);
-  s1.push(["증상유형","건수","비율(%)"]);
-  pL.forEach(l=>s1.push([l,pieAgg[l],pTot?Math.round(pieAgg[l]/pTot*100):0]));
-  s1.push(["합계",pTot,100]);
+  s1.push(["※ 아래 데이터 선택 후 [삽입→차트→도넛]으로 Excel 차트 생성 가능"]);
+  s1.push(["증상유형","건수","비율(%)","시각화"]);
+  const SHADES=["●","◉","◎","○","▲","△","◆","◇","★","☆"];
+  pL.forEach((l,i)=>{
+    const pct=pTot?Math.round(pieAgg[l]/pTot*100):0;
+    const barLen=Math.round(pct/5);
+    const bar="▓".repeat(barLen)+"░".repeat(20-barLen)+" "+pct+"%";
+    s1.push([l,pieAgg[l],pct+"%",bar]);
+  });
+  s1.push(["합계",pTot,"100%",""]);
+
   const ws1=XLSX.utils.aoa_to_sheet(s1);
-  const w1=[{wch:28},...cols.map(()=>({wch:7})),{wch:7}];ws1["!cols"]=w1;
+  ws1["!cols"]=[{wch:26},...modelsToShow.map(()=>({wch:8})),{wch:7},{wch:7},{wch:24}];
   XLSX.utils.book_append_sheet(wb,ws1,"증상분포");
 
-  // ── 시트2: 보고서 ROW 데이터 ──
+  // ── 시트2: 보고서 ROW 데이터 (선택 모델만) ──
   const s2=[["날짜","이름","지사","모델","원본모델","용량","기종구분","구분","S/N","제조일","설치일","증상","처리","비고","현장업무","상담&특이사항","VOC"]];
   window._anEntries.forEach(e=>{
     if(brF!=="전체"&&e.branch!==brF)return;
     (e.cases||[]).forEach(c=>{
       if(!c.model&&!c.symptom)return;
       const nm=normModel(c.model||"");
-      if(mdF!=="전체"&&nm!==mdF)return;
-      if(mdF==="전체"&&sliceModels.length>0&&!sliceModels.includes(nm))return;
+      if(!modelsToShow.includes(nm))return;
       s2.push([e.date,e.name,e.branch,nm,c.model||"",c.capacity||c.cap||"",c.openclose||"",c.category||c.cat||"",c.serial||"",c.mfgDate||"",c.instDate||"",c.symptom||"",c.action||"",c.note||"",e.field1||"",e.field2||"",e.field3||""]);
     });
   });
@@ -1532,6 +1561,18 @@ function downloadAnExcel(){
   ws2["!cols"]=[{wch:12},{wch:8},{wch:10},{wch:12},{wch:14},{wch:6},{wch:8},{wch:8},{wch:14},{wch:10},{wch:10},{wch:20},{wch:20},{wch:18},{wch:25},{wch:25},{wch:20}];
   XLSX.utils.book_append_sheet(wb,ws2,"보고서RAW");
   XLSX.writeFile(wb,(range.lblText||"분석")+"_증상분석보고서.xlsx");
+
+  // 도넛 차트 PNG 별도 저장
+  setTimeout(()=>{
+    const cv=document.getElementById("anPie");
+    if(!cv)return;
+    try{
+      const a=document.createElement("a");
+      a.href=cv.toDataURL("image/png");
+      a.download=(range.lblText||"분석")+"_증상분포차트.png";
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+    }catch(e){}
+  },500);
 }
 
 function toggleSliceModel(model){
