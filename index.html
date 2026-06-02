@@ -2329,6 +2329,7 @@ function loadMonthly(){
     +'</div>'
     // Hidden controls
     +'<input type="hidden" id="monView" value="center">'
+    +'<input type="hidden" id="monStaff" value="">'
     +'<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">'
     +'<select id="monCenter" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="onMonCenterChange()"><option value="전체">전체 센터</option>';
   regions.forEach(r=>{h+='<option>'+esc(r.name)+'</option>'});
@@ -2353,6 +2354,7 @@ function mvMon(dir){
   const[y,m]=el.dataset.ym.split("-").map(Number);
   const d=new Date(y,m-1+dir,1);
   el.dataset.ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  const ms=document.getElementById("monStaff");if(ms)ms.value="";
   renderMonthly();
 }
 async function renderMonthly(){
@@ -2377,6 +2379,7 @@ async function renderMonthly(){
   if(selCenter!=="전체")filteredEntries=filteredEntries.filter(e=>getRegionBranches(selCenter).includes(e.branch));
   if(selBranch!=="전체")filteredEntries=filteredEntries.filter(e=>e.branch===selBranch);
   filteredEntries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||a.date.localeCompare(b.date));
+  window._monEntries=filteredEntries;
   // Summary stats
   const totalCases=filteredEntries.reduce((s,e)=>s+(e.cases?e.cases.filter(c=>c.model).length:0),0);
   const unique=new Set(filteredEntries.map(e=>e.empId)).size;
@@ -2421,17 +2424,42 @@ async function renderMonthly(){
     html+='</tbody></table></div>';
   }else if(view==="staff"){
     // 담당자별 현황
+    const selStaff=document.getElementById("monStaff")?.value||"";
     const byStaff={};filteredEntries.forEach(e=>{if(!byStaff[e.empId])byStaff[e.empId]={name:e.name,branch:e.branch,count:0,cases:0,entries:[]};byStaff[e.empId].count++;byStaff[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);byStaff[e.empId].entries.push(e)});
     html+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:14px">'
-      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">👤 담당자별 현황</div>'
-      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:8px 10px;text-align:left">이름</th><th style="padding:8px;text-align:left">지사</th><th style="padding:8px;text-align:center">제출</th><th style="padding:8px;text-align:center">현장지원</th></tr></thead><tbody>';
-    Object.values(byStaff).sort((a,b)=>a.branch.localeCompare(b.branch)||a.name.localeCompare(b.name)).forEach(s=>{
-      html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:8px 10px;font-weight:600">'+esc(s.name)+'</td><td style="padding:8px;color:var(--ts)">'+esc(s.branch)+'</td><td style="padding:8px;text-align:center;font-weight:700">'+s.count+'</td><td style="padding:8px;text-align:center;color:#3498DB;font-weight:700">'+s.cases+'</td></tr>';
+      +'<div style="padding:8px 14px;background:var(--pg);font-weight:700;font-size:12px;color:var(--primary)">👤 담당자별 현황 <span style="font-size:10px;font-weight:400;color:var(--ts)">(클릭→상세보기)</span></div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:11px"><thead><tr style="background:var(--ibg)"><th style="padding:8px 10px;text-align:left">이름</th><th style="padding:8px;text-align:left">지사</th><th style="padding:8px;text-align:center">제출</th><th style="padding:8px;text-align:center">현장지원</th><th style="padding:8px;text-align:center">다운로드</th></tr></thead><tbody>';
+    Object.entries(byStaff).sort((a,b)=>a[1].branch.localeCompare(b[1].branch)||a[1].name.localeCompare(b[1].name)).forEach(([eid,s])=>{
+      const isSel=eid===selStaff;
+      html+='<tr style="border-bottom:1px solid var(--border);cursor:pointer;'+(isSel?'background:rgba(108,52,131,.08)':'')+'" onclick="setMonStaff(\''+eid+'\')" onmouseover="this.style.background=\'rgba(27,58,92,.06)\'" onmouseout="this.style.background=\''+(isSel?'rgba(108,52,131,.08)':'')+'\'"><td style="padding:8px 10px;font-weight:600;'+(isSel?'color:var(--admin)':'')+'">'+esc(s.name)+' <span style="font-size:9px;color:var(--ts)">'+(isSel?'▼':'▶')+'</span></td><td style="padding:8px;color:var(--ts)">'+esc(s.branch)+'</td><td style="padding:8px;text-align:center;font-weight:700">'+s.count+'</td><td style="padding:8px;text-align:center;color:#3498DB;font-weight:700">'+s.cases+'</td><td style="padding:8px;text-align:center"><button onclick="event.stopPropagation();downloadStaffExcel(\''+eid+'\')" style="padding:3px 8px;border:1px solid var(--primary);border-radius:5px;background:transparent;color:var(--primary);font-size:9px;cursor:pointer;font-family:inherit">📥 Excel</button></td></tr>';
+      if(isSel){
+        const stEnt=s.entries.slice().sort((a,b)=>a.date.localeCompare(b.date));
+        const allC=stEnt.flatMap(e=>(e.cases||[]).filter(c=>c.model||c.symptom||c.note).map(c=>Object.assign({},c,{_date:e.date})));
+        let dr='<tr><td colspan="5" style="padding:0;border-bottom:2px solid var(--admin)">';
+        if(allC.length){
+          dr+='<div style="padding:8px 12px;background:rgba(41,128,185,.03);border-top:1px solid var(--border)">'
+            +'<div style="font-size:10px;font-weight:700;color:#2980B9;padding:4px 0 6px;border-bottom:1px solid #ddd">🔧 현장지원 내역 (총 '+allC.length+'건)</div>'
+            +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px;min-width:520px">'
+            +'<thead><tr style="background:rgba(41,128,185,.08)"><th style="padding:5px 6px;text-align:center;white-space:nowrap;border-bottom:1px solid #ddd">날짜</th><th style="padding:5px 6px;text-align:left;border-bottom:1px solid #ddd">모델</th><th style="padding:5px 6px;text-align:center;border-bottom:1px solid #ddd">용량</th><th style="padding:5px 6px;text-align:center;border-bottom:1px solid #ddd">구분</th><th style="padding:5px 6px;text-align:left;border-bottom:1px solid #ddd">S/N</th><th style="padding:5px 6px;text-align:left;border-bottom:1px solid #ddd">증상</th><th style="padding:5px 6px;text-align:left;border-bottom:1px solid #ddd">조치내용</th><th style="padding:5px 6px;text-align:left;border-bottom:1px solid #ddd">비고</th></tr></thead><tbody>';
+          allC.forEach(c=>{dr+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 6px;text-align:center;color:var(--ts);white-space:nowrap">'+esc(c._date)+'</td><td style="padding:4px 6px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:4px 6px;text-align:center">'+esc(c.capacity||c.cap||"")+'</td><td style="padding:4px 6px;text-align:center">'+esc(c.category||c.cat||"")+'</td><td style="padding:4px 6px">'+esc(c.serial||"")+'</td><td style="padding:4px 6px">'+esc(c.symptom||"")+'</td><td style="padding:4px 6px">'+esc(c.action||"")+'</td><td style="padding:4px 6px;color:var(--ts)">'+esc(c.note||"")+'</td></tr>';});
+          dr+='</tbody></table></div></div>';
+        }
+        const f2Ent=stEnt.filter(e=>e.field2);
+        if(f2Ent.length){
+          dr+='<div style="padding:8px 12px;background:rgba(0,184,148,.03);border-top:1px solid var(--border)">'
+            +'<div style="font-size:10px;font-weight:700;color:#00B894;padding:4px 0 6px;border-bottom:1px solid #ddd">💬 상담&특이사항</div>';
+          f2Ent.forEach(e=>{dr+='<div style="margin:6px 0;padding:6px 8px;background:var(--card);border-radius:6px;border:1px solid var(--border)"><div style="font-size:9px;color:var(--ts);margin-bottom:3px">'+esc(e.date)+'</div><div style="font-size:10px;white-space:pre-wrap;line-height:1.6">'+esc(e.field2)+'</div></div>';});
+          dr+='</div>';
+        }
+        if(!allC.length&&!f2Ent.length)dr+='<div style="padding:12px;text-align:center;color:var(--ts);font-size:11px">이 달 상세 내용 없음</div>';
+        dr+='</td></tr>';
+        html+=dr;
+      }
     });
     html+='</tbody></table></div>';
   }
-  // Detail records
-  if(filteredEntries.length&&(view==="staff"||(view==="branch"&&selBranch!=="전체"))){
+  // Detail records (branch view only — staff view uses inline detail above)
+  if(filteredEntries.length&&view==="branch"&&selBranch!=="전체"){
     html+='<h4 style="font-size:12px;font-weight:700;margin-bottom:8px">📋 상세 내역</h4>';
     filteredEntries.forEach(e=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
@@ -2468,9 +2496,29 @@ function setMonCenter(centerName){
   document.getElementById("monView").value="branch";
   updateMonViewBtns();renderMonthly();
 }
-function setMonBranch(br){document.getElementById("monBranch").value=br;document.getElementById("monView").value="staff";updateMonViewBtns();renderMonthly()}
+function setMonBranch(br){document.getElementById("monBranch").value=br;document.getElementById("monView").value="staff";const ms=document.getElementById("monStaff");if(ms)ms.value="";updateMonViewBtns();renderMonthly()}
 function updateMonViewBtns(){const v=document.getElementById("monView")?.value||"center";["center","branch","staff"].forEach(id=>{const b=document.getElementById("monVBtn_"+id);if(b)b.classList.toggle("active",v===id)})}
-function setMonView(v){document.getElementById("monView").value=v;if(v==="center"){document.getElementById("monCenter").value="전체";const bsel=document.getElementById("monBranch");bsel.innerHTML='<option value="전체">전체 지사</option>';DEF_BR.forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;bsel.appendChild(o)});document.getElementById("monBranch").value="전체";}updateMonViewBtns();renderMonthly()}
+function setMonView(v){document.getElementById("monView").value=v;if(v==="center"){document.getElementById("monCenter").value="전체";const bsel=document.getElementById("monBranch");bsel.innerHTML='<option value="전체">전체 지사</option>';DEF_BR.forEach(b=>{const o=document.createElement("option");o.value=b;o.textContent=b;bsel.appendChild(o)});document.getElementById("monBranch").value="전체";}const ms=document.getElementById("monStaff");if(ms)ms.value="";updateMonViewBtns();renderMonthly()}
+function setMonStaff(empId){const inp=document.getElementById("monStaff");if(!inp)return;inp.value=inp.value===empId?"":empId;renderMonthly();}
+function downloadStaffExcel(empId){
+  const entries=(window._monEntries||[]).filter(e=>e.empId===empId).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!entries.length)return alert("데이터가 없습니다. 화면을 새로고침 해주세요.");
+  const st=entries[0];
+  const[y,m]=document.getElementById("tabMonthly").dataset.ym.split("-");
+  const wb=XLSX.utils.book_new();
+  const rows=[["날짜","이름","지사","모델","용량","구분","S/N","증상","조치내용","비고"]];
+  entries.forEach(e=>{
+    const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+    if(fc.length){fc.forEach(c=>{rows.push([e.date,e.name,e.branch,c.model||"",c.capacity||c.cap||"",c.category||c.cat||"",c.serial||"",c.symptom||"",c.action||"",c.note||""])});}
+    else rows.push([e.date,e.name,e.branch,"","","","","","",""]);
+  });
+  rows.push([]);rows.push(["▣ 상담&특이사항"]);rows.push(["날짜","내용"]);
+  entries.forEach(e=>{if(e.field2)rows.push([e.date,e.field2]);});
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:12},{wch:8},{wch:10},{wch:14},{wch:6},{wch:8},{wch:16},{wch:22},{wch:22},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws,"업무보고서");
+  XLSX.writeFile(wb,y+"년"+m+"월_"+st.name+"_업무보고서.xlsx");
+}
 
 /* ══ EXCEL UPLOAD ══ */
 function loadUpload(){
