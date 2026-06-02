@@ -1299,7 +1299,7 @@ function loadAnal(){const today=new Date();const dow=today.getDay();const mon=ne
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
   h+='</select><select id="anModel" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 모델</option>';
   MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
-  h+='</select></div><div id="anBody"></div>';
+  h+='</select><button onclick="downloadAnExcel()" style="padding:5px 10px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 Excel</button></div><div id="anBody"></div>';
   document.getElementById("tabAnalysis").innerHTML=h;
   document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);
   document.getElementById("tabAnalysis").dataset.period="week";renderAn()}
@@ -1385,7 +1385,7 @@ async function renderAn(){
   entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;if(e.cases)e.cases.forEach(c=>{if(c.model||c.symptom)allCases.push({...c,model:normModel(c.model),_entry:e})})});
   const rows={},colSet=new Set();
   allCases.forEach(c=>{const rk=c.model||"기타";const sk=c.symptom||"기타";if(mdF!=="전체"&&rk!==mdF)return;if(!rows[rk])rows[rk]={};if(!rows[rk][sk])rows[rk][sk]=0;rows[rk][sk]++;colSet.add(sk)});
-  const cols=[...colSet].sort();
+  const cols=[...colSet].sort();window._anRows=rows;window._anCols=cols;
   const COLORS=["#3498DB","#E74C3C","#2ECC71","#F39C12","#9B59B6","#1ABC9C","#E67E22","#34495E","#E91E63","#00BCD4","#8BC34A","#FF5722","#607D8B","#795548","#FF9800"];
 
   const DEF_SLICE_MODELS=["DNB","DiB","DNC1","DQC","DOC","DPC"];
@@ -1481,6 +1481,57 @@ async function renderAn(){
       _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
     }
   }
+}
+
+function downloadAnExcel(){
+  if(!window._anEntries||!window._anRows)return alert("먼저 분석 화면을 열어주세요.");
+  const range=window._anDateRange||{lblText:"분석"};
+  const brF=document.getElementById("anBr")?.value||"전체";
+  const mdF=document.getElementById("anModel")?.value||"전체";
+  const sliceModels=window._anSliceModels||[];
+  const rows=window._anRows,cols=window._anCols||[];
+  const wb=XLSX.utils.book_new();
+
+  // ── 시트1: 증상분포 ──
+  const s1=[["기간: "+range.lblText],[]];
+  s1.push(["▣ 모델별 증상현황 분포"]);
+  s1.push(["모델",...cols,"합계"]);
+  const sortedR=Object.entries(rows).map(([rk,sv])=>[rk,sv,Object.values(sv).reduce((a,b)=>a+b,0)]).sort((a,b)=>b[2]-a[2]);
+  sortedR.forEach(([rk,sv,rt])=>s1.push([rk,...cols.map(c=>sv[c]||0),rt]));
+  const ct={};cols.forEach(c=>{ct[c]=sortedR.reduce((s,[,sv])=>s+(sv[c]||0),0)});
+  s1.push(["합계",...cols.map(c=>ct[c]||0),sortedR.reduce((s,[,,rt])=>s+rt,0)]);
+  s1.push([],[]);
+  let pieTitle,pieAgg={};
+  if(mdF==="전체"){
+    if(sliceModels.length>0){pieTitle="선택 모델 증상 분포 ("+sliceModels.join(", ")+")";sliceModels.forEach(m=>{const sv=rows[m]||{};Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+    else{pieTitle="전체 모델 증상 분포";Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+  }else{pieTitle=mdF+" 증상 분포";pieAgg=rows[mdF]||{};}
+  const pL=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]);
+  const pTot=pL.reduce((s,k)=>s+pieAgg[k],0);
+  s1.push(["▣ "+pieTitle]);
+  s1.push(["증상유형","건수","비율(%)"]);
+  pL.forEach(l=>s1.push([l,pieAgg[l],pTot?Math.round(pieAgg[l]/pTot*100):0]));
+  s1.push(["합계",pTot,100]);
+  const ws1=XLSX.utils.aoa_to_sheet(s1);
+  const w1=[{wch:28},...cols.map(()=>({wch:7})),{wch:7}];ws1["!cols"]=w1;
+  XLSX.utils.book_append_sheet(wb,ws1,"증상분포");
+
+  // ── 시트2: 보고서 ROW 데이터 ──
+  const s2=[["날짜","이름","지사","모델","원본모델","용량","기종구분","구분","S/N","제조일","설치일","증상","처리","비고","현장업무","상담&특이사항","VOC"]];
+  window._anEntries.forEach(e=>{
+    if(brF!=="전체"&&e.branch!==brF)return;
+    (e.cases||[]).forEach(c=>{
+      if(!c.model&&!c.symptom)return;
+      const nm=normModel(c.model||"");
+      if(mdF!=="전체"&&nm!==mdF)return;
+      if(mdF==="전체"&&sliceModels.length>0&&!sliceModels.includes(nm))return;
+      s2.push([e.date,e.name,e.branch,nm,c.model||"",c.capacity||c.cap||"",c.openclose||"",c.category||c.cat||"",c.serial||"",c.mfgDate||"",c.instDate||"",c.symptom||"",c.action||"",c.note||"",e.field1||"",e.field2||"",e.field3||""]);
+    });
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(s2);
+  ws2["!cols"]=[{wch:12},{wch:8},{wch:10},{wch:12},{wch:14},{wch:6},{wch:8},{wch:8},{wch:14},{wch:10},{wch:10},{wch:20},{wch:20},{wch:18},{wch:25},{wch:25},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws2,"보고서RAW");
+  XLSX.writeFile(wb,(range.lblText||"분석")+"_증상분석보고서.xlsx");
 }
 
 function toggleSliceModel(model){
