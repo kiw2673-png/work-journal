@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 
 <style>
 :root{--bg:#ECEDF1;--card:#FFF;--primary:#1B3A5C;--pl:#2C5F8A;--pg:rgba(27,58,92,.08);--accent:#E8A838;--text:#1E2A3A;--ts:#7A8694;--border:#DFE3E8;--ibg:#F5F6F9;--danger:#D63031;--success:#00B894;--rec:#FF6B6B;--admin:#6C3483;--al:#8E44AD;--sh:0 2px 12px rgba(0,0,0,.06)}
@@ -1299,7 +1300,8 @@ function loadAnal(){const today=new Date();const dow=today.getDay();const mon=ne
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
   h+='</select><select id="anModel" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderAn()"><option value="전체">전체 모델</option>';
   MODEL_LIST.forEach(m=>{h+='<option>'+m+'</option>'});
-  h+='</select><button onclick="downloadAnExcel()" style="padding:5px 10px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 Excel</button></div><div id="anBody"></div>';
+  h+='</select><button onclick="downloadAnPPT()" style="padding:5px 10px;border:none;border-radius:6px;background:#C0392B;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📊 PPT</button>'
+    +'<button onclick="downloadAnExcel()" style="padding:5px 10px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">📥 RAW</button></div><div id="anBody"></div>';
   document.getElementById("tabAnalysis").innerHTML=h;
   document.getElementById("tabAnalysis").dataset.mon=mon.toISOString().slice(0,10);
   document.getElementById("tabAnalysis").dataset.period="week";renderAn()}
@@ -1481,6 +1483,126 @@ async function renderAn(){
       _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
     }
   }
+}
+
+async function downloadAnPPT(){
+  if(!window._anEntries||!window._anRows)return alert("먼저 분석 화면을 열어주세요.");
+  if(typeof PptxGenJS==="undefined")return alert("PPT 라이브러리 로드 중입니다. 잠시 후 다시 시도해주세요.");
+  const range=window._anDateRange||{lblText:"분석"};
+  const mdF=document.getElementById("anModel")?.value||"전체";
+  const brF=document.getElementById("anBr")?.value||"전체";
+  const sliceModels=window._anSliceModels||[];
+  const rows=window._anRows;
+  const modelsToShow=mdF!=="전체"?[mdF]:(sliceModels.length>0?sliceModels:Object.keys(rows).sort());
+  const prs=new PptxGenJS();
+  prs.layout="LAYOUT_WIDE";prs.title=range.lblText+" 증상분석";
+  const PC={primary:"1B3A5C",accent:"2980B9",admin:"6C3483",hdr:"EBF0F8",odd:"FFFFFF",even:"F4F6FA",bdr:"C8D3E0"};
+  const CC=["3498DB","E74C3C","2ECC71","F39C12","9B59B6","1ABC9C","E67E22","34495E","E91E63","00BCD4","8BC34A","FF5722"];
+  const FF="맑은 고딕";
+
+  // ── 공통 데이터 준비 ──
+  const symTotals={};
+  modelsToShow.forEach(m=>{Object.entries(rows[m]||{}).forEach(([sym,v])=>{symTotals[sym]=(symTotals[sym]||0)+v})});
+  const sortedSyms=Object.entries(symTotals).sort((a,b)=>b[1]-a[1]);
+  const grandTotal=sortedSyms.reduce((s,[,v])=>s+v,0);
+  const maxVal=sortedSyms.length?sortedSyms[0][1]:1;
+
+  // ── 슬라이드1: 모델별 증상현황 분포 ──
+  const sl1=prs.addSlide();
+  sl1.background={color:"FAFBFC"};
+  sl1.addShape(prs.ShapeType.rect,{x:0,y:0,w:10,h:0.85,fill:{color:PC.primary},line:{color:PC.primary}});
+  sl1.addText("📊 모델별 증상현황 분포",{x:0.25,y:0.12,w:7,h:0.45,fontSize:18,bold:true,color:"FFFFFF",fontFace:FF});
+  sl1.addText(range.lblText+(brF!=="전체"?" · "+brF:""),{x:0,y:0.88,w:10,h:0.22,fontSize:9.5,color:"888888",fontFace:FF,align:"center"});
+  sl1.addText("선택 모델: "+modelsToShow.join("  |  "),{x:7,y:0.12,w:2.8,h:0.45,fontSize:8,color:"C8DCF0",fontFace:FF,align:"right"});
+
+  // 테이블 구성
+  const tRows=[];
+  tRows.push([
+    {text:"증상유형",options:{bold:true,fill:{color:PC.hdr},color:PC.primary,align:"left",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    ...modelsToShow.map(m=>({text:m,options:{bold:true,fill:{color:PC.hdr},color:PC.accent,align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}})),
+    {text:"합계",options:{bold:true,fill:{color:PC.hdr},color:PC.admin,align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    {text:"%",options:{bold:true,fill:{color:PC.hdr},color:PC.primary,align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}}
+  ]);
+  sortedSyms.forEach(([sym,total],idx)=>{
+    const pct=grandTotal?Math.round(total/grandTotal*100):0;
+    const bg=idx%2===0?PC.odd:PC.even;
+    tRows.push([
+      {text:sym,options:{fill:{color:bg},align:"left",fontSize:8,fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}},
+      ...modelsToShow.map(m=>{
+        const v=(rows[m]||{})[sym]||0;
+        let cb,cc;
+        if(v===0){cb=bg;cc="DDDDDD";}
+        else if(v/maxVal>0.6){cb="2980B9";cc="FFFFFF";}
+        else if(v/maxVal>0.3){cb="7FB3D3";cc="FFFFFF";}
+        else{cb="D6EAF8";cc="1B3A5C";}
+        return{text:v>0?String(v):"",options:{fill:{color:cb},align:"center",bold:v>0,fontSize:8,color:cc,fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}};
+      }),
+      {text:String(total),options:{fill:{color:bg},align:"center",bold:true,fontSize:8,color:PC.admin,fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}},
+      {text:pct+"%",options:{fill:{color:bg},align:"center",fontSize:8,color:"555555",fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}}
+    ]);
+  });
+  const mTotals=modelsToShow.map(m=>Object.values(rows[m]||{}).reduce((a,b)=>a+b,0));
+  tRows.push([
+    {text:"합계",options:{bold:true,fill:{color:"DDE4EF"},align:"left",fontSize:9,color:PC.primary,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    ...mTotals.map(v=>({text:String(v),options:{bold:true,fill:{color:"DDE4EF"},align:"center",fontSize:9,color:PC.accent,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}})),
+    {text:String(grandTotal),options:{bold:true,fill:{color:"DDE4EF"},align:"center",fontSize:9,color:PC.admin,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    {text:"100%",options:{bold:true,fill:{color:"DDE4EF"},align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}}
+  ]);
+  const symW=2.3;const remW=9.6-symW-0.8-0.6;const mW=Math.min(1.3,remW/Math.max(1,modelsToShow.length));
+  const rowH=Math.max(0.2,Math.min(0.28,4.8/Math.max(1,tRows.length)));
+  sl1.addTable(tRows,{x:0.2,y:1.15,w:9.6,colW:[symW,...modelsToShow.map(()=>mW),0.8,0.6],fontSize:8,rowH,border:{type:"solid",pt:0.5,color:PC.bdr}});
+
+  // ── 슬라이드2: 선택 모델 증상 분포 ──
+  const sl2=prs.addSlide();
+  sl2.background={color:"FAFBFC"};
+  sl2.addShape(prs.ShapeType.rect,{x:0,y:0,w:10,h:0.85,fill:{color:PC.admin},line:{color:PC.admin}});
+  let pieTitle,pieAgg={};
+  if(mdF==="전체"){
+    if(sliceModels.length>0){pieTitle="선택 모델 증상 분포 ("+sliceModels.join(", ")+")";sliceModels.forEach(m=>{Object.entries(rows[m]||{}).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+    else{pieTitle="전체 모델 증상 분포";Object.values(rows).forEach(sv=>{Object.entries(sv).forEach(([k,v])=>{pieAgg[k]=(pieAgg[k]||0)+v})});}
+  }else{pieTitle=mdF+" 증상 분포";pieAgg=rows[mdF]||{};}
+  const pL=Object.keys(pieAgg).sort((a,b)=>pieAgg[b]-pieAgg[a]).slice(0,15);
+  const pTot=pL.reduce((s,k)=>s+pieAgg[k],0);
+  sl2.addText("📊 "+pieTitle,{x:0.25,y:0.12,w:9.5,h:0.45,fontSize:17,bold:true,color:"FFFFFF",fontFace:FF});
+  sl2.addText(range.lblText,{x:0,y:0.88,w:10,h:0.22,fontSize:9.5,color:"888888",fontFace:FF,align:"center"});
+
+  // 도넛 차트
+  sl2.addChart("doughnut",[{name:pieTitle,labels:pL,values:pL.map(l=>pieAgg[l])}],{
+    x:0.2,y:1.1,w:5.2,h:5.0,
+    showLegend:false,showTitle:false,
+    showValue:true,dataLabelFontSize:8,dataLabelColor:"FFFFFF",dataLabelFontBold:true,
+    chartColors:CC.slice(0,pL.length),
+    holeSize:50,
+    layout:{x:0.05,y:0.05,w:0.9,h:0.9}
+  });
+
+  // 범례 + 데이터 테이블
+  const p2=[
+    [{text:"증상유형",options:{bold:true,fill:{color:PC.hdr},color:PC.primary,fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+     {text:"건수",options:{bold:true,fill:{color:PC.hdr},color:PC.primary,align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+     {text:"비율",options:{bold:true,fill:{color:PC.hdr},color:PC.primary,align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}}]
+  ];
+  pL.forEach((l,i)=>{
+    const pct=pTot?Math.round(pieAgg[l]/pTot*100):0;
+    const bg=i%2===0?PC.odd:PC.even;
+    const barLen=Math.round(pct/5);
+    const bar="█".repeat(barLen)+"░".repeat(20-barLen);
+    p2.push([
+      {text:"■ "+l,options:{fill:{color:bg},fontSize:8.5,color:CC[i%CC.length],fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}},
+      {text:String(pieAgg[l]),options:{fill:{color:bg},align:"center",bold:true,fontSize:8.5,color:PC.accent,fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}},
+      {text:pct+"%",options:{fill:{color:bg},align:"center",fontSize:8.5,fontFace:FF,border:{type:"solid",pt:0.5,color:PC.bdr}}}
+    ]);
+  });
+  p2.push([
+    {text:"합계",options:{bold:true,fill:{color:PC.hdr},fontSize:9,color:PC.primary,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    {text:String(pTot),options:{bold:true,fill:{color:PC.hdr},align:"center",fontSize:9,color:PC.admin,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}},
+    {text:"100%",options:{bold:true,fill:{color:PC.hdr},align:"center",fontSize:9,fontFace:FF,border:{type:"solid",pt:0.8,color:PC.bdr}}}
+  ]);
+  const p2RowH=Math.max(0.22,Math.min(0.3,4.8/Math.max(1,p2.length)));
+  sl2.addTable(p2,{x:5.55,y:1.1,w:4.25,colW:[2.6,0.82,0.83],fontSize:9,rowH:p2RowH,border:{type:"solid",pt:0.5,color:PC.bdr}});
+
+  try{await prs.writeFile({fileName:(range.lblText||"분석")+"_증상분석보고서.pptx"});}
+  catch(e){alert("PPT 생성 오류: "+e.message);}
 }
 
 function downloadAnExcel(){
