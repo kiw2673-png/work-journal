@@ -1566,11 +1566,13 @@ async function downloadAnPPT(){
   sl2.addText("📊 "+pieTitle,{x:0.25,y:0.12,w:9.5,h:0.45,fontSize:17,bold:true,color:"FFFFFF",fontFace:FF});
   sl2.addText(range.lblText,{x:0,y:0.88,w:10,h:0.22,fontSize:9.5,color:"888888",fontFace:FF,align:"center"});
 
-  // 도넛 차트
-  sl2.addChart("doughnut",[{name:pieTitle,labels:pL,values:pL.map(l=>pieAgg[l])}],{
+  // 도넛 차트 — TOP5만 라벨 표시, 나머지 빈 문자열로 숨김
+  const top5Labels=pL.map((l,i)=>i<5?l:"");
+  sl2.addChart("doughnut",[{name:pieTitle,labels:top5Labels,values:pL.map(l=>pieAgg[l])}],{
     x:0.2,y:1.1,w:5.2,h:5.0,
     showLegend:false,showTitle:false,
-    showValue:true,dataLabelFontSize:8,dataLabelColor:"FFFFFF",dataLabelFontBold:true,
+    showLabel:true,showValue:false,showPercent:true,
+    dataLabelFontSize:13,dataLabelColor:"FFFFFF",dataLabelFontBold:true,
     chartColors:CC.slice(0,pL.length),
     holeSize:50,
     layout:{x:0.05,y:0.05,w:0.9,h:0.9}
