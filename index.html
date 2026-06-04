@@ -1894,16 +1894,22 @@ function startAutoTgScheduler(){
 }
 
 async function buildDailyText(dateStr){
-  const snap=await db.collection("reports").where("date","==",dateStr).get();
-  const entries=snap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
-  if(!entries.length)return null;
+  const [snapR,snapU]=await Promise.all([db.collection("reports").where("date","==",dateStr).get(),db.collection("users").get()]);
+  const entries=snapR.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  const allUsers=snapU.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId);
+  const submittedIds=new Set(entries.map(e=>e.empId));
+  const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+  const nonCSEntries=entries.filter(e=>e.branch!=="CS본부");
+  if(!entries.length&&!allUsers.length)return null;
   const dObj=new Date(dateStr+"T00:00:00");
   const wd=["일","월","화","수","목","금","토"][dObj.getDay()];
   const dtLabel=dObj.getFullYear()+"년 "+String(dObj.getMonth()+1).padStart(2,"0")+"월 "+String(dObj.getDate()).padStart(2,"0")+"일 ("+wd+")";
   const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
   let totalCases=0;entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
   let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
-  txt+="📊 제출 "+entries.length+"명 · 현장지원 "+totalCases+"건\n";
+  txt+="📊 제출 "+nonCSEntries.length+"명 · 현장지원 "+totalCases+"건\n";
+  if(notSubmitted.length>0)txt+="❌ 미제출 "+notSubmitted.length+"명: "+notSubmitted.map(u=>u.name).join(", ")+"\n";
+  if(!entries.length){txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";return txt;}
   Object.entries(grouped).forEach(([branch,list])=>{
     const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
     txt+="\n━━━ 🏢 "+branch+" ("+list.length+"명, "+brCases+"건) ━━━\n";
