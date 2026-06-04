@@ -597,11 +597,10 @@ function removeCaseMedia(caseIdx,mediaIdx){
 /* ══ JOURNAL ══ */
 function getSelectedDate(){return document.getElementById("jDtInput")?.value||tk()}
 function fdsKor(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
-async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
-  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
-    // Restore case media from saved data
+async function onDateChange(){if(!CU)return;const sel=getSelectedDate();
+  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();window._currentAudios=s.audios||[];window._currentMedia=s.media||[];window._caseMedia={};document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
-  }else{document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);}}catch(e){buildCG(null);}
+  }}catch(e){}
   renderAudioList();renderMediaList();
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
@@ -609,7 +608,7 @@ async function initJ(){document.getElementById("jBr").textContent=CU.branch;docu
   window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
   try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
-  }else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
+  }else{if(!await loadDraft()){buildCG(null);}}}catch(e){if(!await loadDraft())buildCG(null);}
   startDraftTimer();loadH();renderAudioList();renderMediaList();renderF2Tags();}
 
 async function doSave(){
@@ -747,10 +746,11 @@ function startDraftTimer(){
   if(_draftTimer)clearInterval(_draftTimer);
   _draftTimer=setInterval(()=>{if(CU)autoSaveDraft()},30000); // 30초마다 자동저장
 }
-function autoSaveDraft(){
+async function autoSaveDraft(){
   if(!CU)return;
   const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",field3:document.getElementById("field3")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
   localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
+  try{await db.collection("drafts").doc(CU.empId).set(draft);}catch(e){}
 }
 function toggleDraft(){
   if(!CU)return;
@@ -761,6 +761,7 @@ function toggleDraft(){
     // 두번째 클릭 - 임시저장 해제
     if(!confirm("임시저장된 내용을 삭제하시겠습니까?\n현재 입력 내용은 유지됩니다."))return;
     localStorage.removeItem("draft:"+CU.empId);
+    try{db.collection("drafts").doc(CU.empId).delete();}catch(e){}
     btn.style.background="transparent";btn.style.color="var(--ts)";btn.style.borderColor="var(--border)";btn.textContent="💾 임시저장";
     st.textContent="임시저장 해제됨";st.style.color="var(--danger)";
     setTimeout(()=>{st.textContent="";st.style.color="var(--ts)"},2500);
@@ -774,22 +775,23 @@ function toggleDraft(){
 }
 // Backward compat
 function saveDraft(){toggleDraft()}
-function loadDraft(){
+async function loadDraft(){
   if(!CU)return false;
-  const d=localStorage.getItem("draft:"+CU.empId);if(!d)return false;
-  try{
-    const draft=JSON.parse(d);const age=(Date.now()-new Date(draft.ts))/1000/60;
-    if(age>60*24)return false; // 24시간 초과면 무시
-    document.getElementById("field1").value=draft.field1||"";
-    document.getElementById("field2").value=draft.field2||"";
-    document.getElementById("field3").value=draft.field3||"";
-    buildCG(draft.cases||null);
-    const st=document.getElementById("draftStatus");
-    if(st){const m=new Date(draft.ts);st.textContent="임시저장 "+m.getHours()+":"+String(m.getMinutes()).padStart(2,"0")+" 복원됨";st.style.color="var(--success)";setTimeout(()=>{st.style.color="var(--ts)"},3000)}
-    return true;
-  }catch(e){return false}
+  let best=null;
+  const local=localStorage.getItem("draft:"+CU.empId);
+  if(local){try{const d=JSON.parse(local);if((Date.now()-new Date(d.ts))/1000/60<60*24)best=d;}catch(e){}}
+  try{const doc=await db.collection("drafts").doc(CU.empId).get();if(doc.exists){const d=doc.data();if((Date.now()-new Date(d.ts))/1000/60<60*24){if(!best||new Date(d.ts)>new Date(best.ts))best=d;}}}catch(e){}
+  if(!best)return false;
+  document.getElementById("field1").value=best.field1||"";
+  document.getElementById("field2").value=best.field2||"";
+  document.getElementById("field3").value=best.field3||"";
+  buildCG(best.cases||null);
+  localStorage.setItem("draft:"+CU.empId,JSON.stringify(best));
+  const st=document.getElementById("draftStatus");
+  if(st){const m=new Date(best.ts);st.textContent="임시저장 "+m.getHours()+":"+String(m.getMinutes()).padStart(2,"0")+" 복원됨";st.style.color="var(--success)";setTimeout(()=>{st.style.color="var(--ts)"},3000)}
+  return true;
 }
-function clearDraft(){if(CU)localStorage.removeItem("draft:"+CU.empId)}
+function clearDraft(){if(!CU)return;localStorage.removeItem("draft:"+CU.empId);try{db.collection("drafts").doc(CU.empId).delete();}catch(e){}}
 
 /* ══ VOICE (일시정지 지원) ══ */
 let vT=null,vST=null,vB=null,vF=null,vR=null,isVR=false,isVS=false,mS=false,fB="",sF="",lI="",lFT="",lFTm=0,isPaused=false;
