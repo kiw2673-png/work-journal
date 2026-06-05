@@ -129,9 +129,9 @@
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.5</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span style="font-size:9px;opacity:.6">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid rgba(255,255,255,.3);border-radius:6px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-family:inherit;font-weight:600"></div></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.5</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="padding:6px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📅 팀 일정</button></div></div>
 <div class="cw">
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:9px;color:var(--ts)">📅 보고날짜</span><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;margin-bottom:4px"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
 <div class="audio-upload">
   <span style="font-size:11px;color:var(--ts)">🎵 음성파일 업로드</span>
@@ -159,7 +159,6 @@
   <button id="draftBtn" onclick="toggleDraft()" style="flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;background:transparent;color:var(--ts);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">💾 임시저장</button>
   <button id="editReportsBtn" onclick="openMyReports()" style="flex:1;padding:10px;border:1.5px solid var(--admin);border-radius:10px;background:transparent;color:var(--admin);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 보고서 수정</button>
 </div>
-<button onclick="openSchedule()" style="width:100%;padding:9px;border:1.5px solid #2CA5E0;border-radius:10px;background:transparent;color:#2CA5E0;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:5px">📅 팀 일정 공유</button>
 <div id="draftStatus" style="font-size:10px;color:var(--ts);margin-top:4px;text-align:center"></div>
 <button id="saveBtn" class="bsave" style="background:linear-gradient(135deg,var(--primary),var(--pl));box-shadow:0 4px 14px rgba(27,58,92,.3);margin-top:14px" onclick="doSave()">📤 제출하기</button>
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
@@ -4231,21 +4230,40 @@ async function deleteSchedule(docId){
   if(admTab==="schedule")loadScTab();
 }
 
-function openAddSchedule(prefill){
+async function openAddSchedule(prefill){
   const today=prefill||new Date().toISOString().slice(0,10);
+  const isAdm=canEdit();
   document.getElementById("scFormTitle").textContent="일정 추가";
+  let userRow='';
+  if(isAdm){
+    // 관리자: 사용자 선택 드롭다운
+    const snap=await db.collection("users").get();
+    const users=snap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId).sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
+    const opts=users.map(u=>'<option value=\''+esc(JSON.stringify({empId:u.empId,name:u.name,branch:u.branch}))+'\'>'+esc(u.branch)+' - '+esc(u.name)+'</option>').join('');
+    // 본인 계정이 있으면 기본 선택
+    const sess=JSON.parse(localStorage.getItem("session")||"{}");
+    const myId=CU?.empId||sess.user?.empId||'';
+    userRow='<div><span class="fl">대상자</span><select id="scUserSel" class="fi-sel">'+opts+'</select></div>';
+    // 잠시 후 본인 선택
+    if(myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}},50);}
+  }
   document.getElementById("scFormBody").innerHTML=
     '<div style="display:flex;flex-direction:column;gap:10px">'
+    +userRow
     +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel">'+Object.keys(SC_TYPES).map(k=>'<option>'+k+'</option>').join('')+'</select></div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="fl">시작일</span><input id="scStart" type="date" class="fi-input" value="'+today+'"></div><div><span class="fl">종료일</span><input id="scEnd" type="date" class="fi-input" value="'+today+'"></div></div>'
     +'<div><span class="fl">메모 (선택)</span><input id="scNote" class="fi-input" placeholder="예: 경기 고객사 방문"></div>'
     +'<button onclick="saveSchedule()" style="padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#2CA5E0,#1a85c0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">저장</button>'
     +'</div>';
   document.getElementById("scFormModal").classList.add("open");
+  if(isAdm&&myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}}},80);}
 }
 
 async function saveSchedule(){
   let u=CU;if(!u){const sess=JSON.parse(localStorage.getItem("session")||"{}");u=sess.user||null;}
+  // 관리자 대상자 선택 드롭다운 처리
+  const selEl=document.getElementById("scUserSel");
+  if(selEl&&selEl.value){try{u=JSON.parse(selEl.value);}catch(e){}}
   if(!u){alert("일반 사용자 계정으로 로그인 후 등록하세요");return;}
   const type=document.getElementById("scType").value;
   const start=document.getElementById("scStart").value;
