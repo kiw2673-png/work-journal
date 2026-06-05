@@ -3859,10 +3859,15 @@ async function shareDailyReport(){
     entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
     let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
     txt+="📊 제출 "+entries.length+"명 · 현장지원 "+totalCases+"건\n";
-    const usersSnap2=await db.collection("users").get();
+    const [usersSnap2,scSnap2]=await Promise.all([db.collection("users").get(),db.collection("schedules").where("startDate","<=",dv).get()]);
     const allUsers2=usersSnap2.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId);
+    const todayScheds2=scSnap2.docs.map(d=>d.data()).filter(s=>s.endDate>=dv);
+    const leaveTypes2=new Set(["연차","반차(오전)","반차(오후)"]);
+    const leaveIds2=new Set(todayScheds2.filter(s=>leaveTypes2.has(s.type)).map(s=>s.empId));
+    const leaveList2=todayScheds2.filter(s=>leaveTypes2.has(s.type)).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
     const submittedIds2=new Set(entries.map(e=>e.empId));
-    const notSubmitted2=allUsers2.filter(u=>!submittedIds2.has(u.empId)).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+    const notSubmitted2=allUsers2.filter(u=>!submittedIds2.has(u.empId)&&!leaveIds2.has(u.empId)).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+    if(leaveList2.length>0)txt+="🏖️ 연차/반차 "+leaveList2.length+"명: "+leaveList2.map(s=>s.name+"("+s.type+")").join(", ")+"\n";
     if(notSubmitted2.length>0)txt+="❌ 미제출 "+notSubmitted2.length+"명: "+notSubmitted2.map(u=>u.name).join(", ")+"\n";
     Object.entries(grouped).forEach(([branch,list])=>{
       const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
