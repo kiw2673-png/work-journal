@@ -4245,7 +4245,7 @@ async function openAddSchedule(prefill){
     const myId=CU?.empId||sess.user?.empId||'';
     userRow='<div><span class="fl">대상자</span><select id="scUserSel" class="fi-sel">'+opts+'</select></div>';
     // 잠시 후 본인 선택
-    if(myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}},50);}
+    if(myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}}},50);}
   }
   document.getElementById("scFormBody").innerHTML=
     '<div style="display:flex;flex-direction:column;gap:10px">'
