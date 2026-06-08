@@ -897,7 +897,7 @@ function canManageUsers(){const r=getMyRole();return r==="super"||r==="admin"}
 function canChangeSettings(){const r=getMyRole();return r==="super"||r==="admin"}
 
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code)||sess.role==="super";
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"},{id:"voc",l:"📢 VOC"},{id:"schedule",l:"📅 일정"}];
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"},{id:"voc",l:"📢 VOC"},{id:"schedule",l:"📅 팀일정"}];
   if(canChangeSettings())tabs.push({id:"settings",l:"⚙️ 설정"});
   if(canManageUsers())tabs.push({id:"users",l:"👥 사용자"});
   if(sa)tabs.push({id:"upload",l:"📤 업로드"});
@@ -2002,13 +2002,55 @@ function viewSchedule(docId){
     +'<div style="font-size:12px;margin-top:3px">👤 '+esc(s.name)+' · '+esc(s.branch)+'</div>'
     +(s.note?'<div style="font-size:11px;margin-top:5px;color:#444">📝 '+esc(s.note)+'</div>':'')
     +'</div>'
-    +(canDel?'<button onclick="deleteSchedule(\''+docId+'\')" style="width:100%;padding:9px;border:1px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🗑 삭제</button>':'');
+    +(canDel?'<div style="display:flex;gap:6px">'
+      +'<button onclick="editSchedule(\''+docId+'\')" style="flex:1;padding:9px;border:1px solid var(--primary);border-radius:8px;background:transparent;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✏️ 수정</button>'
+      +'<button onclick="deleteSchedule(\''+docId+'\')" style="flex:1;padding:9px;border:1px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">🗑 삭제</button>'
+      +'</div>':'');
   document.getElementById("scFormModal").classList.add("open");
 }
 
 async function deleteSchedule(docId){
   if(!confirm("일정을 삭제하시겠습니까?"))return;
   await db.collection("schedules").doc(docId).delete();
+  document.getElementById("scFormModal").classList.remove("open");
+  if(document.getElementById("scheduleModal").classList.contains("open"))_scLoadAndRender();
+  if(admTab==="schedule")loadScTab();
+}
+
+async function editSchedule(docId){
+  const s=_scData.find(x=>x.docId===docId);if(!s)return;
+  const isAdm=canEdit();
+  document.getElementById("scFormTitle").textContent="일정 수정";
+  let userRow='';
+  if(isAdm){
+    const snap=await db.collection("users").get();
+    const users=snap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId).sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
+    const opts=users.map(u=>'<option value=\''+esc(JSON.stringify({empId:u.empId,name:u.name,branch:u.branch}))+'\'>'+esc(u.branch)+' - '+esc(u.name)+'</option>').join('');
+    userRow='<div><span class="fl">대상자</span><select id="scUserSel" class="fi-sel">'+opts+'</select></div>';
+  }
+  document.getElementById("scFormBody").innerHTML=
+    '<div style="display:flex;flex-direction:column;gap:10px">'
+    +userRow
+    +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel">'+Object.keys(SC_TYPES).map(k=>'<option'+(k===s.type?' selected':'')+'>'+k+'</option>').join('')+'</select></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="fl">시작일</span><input id="scStart" type="date" class="fi-input" value="'+s.startDate+'"></div><div><span class="fl">종료일</span><input id="scEnd" type="date" class="fi-input" value="'+s.endDate+'"></div></div>'
+    +'<div><span class="fl">메모 (선택)</span><input id="scNote" class="fi-input" value="'+esc(s.note||'')+'" placeholder="예: 경기 고객사 방문"></div>'
+    +'<button onclick="saveEditSchedule(\''+docId+'\')" style="padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--pl));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">저장</button>'
+    +'</div>';
+  document.getElementById("scFormModal").classList.add("open");
+  if(isAdm){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===s.empId){sel.selectedIndex=i;break;}}catch(e){}}}},80);}
+}
+
+async function saveEditSchedule(docId){
+  let u={empId:_scData.find(x=>x.docId===docId)?.empId,name:_scData.find(x=>x.docId===docId)?.name,branch:_scData.find(x=>x.docId===docId)?.branch};
+  const selEl=document.getElementById("scUserSel");
+  if(selEl&&selEl.value){try{u=JSON.parse(selEl.value);}catch(e){}}
+  const type=document.getElementById("scType").value;
+  const start=document.getElementById("scStart").value;
+  const end=document.getElementById("scEnd").value;
+  const note=(document.getElementById("scNote").value||"").trim();
+  if(!start||!end){alert("날짜를 입력하세요");return;}
+  if(start>end){alert("종료일은 시작일 이후여야 합니다");return;}
+  await db.collection("schedules").doc(docId).update({empId:u.empId,name:u.name,branch:u.branch,type,startDate:start,endDate:end,note});
   document.getElementById("scFormModal").classList.remove("open");
   if(document.getElementById("scheduleModal").classList.contains("open"))_scLoadAndRender();
   if(admTab==="schedule")loadScTab();
@@ -2087,6 +2129,7 @@ async function renderScAdm(){
       +'<span style="font-size:10px;padding:2px 8px;border-radius:6px;background:'+t.bg+';color:'+t.color+';font-weight:700;white-space:nowrap">'+esc(s.type)+'</span>'
       +'<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">'+esc(s.name)+' <span style="font-size:10px;color:var(--ts);font-weight:400">'+esc(s.branch)+'</span></div>'
       +'<div style="font-size:10px;color:var(--ts)">'+fds(s.startDate)+(s.startDate!==s.endDate?' ~ '+fds(s.endDate):'')+(s.note?' · '+esc(s.note):'')+'</div></div>'
+      +'<button onclick="editSchedule(\''+s.docId+'\')" style="padding:4px 9px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0">✏️</button>'
       +'<button onclick="deleteSchedule(\''+s.docId+'\')" style="background:none;border:none;color:var(--danger);font-size:16px;cursor:pointer;padding:0;flex-shrink:0">🗑</button>'
       +'</div>';
   });
