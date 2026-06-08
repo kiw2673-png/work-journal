@@ -983,21 +983,101 @@ function downloadStatsExcel(){
   const users=window._aU||[];const f=users.filter(u=>AF==="전체"||u.branch===AF);
   if(statMode==='bizday'){
     const allEntries=window._aAllE||[];
-    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const capDate=today2<wr.e?today2:wr.e;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
+    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();
+    const capDate=today2<wr.e?today2:wr.e;
+    const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';
+    const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
     const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=capDate&&isBusinessDay(e.date));
     const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=monthEnd&&isBusinessDay(e.date));
     const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
-    const wst=calcBU(we.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
-    const mst=calcBU(me.filter(e=>AF==="전체"||users.find(u=>u.empId===e.empId)?.branch===AF));
+    const wst=calcBU(we);const mst=calcBU(me);
     const wbd=countBizDays(wr.s,capDate);const mbd=countBizDays(monthStart,monthEnd);
-    const so=[...f].sort((a,b)=>(mst[b.empId]?.count||0)-(mst[a.empId]?.count||0));
-    const yr=wr.s.slice(2,4);const sm=wr.s.slice(5,7);const sd=wr.s.slice(8,10);const em=wr.e.slice(5,7);const ed=wr.e.slice(8,10);
-    const dateLabel=yr+'년 '+sm+'월 '+sd+'일 ~ '+em+'월 '+ed+'일';
-    let trs='';
-    so.forEach(u=>{const ws=wst[u.empId]||{count:0,cases:0,consult:0};const ms2=mst[u.empId]||{count:0,cases:0,consult:0};trs+='<tr><td>'+esc(u.name)+'</td><td>'+esc(u.branch)+'</td><td class="n">'+ws.count+'</td><td class="n">'+(wbd>0?(ws.cases/wbd).toFixed(1):0)+'</td><td class="n">'+(wbd>0?(ws.consult/wbd).toFixed(1):0)+'</td><td class="n">'+ms2.count+'</td><td class="n">'+ms2.cases+'</td><td class="n">'+ms2.consult+'</td></tr>';});
-    const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>영업일실적</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>body,td,th{font-family:"맑은 고딕",Malgun Gothic,sans-serif;font-size:10pt;border-collapse:collapse}.ttl{font-size:16pt;font-weight:bold;border:none;padding:6px 4px}.dlbl{text-align:right;border:none;font-size:10pt;vertical-align:bottom;padding:6px 4px}.hdr{background:#D9E1F2;font-weight:bold;text-align:center;border:1px solid #999;padding:5px 6px}.n{text-align:center;border:1px solid #ccc;padding:4px 6px}td{border:1px solid #ccc;padding:4px 6px}</style></head><body><table><tr><td colspan="6" class="ttl">CS일일업무 현장기술팀</td><td colspan="2" class="dlbl">'+dateLabel+'</td></tr><tr><td class="hdr">이름</td><td class="hdr">지사</td><td class="hdr">금주등록</td><td class="hdr">현장방문<br>(일평균)</td><td class="hdr">상담<br>(일평균)</td><td class="hdr">당월누계<br>등록</td><td class="hdr">당월누계<br>현장</td><td class="hdr">당월누계<br>상담</td></tr>'+trs+'</table></body></html>';
-    const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='영업일실적_'+yr+'년'+sm+'월'+sd+'일~'+em+'월'+ed+'일.xls';a.click();URL.revokeObjectURL(url);
+    const yr=wr.s.slice(2,4);const sm=+wr.s.slice(5,7);const sd=+wr.s.slice(8,10);const em=+wr.e.slice(5,7);const ed=+wr.e.slice(8,10);
+    const monthNum=+wkMonth.slice(5,7);
+    const regions=getRegions();
+    const grouped=[];
+    regions.forEach(rg=>{
+      const rUsers=(AF==="전체")?users.filter(u=>rg.branches.includes(u.branch)):users.filter(u=>rg.branches.includes(u.branch)&&u.branch===AF);
+      if(!rUsers.length)return;
+      rUsers.sort((a,b)=>{const bi=rg.branches.indexOf(a.branch)-rg.branches.indexOf(b.branch);if(bi!==0)return bi;return(mst[b.empId]?.count||0)-(mst[a.empId]?.count||0);});
+      grouped.push({region:rg.name,users:rUsers});
+    });
+    db.collection("schedules").where("startDate","<=",wkMonth+"-31").get().then(snap=>{
+      const leaveMap={};
+      snap.docs.forEach(doc=>{const s=doc.data();
+        if(!s.endDate||s.endDate<wkMonth+"-01")return;
+        const lt=s.type||"";const isAnnual=(lt==="연차");const isHalf=(lt==="반차(오전)"||lt==="반차(오후)");
+        if(!isAnnual&&!isHalf)return;
+        const sd2=new Date(Math.max(new Date(s.startDate+'T00:00:00'),new Date(wkMonth+'-01T00:00:00')));
+        const ed2=new Date(Math.min(new Date(s.endDate+'T00:00:00'),new Date(monthEnd+'T00:00:00')));
+        let days=0;const cur=new Date(sd2);
+        while(cur<=ed2){if(cur.getDay()>=1&&cur.getDay()<=5)days++;cur.setDate(cur.getDate()+1);}
+        if(isHalf)days=days*0.5;
+        if(!leaveMap[s.empId])leaveMap[s.empId]=0;
+        leaveMap[s.empId]+=days;
+      });
+      const hc1='#1B3A5C';const hc2='#2C5F8A';const bc='#999';const lbc='#ccc';
+      const hst='background:'+hc1+';color:#fff;font-weight:bold;text-align:center;border:1px solid '+bc+';padding:6px 4px;font-size:10pt;';
+      const h2st='background:'+hc2+';color:#fff;font-weight:bold;text-align:center;border:1px solid '+bc+';padding:5px 4px;font-size:9pt;';
+      const nst='text-align:center;border:1px solid '+lbc+';padding:4px 3px;font-size:10pt;';
+      const cst='text-align:center;border:1px solid '+lbc+';padding:4px 3px;font-size:10pt;font-weight:bold;';
+      let trs='';
+      grouped.forEach(g=>{
+        const rc=g.users.length;
+        g.users.forEach((u,i)=>{
+          const ws=wst[u.empId]||{count:0,cases:0,consult:0};
+          const ms2=mst[u.empId]||{count:0,cases:0,consult:0};
+          const wCasesAvg=wbd>0?(ws.cases/wbd):0;
+          const wConsultAvg=wbd>0?(ws.consult/wbd):0;
+          const wTotalAvg=wCasesAvg+wConsultAvg;
+          const mTotal=ms2.cases+ms2.consult;
+          const lv=leaveMap[u.empId]||0;
+          const lvStr=lv>0?(lv%1===0?lv.toFixed(0)+'.00':lv.toFixed(2)):'';
+          trs+='<tr>';
+          if(i===0)trs+='<td rowspan="'+rc+'" style="'+cst+'vertical-align:middle;border:1px solid '+bc+';">'+esc(g.region)+'</td>';
+          trs+='<td style="'+nst+'">'+esc(u.branch)+'</td>';
+          trs+='<td style="'+nst+'">'+esc(u.name)+'</td>';
+          trs+='<td style="'+nst+'">'+ws.count+'</td>';
+          trs+='<td style="'+nst+'">'+wCasesAvg.toFixed(1)+'</td>';
+          trs+='<td style="'+nst+'">'+wConsultAvg.toFixed(1)+'</td>';
+          trs+='<td style="'+nst+'">'+wTotalAvg.toFixed(1)+'</td>';
+          trs+='<td style="'+nst+'">'+ms2.count+'</td>';
+          trs+='<td style="'+nst+'">'+ms2.cases+'</td>';
+          trs+='<td style="'+nst+'">'+ms2.consult+'</td>';
+          trs+='<td style="'+nst+'">'+mTotal+'</td>';
+          trs+='<td style="'+nst+'">'+lvStr+'</td>';
+          trs+='</tr>';
+        });
+      });
+      const weekLabel=yr+'년 '+sm+'월 '+sd+'~'+ed+'일';
+      const html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>CS일일업무</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--><style>body,td,th{font-family:"맑은 고딕",Malgun Gothic,sans-serif;font-size:10pt;}table{border-collapse:collapse;}</style></head><body>'
+      +'<table>'
+      +'<tr><td colspan="12" style="font-size:14pt;font-weight:bold;border:none;padding:8px 4px;">■ CS일일업무 현장기술팀</td></tr>'
+      +'<tr>'
+      +'<td rowspan="2" style="'+hst+'width:60px;">센터</td>'
+      +'<td rowspan="2" style="'+hst+'width:85px;">지사</td>'
+      +'<td rowspan="2" style="'+hst+'width:60px;">이름</td>'
+      +'<td colspan="4" style="'+hst+'">금주 ('+weekLabel+')</td>'
+      +'<td colspan="4" style="'+hst+'">당월 누계</td>'
+      +'<td rowspan="2" style="'+hst+'width:60px;">'+monthNum+'월 연차</td>'
+      +'</tr>'
+      +'<tr>'
+      +'<td style="'+h2st+'">금주등록</td>'
+      +'<td style="'+h2st+'">현장방문<br>(일평균)</td>'
+      +'<td style="'+h2st+'">상담건수<br>(일평균)</td>'
+      +'<td style="'+h2st+'">합계<br>(일평균)</td>'
+      +'<td style="'+h2st+'">누계등록</td>'
+      +'<td style="'+h2st+'">누계현장</td>'
+      +'<td style="'+h2st+'">누계상담</td>'
+      +'<td style="'+h2st+'">당월합계</td>'
+      +'</tr>'
+      +trs
+      +'</table></body></html>';
+      const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+      a.download='CS업무일지_금주등록_통계_'+yr+String(sm).padStart(2,'0')+String(sd).padStart(2,'0')+'.xls';
+      a.click();URL.revokeObjectURL(url);
+    }).catch(err=>{alert('연차 데이터 조회 오류: '+err.message);});
   } else {
     const stats=window._aS||{};
     const so=[...f].sort((a,b)=>(stats[b.empId]?.count||0)-(stats[a.empId]?.count||0));
@@ -1005,7 +1085,7 @@ function downloadStatsExcel(){
     const rows=[['기간','이름','지사','등록건수','현장지원','상담건']];
     so.forEach(u=>{const s=stats[u.empId]||{count:0,cases:0,consult:0};rows.push([pl,u.name,u.branch,s.count,s.cases,s.consult]);});
     const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
-    const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+    const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='담당자통계_'+pl+'.csv';a.click();URL.revokeObjectURL(url);
   }
 }
