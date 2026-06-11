@@ -1974,8 +1974,7 @@ function _renderScCal(targetId,year,month,data,minH){
     const dayS=data.filter(s=>s.startDate<=ds&&s.endDate>=ds);
     h+='<div class="sc-day'+(ds===today?' today':'')+(dow===0?' sun':dow===6?' sat':'')+'" style="min-height:'+minH+'px" onclick="onScDayClick(\''+ds+'\')">';
     h+='<div class="dn">'+d+'</div>';
-    dayS.slice(0,3).forEach(s=>{const t=SC_TYPES[s.type]||SC_TYPES['기타'];h+='<div class="sc-badge" style="background:'+t.bg+';color:'+t.color+'" onclick="event.stopPropagation();viewSchedule(\''+s.docId+'\')">'+esc(s.name)+'</div>';});
-    if(dayS.length>3)h+='<div class="sc-more">+'+(dayS.length-3)+'</div>';
+    if(dayS.length){h+='<div style="display:flex;flex-wrap:wrap;gap:1px">';dayS.forEach(s=>{const t=SC_TYPES[s.type]||SC_TYPES['기타'];h+='<div class="sc-badge" style="background:'+t.bg+';color:'+t.color+';flex:0 1 calc(50% - 0.5px);min-width:0" onclick="event.stopPropagation();viewSchedule(\''+s.docId+'\')">'+esc(s.name)+'</div>';});h+='</div>';}
     h+='</div>';
   }
   h+='</div>';
@@ -4357,3 +4356,4 @@ function adminDeleteReport(docId,name,date){
 </script>
 </body>
 </html>
+
