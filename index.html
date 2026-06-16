@@ -165,7 +165,7 @@
 
 <!-- ADMIN -->
 <div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.2.5</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
-<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div></div></div>
+<div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
 <div id="detailScreen" class="scr"><div class="hdr ah"><div style="display:flex;justify-content:space-between;align-items:center"><button class="blo" onclick="backAdm()">← 목록</button><span style="font-size:13px;font-weight:700">상세</span></div><div class="hi" style="margin-top:10px" id="detUsr"></div></div><div style="max-width:700px;margin:0 auto;padding:16px 12px 50px"><div id="detAct" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap"></div><div id="detList"></div></div></div>
@@ -266,7 +266,7 @@ function getHolidays(){return _settings?.holidays||[]}
 function getSyms(){return _settings?.symptoms||DEF_SYM}
 function getActs(){return _settings?.actions||DEF_ACT}
 
-function tk(){return new Date().toISOString().slice(0,10)}
+function tk(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function fd(d){d=d||new Date();const w=["일","월","화","수","목","금","토"];return d.getFullYear()+"년 "+String(d.getMonth()+1).padStart(2,"0")+"월 "+String(d.getDate()).padStart(2,"0")+"일 ("+w[d.getDay()]+")"}
 function fds(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
 function esc(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""}
@@ -897,16 +897,16 @@ function canManageUsers(){const r=getMyRole();return r==="super"||r==="admin"}
 function canChangeSettings(){const r=getMyRole();return r==="super"||r==="admin"}
 
 function buildATabs(){const sess=JSON.parse(localStorage.getItem("session")||"{}");const sa=SA.includes(sess.code)||sess.role==="super";
-  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"},{id:"voc",l:"📢 VOC"},{id:"schedule",l:"📅 팀일정"}];
+  let tabs=[{id:"stats",l:"📊 통계"},{id:"report",l:"📋 보고서"},{id:"weekly",l:"📅 주간"},{id:"monthly",l:"📆 월간"},{id:"analysis",l:"📈 분석"},{id:"search",l:"🔍 검색"},{id:"csr",l:"💡 해결법"},{id:"voc",l:"📢 VOC"},{id:"schedule",l:"📅 팀일정"},{id:"map",l:"🗺️ 지도"}];
   if(canChangeSettings())tabs.push({id:"settings",l:"⚙️ 설정"});
   if(canManageUsers())tabs.push({id:"users",l:"👥 사용자"});
   if(sa)tabs.push({id:"upload",l:"📤 업로드"});
   document.getElementById("adminTabs").innerHTML=tabs.map(t=>'<button class="atab'+(admTab===t.id?" active":"")+'" onclick="switchAT(\''+t.id+'\')">'+t.l+'</button>').join("")}
 function switchAT(tab){admTab=tab;buildATabs();
-  ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSearch","tabCSR","tabVoc","tabSettings","tabUsers","tabUpload","tabSchedule"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
+  ["tabStats","tabReport","tabWeekly","tabMonthly","tabAnalysis","tabSearch","tabCSR","tabVoc","tabSettings","tabUsers","tabUpload","tabSchedule","tabMap"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none"});
   const tabIdMap={csr:"tabCSR",voc:"tabVoc"};
   const el=document.getElementById(tabIdMap[tab]||"tab"+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.style.display="block";
-  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="search")loadSearch();else if(tab==="csr")loadSolutions();else if(tab==="voc")loadVOC();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload();else if(tab==="schedule")loadScTab()}
+  if(tab==="stats")loadStats();else if(tab==="report")loadRpt();else if(tab==="weekly")loadWeek();else if(tab==="monthly")loadMonthly();else if(tab==="analysis")loadAnal();else if(tab==="search")loadSearch();else if(tab==="csr")loadSolutions();else if(tab==="voc")loadVOC();else if(tab==="settings")loadSett();else if(tab==="users")loadUsers();else if(tab==="upload")loadUpload();else if(tab==="schedule")loadScTab();else if(tab==="map")loadMap()}
 
 function weekToRange(yw){
   if(!yw||!yw.includes('-W'))return null;
@@ -924,8 +924,8 @@ function dateToWeekStr(ds){
 function setStatPeriod(type,value){statMode='normal';statPeriod={type,value,range:type==='week'?weekToRange(value):null};renderStatsTable();}
 function setStatMode(m){statMode=m;renderStatsTable();}
 function isBusinessDay(ds){const d=new Date(ds+'T00:00:00');return d.getDay()>=1&&d.getDay()<=5&&!getHolidays().includes(ds);}
-function getWeekMonFri(){const t=tk();const d=new Date(t+'T00:00:00');const dow=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));const fri=new Date(mon);fri.setDate(mon.getDate()+4);return{s:mon.toISOString().slice(0,10),e:fri.toISOString().slice(0,10)};}
-function countBizDays(s,e){let n=0;const d=new Date(s+'T00:00:00');const en=new Date(e+'T00:00:00');while(d<=en){if(isBusinessDay(d.toISOString().slice(0,10)))n++;d.setDate(d.getDate()+1);}return n;}
+function getWeekMonFri(){const t=tk();const d=new Date(t+'T00:00:00');const dow=d.getDay();const mon=new Date(d);mon.setDate(d.getDate()-(dow===0?6:dow-1));const fri=new Date(mon);fri.setDate(mon.getDate()+4);const fmt=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');return{s:fmt(mon),e:fmt(fri)};}
+function countBizDays(s,e){let n=0;const d=new Date(s+'T00:00:00');const en=new Date(e+'T00:00:00');while(d<=en){const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(isBusinessDay(ds))n++;d.setDate(d.getDate()+1);}return n;}
 async function loadStats(){
   document.getElementById("tabStats").innerHTML='<div class="loading">불러오는 중...</div>';
   const usersSnap=await db.collection("users").get();const users=usersSnap.docs.map(d=>d.data());
@@ -968,7 +968,7 @@ function renderStatsTable(){
   h+='<h3 style="font-size:13px;font-weight:700;margin-bottom:10px">🏢 지사별</h3><div class="bgrid">'+DEF_BR.map(b=>{const s=bs[b]||{t:0,s:0,c:0};const a=AF===b;const p=s.t>0?s.s/s.t*100:0;return'<div class="bcard'+(a?" active":"")+'" onclick="AF=AF===\''+b+'\'?\'전체\':\''+b+'\';renderStatsTable()"><div class="nm">'+b+'</div><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ts)"><span>'+s.t+'명</span><span>'+s.s+'/'+s.t+'</span></div><div class="bbar"><div class="bbar-f" style="width:'+p+'%"></div></div></div>'}).join("")+'</div>';
   const f=users.filter(u=>AF==="전체"||u.branch===AF);
   if(statMode==='bizday'){
-    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const capDate=today2<wr.e?today2:wr.e;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
+    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const _wrFriD=new Date(wr.s+'T00:00:00');_wrFriD.setDate(_wrFriD.getDate()+4);const wrFri=_wrFriD.getFullYear()+'-'+String(_wrFriD.getMonth()+1).padStart(2,'0')+'-'+String(_wrFriD.getDate()).padStart(2,'0');const capDate=today2<wrFri?today2:wrFri;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const _mLastD=new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0);const monthEnd=(wkMonth===today2.slice(0,7))?today2:_mLastD.getFullYear()+'-'+String(_mLastD.getMonth()+1).padStart(2,'0')+'-'+String(_mLastD.getDate()).padStart(2,'0');
     const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=capDate&&isBusinessDay(e.date));
     const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=monthEnd&&isBusinessDay(e.date));
     const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
@@ -1002,7 +1002,7 @@ function downloadStatsExcel(){
   const users=window._aU||[];const f=users.filter(u=>AF==="전체"||u.branch===AF);
   if(statMode==='bizday'){
     const allEntries=window._aAllE||[];
-    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const capDate=today2<wr.e?today2:wr.e;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const monthEnd=(wkMonth===today2.slice(0,7))?today2:new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0).toISOString().slice(0,10);
+    const today2=tk();const wr=(statPeriod.type==='week'&&statPeriod.range)?statPeriod.range:getWeekMonFri();const _wrFriD=new Date(wr.s+'T00:00:00');_wrFriD.setDate(_wrFriD.getDate()+4);const wrFri=_wrFriD.getFullYear()+'-'+String(_wrFriD.getMonth()+1).padStart(2,'0')+'-'+String(_wrFriD.getDate()).padStart(2,'0');const capDate=today2<wrFri?today2:wrFri;const wkMonth=wr.s.slice(0,7);const monthStart=wkMonth+'-01';const _mLastD=new Date(+wkMonth.slice(0,4),+wkMonth.slice(5,7),0);const monthEnd=(wkMonth===today2.slice(0,7))?today2:_mLastD.getFullYear()+'-'+String(_mLastD.getMonth()+1).padStart(2,'0')+'-'+String(_mLastD.getDate()).padStart(2,'0');
     const we=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=capDate&&isBusinessDay(e.date));
     const me=allEntries.filter(e=>e.date&&e.date>=monthStart&&e.date<=monthEnd&&isBusinessDay(e.date));
     const calcBU=ents=>{const st={};ents.forEach(e=>{if(!st[e.empId])st[e.empId]={count:0,cases:0,consult:0};st[e.empId].count++;st[e.empId].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);st[e.empId].consult+=m?m.length:1;}});return st;};
@@ -1848,6 +1848,10 @@ function renderSett(){const p=pendS;let h='';
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
       +'<input value="'+esc(r.name)+'" onchange="pendS.regions['+ri+'].name=this.value" style="font-weight:700;font-size:11px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:inherit;background:#fff;width:100px">'
       +'<button class="rx" onclick="pendS.regions.splice('+ri+',1);renderSett()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px">✕</button></div>'
+      +'<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px">'
+      +'<span style="font-size:10px;color:var(--ts);min-width:38px">담당자</span>'
+      +'<input value="'+esc(r.manager||"")+'" onchange="pendS.regions['+ri+'].manager=this.value" placeholder="담당자 이름" style="font-size:10px;border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-family:inherit;background:#fff;flex:1">'
+      +'</div>'
       +'<div style="font-size:10px;color:var(--ts);margin-bottom:4px">소속 지사:</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px">';
     r.branches.forEach((b,bi)=>{h+='<span class="stag-item">'+esc(b)+' <button class="rx" onclick="pendS.regions['+ri+'].branches.splice('+bi+',1);renderSett()">✕</button></span>'});
@@ -1922,6 +1926,71 @@ async function saveSett(){
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
   }catch(e){alert("오류: "+e.message)}
+}
+
+/* ══ MAP ══ */
+const MAP_COLORS=['#3B82F6','#10B981','#F59E0B','#8B5CF6','#EF4444','#06B6D4','#EC4899','#84CC16'];
+const MAP_SVG_PATHS={
+  '수도권':{d:'M40,15 L170,15 L182,50 L184,115 L152,122 L90,125 L38,117 L22,80 Z',lx:108,ly:68},
+  '충청권':{d:'M22,117 L38,117 L90,125 L152,122 L184,115 L190,160 L185,200 L148,205 L90,208 L38,200 L17,168 Z',lx:105,ly:162},
+  '호남권':{d:'M17,200 L38,200 L90,208 L112,208 L108,256 L103,290 L84,312 L55,312 L28,300 L14,268 L12,234 Z',lx:60,ly:255},
+  '영남권':{d:'M112,208 L148,205 L185,200 L196,238 L195,275 L182,302 L158,318 L128,322 L108,302 L108,256 Z',lx:158,ly:262}
+};
+function loadMap(){
+  const el=document.getElementById('tabMap');if(!el)return;
+  const regions=getRegions();
+  let svgPaths='',legend='',cards='';
+  regions.forEach((r,i)=>{
+    const color=MAP_COLORS[i%MAP_COLORS.length];
+    const sp=MAP_SVG_PATHS[r.name];
+    const mgr=r.manager||'';
+    if(sp){
+      svgPaths+='<path id="mp'+i+'" d="'+sp.d+'" fill="'+color+'" fill-opacity="0.72" stroke="#fff" stroke-width="2.5" onclick="hlRgn('+i+')" style="cursor:pointer;transition:fill-opacity .15s"/>';
+      svgPaths+='<text x="'+sp.lx+'" y="'+(sp.ly-5)+'" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.4)">'+esc(r.name)+'</text>';
+      if(mgr)svgPaths+='<text x="'+sp.lx+'" y="'+(sp.ly+7)+'" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.92)" style="pointer-events:none">'+esc(mgr)+'</text>';
+    }
+    legend+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s" onmouseenter="this.style.background=\'var(--ibg)\'" onmouseleave="this.style.background=\'\'" onclick="hlRgn('+i+')">'
+      +'<div style="width:12px;height:12px;border-radius:3px;background:'+color+';flex-shrink:0"></div>'
+      +'<span style="font-size:12px;font-weight:700">'+esc(r.name)+'</span>'
+      +(mgr?'<span style="font-size:11px;color:var(--ts)">'+esc(mgr)+'</span>':'<span style="font-size:10px;color:#bbb">미지정</span>')
+      +'</div>';
+    cards+='<div id="rc'+i+'" style="background:var(--card);border:2px solid '+color+';border-radius:10px;padding:12px;margin-bottom:10px;transition:box-shadow .2s">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<div style="width:14px;height:14px;border-radius:4px;background:'+color+';flex-shrink:0"></div>'
+      +'<span style="font-size:14px;font-weight:700">'+esc(r.name)+'</span>'
+      +(mgr?'<span style="font-size:12px;color:var(--ts)">👤 '+esc(mgr)+'</span>':'<span style="font-size:11px;color:#bbb">담당자 미지정</span>')
+      +'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:4px">'
+      +r.branches.map(b=>'<span style="font-size:10px;background:'+color+'14;border:1px solid '+color+'55;border-radius:6px;padding:3px 8px;color:var(--text)">'+esc(b)+'</span>').join('')
+      +'</div></div>';
+  });
+  el.innerHTML='<div style="padding:16px 12px 40px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<h3 style="font-size:13px;font-weight:700">🗺️ 담당지역 현황</h3>'
+    +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️ 담당자 설정</button>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:16px">'
+    +'<div style="flex:0 0 auto;margin:0 auto">'
+    +'<svg viewBox="0 0 220 340" width="200" style="display:block;filter:drop-shadow(0 3px 10px rgba(0,0,0,.15))">'
+    +svgPaths
+    +'</svg></div>'
+    +'<div style="flex:1;min-width:150px;padding-top:4px">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--ts);margin-bottom:8px">권역 / 담당자</div>'
+    +legend
+    +'</div></div>'
+    +'<div style="font-size:10px;font-weight:600;color:var(--ts);margin-bottom:8px">권역 상세</div>'
+    +cards
+    +'</div>';
+}
+function hlRgn(i){
+  const regions=getRegions();
+  document.querySelectorAll('[id^="mp"]').forEach((p,j)=>{
+    p.style.fillOpacity=j===i?'1':'0.45';
+    p.setAttribute('stroke',j===i?'#E8A838':'#fff');
+    p.setAttribute('stroke-width',j===i?'3':'2.5');
+  });
+  const card=document.getElementById('rc'+i);
+  if(card){card.style.boxShadow='0 4px 20px rgba(0,0,0,.18)';card.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>{card.style.boxShadow='';},2000);}
 }
 
 async function checkOAIStatus(keyOverride){
