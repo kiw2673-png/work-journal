@@ -123,13 +123,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.4.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.5.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.4.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -164,7 +164,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.4.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.0</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -2204,101 +2204,191 @@ async function saveSett(){
 }
 
 /* ══ MAP ══ */
-const MAP_COLORS=['#3B82F6','#10B981','#F59E0B','#8B5CF6','#EF4444','#06B6D4','#EC4899','#84CC16','#F97316','#14B8A6','#A855F7'];
-const JISA_SVG={
-  '인천지사':    {d:'M15,22 L62,18 L72,43 L62,77 L28,92 L15,78 Z',lx:40,ly:55},
-  '서울북부지사': {d:'M62,18 L142,13 L158,52 L148,88 L115,93 L85,97 L72,77 L72,43 Z',lx:102,ly:58},
-  '서울남부지사': {d:'M72,43 L85,97 L115,93 L128,108 L128,142 L95,142 L65,130 L62,77 Z',lx:93,ly:108},
-  '경기지사':    {d:'M28,92 L62,77 L65,130 L95,142 L128,142 L132,172 L82,172 L45,155 L22,132 Z',lx:80,ly:143},
-  '원주지사':    {d:'M142,13 L210,13 L210,142 L165,142 L148,88 L158,52 Z',lx:178,ly:82},
-  '대전지사':    {d:'M22,132 L45,155 L82,172 L132,172 L165,142 L168,178 L128,182 L82,182 L45,170 L20,152 Z',lx:95,ly:163},
-  '전주지사':    {d:'M20,182 L45,170 L82,182 L108,207 L95,248 L68,258 L32,250 L15,230 Z',lx:60,ly:220},
-  '광주지사':    {d:'M15,230 L32,250 L68,258 L95,248 L110,268 L105,305 L78,315 L38,308 L15,282 Z',lx:60,ly:275},
-  '대구지사':    {d:'M165,142 L210,142 L208,210 L188,225 L160,222 L128,182 L168,178 Z',lx:180,ly:182},
-  '경남지사':    {d:'M82,182 L128,182 L160,222 L188,225 L182,272 L158,285 L128,292 L108,272 L95,248 L108,207 Z',lx:138,ly:245},
-  '부산지사':    {d:'M188,225 L208,210 L210,268 L200,292 L175,292 L158,285 L182,272 Z',lx:192,ly:258}
+// SVG coord: x=15+(lon-126)*54.3, y=10+(38.6-lat)*69
+const KO='M51,41 L75,41 L105,30 L138,20 L149,26 L156,38 L173,69 L187,90 L200,121 L198,188 L195,221 L181,252 L174,258 L154,260 L144,262 L114,263 L101,267 L79,278 L57,298 L48,279 L31,261 L42,234 L54,181 L46,157 L41,126 L49,117 L51,106 L47,88 L49,77 L42,60 L49,50 Z';
+const JISA_DATA=[
+  {name:'인천지사',    color:'#3B82F6',d:'M28,41 L71,41 L74,84 L62,105 L26,105 L24,72 Z',              lx:48, ly:73, bx:[22,38,76,108]},
+  {name:'서울북부지사',color:'#10B981',d:'M71,41 L108,30 L108,105 L85,102 L74,84 Z',                   lx:90, ly:62, bx:[68,27,112,108]},
+  {name:'서울남부지사',color:'#F59E0B',d:'M74,84 L85,102 L108,105 L120,118 L120,148 L90,148 L62,136 L60,105 Z',lx:93,ly:118,bx:[57,81,123,151]},
+  {name:'경기지사',    color:'#8B5CF6',d:'M26,105 L62,105 L60,136 L90,148 L120,148 L125,175 L78,175 L40,160 L20,140 Z',lx:72,ly:150,bx:[18,102,128,178]},
+  {name:'원주지사',    color:'#EF4444',d:'M108,30 L210,15 L210,152 L162,152 L135,135 L108,105 Z',      lx:175,ly:88, bx:[105,12,212,155]},
+  {name:'대전지사',    color:'#06B6D4',d:'M20,140 L40,160 L78,175 L125,175 L162,152 L165,195 L128,198 L78,198 L40,185 L18,168 Z',lx:90,ly:178,bx:[15,137,168,200]},
+  {name:'전주지사',    color:'#EC4899',d:'M18,198 L40,185 L78,198 L110,215 L95,255 L65,265 L28,258 L14,238 Z',lx:60,ly:228,bx:[12,182,113,268]},
+  {name:'광주지사',    color:'#16A34A',d:'M14,258 L28,258 L65,265 L95,255 L115,275 L108,315 L75,325 L35,318 L14,290 Z',lx:60,ly:282,bx:[12,252,118,328]},
+  {name:'대구지사',    color:'#F97316',d:'M162,152 L210,152 L210,225 L188,235 L158,228 L128,198 L165,195 Z',lx:180,ly:192,bx:[125,148,212,238]},
+  {name:'경남지사',    color:'#14B8A6',d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,255 L110,215 Z',lx:138,ly:252,bx:[75,195,192,300]},
+  {name:'부산지사',    color:'#A855F7',d:'M188,235 L210,225 L210,272 L198,298 L172,298 L155,290 L182,278 Z',lx:190,ly:262,bx:[152,222,212,300]}
+];
+const CITY_XY={
+  '인천':[53,88],'인천남동':[56,90],'인천서구':[49,85],'인천계양':[56,84],'인천부평':[54,88],'인천중동구':[51,90],
+  '일산':[57,72],'파주':[55,68],'김포':[50,78],'부천':[57,92],'시화':[52,100],'신천':[57,91],
+  '서울':[70,81],'서울동대문':[74,83],'서울은평':[65,80],'서울마포':[65,84],'서울성북':[72,79],
+  '서울서대문':[67,83],'서울강북':[70,76],'서울성동':[73,84],'서울노원':[73,74],'서울광진':[74,85],
+  '서울중구':[70,84],'의정부':[72,68],'남양주':[82,76],'구리':[77,78],'동두천':[72,53],
+  '가평':[97,63],'양평':[96,88],'양주':[72,64],'도봉':[71,74],'포천':[80,55],
+  '서울관악':[67,88],'서울강남':[72,88],'서울강동':[76,84],'서울강서':[62,84],'서울구로':[63,88],
+  '서울금천':[64,91],'서울동작':[67,87],'서울송파':[75,87],'서울양천':[62,85],'서울영등포':[65,86],
+  '성남':[75,96],'하남':[80,84],'광주':[82,93],'이천':[95,105],
+  '안양':[65,96],'군포':[65,99],'수원':[69,103],'평택':[74,121],'안성':[83,119],'용인':[78,104],
+  '광명':[62,93],'안산':[58,99],'화성':[61,109],'오산':[69,113],
+  '춘천':[111,60],'강릉':[173,69],'동해':[183,87],'삼척':[186,91],'속초':[155,38],'양구':[123,43],
+  '영월':[143,104],'원주':[118,97],'인제':[138,47],'정선':[153,99],'제천':[135,111],
+  '태백':[163,110],'평창':[145,88],'홍천':[118,72],'횡성':[128,91],
+  '계룡':[84,172],'공주':[78,160],'논산':[76,177],'대덕':[91,164],'대전':[89,166],
+  '대전서구':[87,167],'대전유성':[87,165],'대전동구':[91,166],'대전중구':[89,168],
+  '세종':[86,157],'아산':[69,136],'예산':[60,143],'천안':[77,134],'청주':[96,145],
+  '홍성':[52,148],'보령':[46,158],'당진':[50,127],'서산':[39,136],'태안':[32,138],
+  '음성':[100,124],'증평':[100,135],'진천':[91,129],'충주':[119,121],
+  '금산':[96,181],'영동':[112,176],'옥천':[100,170],
+  '전주':[78,203],'군산':[52,191],'익산':[66,193],'정읍':[60,219],'남원':[88,229],
+  '완주':[80,205],'부안':[52,212],'진안':[88,215],'순창':[82,228],'고창':[52,228],'김제':[62,208],
+  '광주시':[61,248],'광주동구':[63,248],'광주광산':[59,246],'광주남부':[61,250],
+  '광주첨단':[59,247],'광주서강':[59,249],'광주중앙':[61,249],'광주북구':[61,246],
+  '북광주':[61,246],'목포':[36,270],'목포하당':[37,272],'목포중앙':[36,271],
+  '순천':[96,262],'신순천':[97,263],'순천팔마':[97,262],'화순':[74,256],
+  '장흥':[68,276],'장성':[62,253],'여수':[104,272],'광양':[102,266],
+  '나주':[52,258],'남악':[51,262],'영암':[48,265],'해남':[46,282],
+  '담양':[72,251],'제주':[42,310],'서귀포':[70,320],
+  '대구':[155,200],'달서':[149,202],'달성':[150,207],'수성':[159,200],
+  '동대구':[158,198],'북대구':[152,196],'대구남부':[152,204],'대구중구':[154,200],
+  '경산':[162,204],'하양':[163,197],'경주':[178,204],'포항':[197,187],'울진':[199,121],
+  '안동':[163,151],'영주':[165,143],'예천':[152,157],'의성':[157,170],'영천':[172,192],
+  '구미':[141,181],'김천':[130,177],'성주':[143,195],'거창':[130,213],
+  '칠곡':[149,188],'문경':[137,162],'상주':[142,168],
+  '김해':[173,244],'양산':[180,236],'울산':[193,221],'마산':[157,256],
+  '창원':[159,252],'진해':[163,258],'밀양':[165,236],'진주':[130,252],
+  '거제':[155,268],'통영':[144,269],'창녕':[158,244],'산청':[128,260],
+  '함안':[152,258],'함양':[120,252],'의령':[153,258],'하동':[120,262],
+  '부산':[180,252],'부산해운대':[188,250],'부산동래':[183,248],'부산기장':[190,244],
+  '부산화명':[177,244],'부산강서':[170,252],'부산남구':[182,256],
+  '부산연제':[183,252],'부산진':[178,255],'부산사상':[174,256],
+  '부산서중구':[177,257],'부산영도':[180,260],'부산수영':[184,255],
+  '부산사하':[173,260],'부산북구':[177,246],'부산금정':[181,246],
+  '부산동구':[180,257],'남해':[125,265],'사천':[140,261],'고성':[148,265]
 };
-function extractCity(dealerName){
-  let n=dealerName.replace(/\(.*?\)/g,'').trim();
+let _mapZoom=-1,_mapData=null;
+function _cityXY(name,fallback){
+  if(CITY_XY[name])return CITY_XY[name];
+  // prefix fallback (e.g. "청주오창" → "청주")
+  const k=Object.keys(CITY_XY).find(k=>name.startsWith(k)&&k.length>=2);
+  if(k){const[x,y]=CITY_XY[k];return[x+(name.charCodeAt(name.length-1)%7)-3,y+(name.charCodeAt(0)%7)-3];}
+  return fallback;
+}
+
+function extractCity(n){
+  n=n.replace(/\(.*?\)/g,'').trim();
   n=n.replace(/대리점$|특약점$|지점$|판매점$/,'');
   n=n.replace(/동부$|서부$|남부$|북부$|중부$|제일$|중앙$/,'');
-  return n.trim()||dealerName;
+  return n.trim()||'기타';
+}
+function _buildMapSVG(jisaInfo,zoom){
+  const isOv=zoom<0;
+  let vb='0 0 220 340';
+  if(!isOv){const[bx1,by1,bx2,by2]=JISA_DATA[zoom].bx;const pad=12;vb=(bx1-pad)+','+(by1-pad)+','+(bx2-bx1+pad*2)+','+(by2-by1+pad*2);}
+  let s='<defs><clipPath id="kclip"><path d="'+KO+'"/></clipPath></defs>';
+  s+='<path d="'+KO+'" fill="#D8E4EE" stroke="#8FA8BE" stroke-width="0.8"/>';
+  JISA_DATA.forEach((j,i)=>{
+    const op=isOv?0.75:i===zoom?0.88:0.12;
+    s+='<path clip-path="url(#kclip)" id="mp'+i+'" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+op+'" stroke="#fff" stroke-width="'+(isOv?1.2:0.8)+'" onclick="hlRgn('+i+')" style="cursor:pointer;transition:all .25s"/>';
+  });
+  if(isOv){
+    JISA_DATA.forEach((j,i)=>{
+      const ji=jisaInfo[i];
+      const sn=j.name.replace('지사','');
+      s+='<text x="'+j.lx+'" y="'+(j.ly-3)+'" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.55)">'+esc(sn)+'</text>';
+      if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+5)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.88)" style="pointer-events:none">'+ji.cnt+'개</text>';
+    });
+  } else {
+    const ji=jisaInfo[zoom];
+    const placed={};
+    Object.entries(ji.citySt).forEach(([city,dls])=>{
+      const fb=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
+      let[cx,cy]=_cityXY(city,fb);
+      // slight offset if same coords used twice
+      const k=cx+','+cy;if(placed[k]){cx+=placed[k]*4;cy-=placed[k]*3;}placed[k]=(placed[k]||0)+1;
+      const r=Math.min(3.5+dls.length*0.5,7);
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+ji.color+'" fill-opacity="0.92" stroke="#fff" stroke-width="1" onclick="hlRgn('+zoom+')" style="cursor:default"/>';
+      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+ji.color+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px">'+esc(city)+'</text>';
+      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+ji.color+'" style="pointer-events:none;opacity:.8">'+dls.length+'</text>';
+    });
+  }
+  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;max-width:260px;display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
+}
+function _buildMapCards(jisaInfo,zoom){
+  const isOv=zoom<0;
+  let h='';
+  (isOv?jisaInfo:[jisaInfo[zoom]]).forEach((ji,li)=>{
+    const i=isOv?li:zoom;
+    if(!ji.cnt)return;
+    const{name,color,cnt,csrSt,citySt}=ji;
+    const csrLine=Object.entries(csrSt).sort((a,b)=>b[1]-a[1])
+      .map(([c,n])=>'<span style="font-size:10px;background:'+color+'15;border:1px solid '+color+'35;border-radius:8px;padding:1px 6px">'+esc(c)+' <b style="color:'+color+'">'+n+'</b></span>').join(' ');
+    if(isOv){
+      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-left:3px solid '+color+';border-radius:6px;margin-bottom:5px;cursor:pointer" onclick="hlRgn('+i+')">'
+        +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(name)+'</span>'
+        +'<span style="font-size:10px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
+        +'<span style="font-size:10px;color:var(--ts);flex:1">'+csrLine+'</span>'
+        +'<span style="font-size:10px;color:var(--ts)">▶</span>'
+        +'</div>';
+    } else {
+      const cityRows=Object.entries(citySt).sort((a,b)=>b[1].length-a[1].length)
+        .map(([city,dls])=>{
+          const chips=dls.map(d=>'<span style="font-size:9px;color:#444;background:var(--ibg);border:1px solid var(--border);border-radius:3px;padding:1px 4px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$/,''))+'</span>').join(' ');
+          return'<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)">'
+            +'<span style="font-size:10px;font-weight:700;color:'+color+';min-width:56px;flex-shrink:0">📍'+esc(city)+'</span>'
+            +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:2px">'+chips+'</div>'
+            +'</div>';
+        }).join('');
+      h+='<div style="background:var(--card);border:2px solid '+color+';border-radius:10px;overflow:hidden">'
+        +'<div style="padding:8px 12px;background:'+color+'08;display:flex;align-items:center;gap:8px">'
+        +'<div style="width:12px;height:12px;border-radius:3px;background:'+color+'"></div>'
+        +'<span style="font-size:13px;font-weight:700">'+esc(name)+'</span>'
+        +'<span style="margin-left:auto;font-size:12px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
+        +'</div>'
+        +(csrLine?'<div style="padding:5px 10px;border-top:1px solid var(--border)"><span style="font-size:8px;font-weight:600;color:var(--ts);margin-right:6px">CSR</span>'+csrLine+'</div>':'')
+        +('<div style="padding:6px 10px 8px;border-top:1px solid var(--border)">'+cityRows+'</div>')
+        +'</div>';
+    }
+  });
+  return h;
 }
 async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
   const dealers=await loadDealers();
-  const jisaNames=Object.keys(JISA_SVG);
-  const jisaDl={};jisaNames.forEach(j=>{jisaDl[j]=[];});
-  dealers.forEach(d=>{if(jisaDl[d.branch]!==undefined)jisaDl[d.branch].push(d);});
-  let svgPaths='',cards='';
-  const jisaList=jisaNames.map((jn,i)=>{
-    const color=MAP_COLORS[i%MAP_COLORS.length];
-    const sp=JISA_SVG[jn];
-    const dl=jisaDl[jn]||[];
-    const cnt=dl.length;
+  const jisaInfo=JISA_DATA.map(j=>{
+    const dl=dealers.filter(d=>d.branch===j.name);
     const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
-    const citySt={};
-    dl.forEach(d=>{
-      const city=extractCity(d.name);
-      if(!citySt[city])citySt[city]=[];
-      citySt[city].push(d);
-    });
-    return{name:jn,color,sp,dl,cnt,csrSt,citySt};
+    const citySt={};dl.forEach(d=>{const c=extractCity(d.name);if(!citySt[c])citySt[c]=[];citySt[c].push(d);});
+    return{...j,dl,cnt:dl.length,csrSt,citySt};
   });
-  jisaList.forEach((j,i)=>{
-    const{name,color,sp,cnt}=j;
-    svgPaths+='<path id="mp'+i+'" d="'+sp.d+'" fill="'+color+'" fill-opacity="0.72" stroke="#fff" stroke-width="1.5" onclick="hlRgn('+i+')" style="cursor:pointer;transition:fill-opacity .15s"/>';
-    const shortName=name.replace('지사','');
-    svgPaths+='<text x="'+sp.lx+'" y="'+(sp.ly-4)+'" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.5)">'+esc(shortName)+'</text>';
-    if(cnt)svgPaths+='<text x="'+sp.lx+'" y="'+(sp.ly+6)+'" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.85)" style="pointer-events:none">'+cnt+'개</text>';
-  });
-  jisaList.forEach((j,i)=>{
-    const{name,color,cnt,csrSt,citySt}=j;
-    if(!cnt)return;
-    const csrChips=Object.entries(csrSt).sort((a,b)=>b[1]-a[1])
-      .map(([c,n])=>'<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;background:'+color+'18;border:1px solid '+color+'40;border-radius:10px;padding:2px 7px;margin:2px 2px">'+esc(c)+'<b style="color:'+color+'"> '+n+'</b></span>').join('');
-    const cityRows=Object.entries(citySt)
-      .sort((a,b)=>b[1].length-a[1].length)
-      .map(([city,dls])=>{
-        const chips=dls.map(d=>'<span style="font-size:10px;background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;margin:1px 2px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$/,''))+'</span>').join('');
-        return'<div style="padding:5px 10px;border-bottom:1px solid var(--border)">'
-          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
-          +'<span style="font-size:11px;font-weight:700;color:'+color+'">📍 '+esc(city)+'</span>'
-          +(dls.length>1?'<span style="font-size:10px;color:var(--ts)">'+dls.length+'곳</span>':'')
-          +'</div>'
-          +'<div style="display:flex;flex-wrap:wrap;gap:2px">'+chips+'</div>'
-          +'</div>';
-      }).join('');
-    cards+='<div id="rc'+i+'" style="background:var(--card);border:2px solid '+color+';border-radius:10px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s">'
-      +'<div style="padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;background:'+color+'08" onclick="hlRgn('+i+')">'
-      +'<div style="width:14px;height:14px;border-radius:4px;background:'+color+';flex-shrink:0"></div>'
-      +'<span style="font-size:14px;font-weight:700">'+esc(name)+'</span>'
-      +'<span style="margin-left:auto;font-size:13px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
-      +'</div>'
-      +(csrChips?'<div style="padding:6px 10px 8px;border-top:1px solid var(--border)"><div style="font-size:9px;font-weight:600;color:var(--ts);margin-bottom:4px">CSR 담당</div><div>'+csrChips+'</div></div>':'')
-      +(cityRows?'<div style="border-top:1px solid var(--border)">'+cityRows+'</div>':'')
-      +'</div>';
-  });
-  el.innerHTML='<div style="padding:16px 12px 40px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    +'<h3 style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역 현황</h3>'
-    +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️ 설정</button>':'')
-    +'</div>'
-    +'<div style="text-align:center;margin-bottom:16px">'
-    +'<svg viewBox="0 0 220 340" width="210" style="display:inline-block;filter:drop-shadow(0 3px 10px rgba(0,0,0,.15))">'
-    +svgPaths+'</svg></div>'
-    +'<div style="font-size:10px;font-weight:600;color:var(--ts);margin-bottom:8px">지사별 상세 현황</div>'
-    +cards+'</div>';
+  _mapData=jisaInfo;_mapZoom=-1;
+  function render(){
+    const z=_mapZoom;
+    document.getElementById('mapSvgWrap').innerHTML=_buildMapSVG(jisaInfo,z);
+    document.getElementById('mapCardsWrap').innerHTML=_buildMapCards(jisaInfo,z);
+    const ttl=document.getElementById('mapTitle');
+    if(ttl)ttl.textContent=z>=0?('🗺️ '+JISA_DATA[z].name):'🗺️ 지사별 담당지역';
+    const bb=document.getElementById('mapBackBtn');
+    if(bb)bb.style.display=z>=0?'inline-block':'none';
+  }
+  window._mapRender=render;
+  el.innerHTML='<div style="padding:14px 12px 40px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<h3 id="mapTitle" style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역</h3>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button id="mapBackBtn" onclick="hlRgn(-1)" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
+    +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️</button>':'')
+    +'</div></div>'
+    +'<div id="mapSvgWrap" style="margin-bottom:12px"></div>'
+    +'<div id="mapCardsWrap"></div>'
+    +'</div>';
+  render();
 }
 function hlRgn(i){
-  document.querySelectorAll('[id^="mp"]').forEach((p,j)=>{
-    p.style.fillOpacity=j===i?'1':'0.45';
-    p.setAttribute('stroke',j===i?'#E8A838':'#fff');
-    p.setAttribute('stroke-width',j===i?'3':'2.5');
-  });
-  const card=document.getElementById('rc'+i);
-  if(card){card.style.boxShadow='0 4px 20px rgba(0,0,0,.18)';card.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>{card.style.boxShadow='';},2000);}
+  _mapZoom=i;
+  if(window._mapRender)window._mapRender();
+  if(i>=0){const el=document.getElementById('tabMap');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 }
 
 async function checkOAIStatus(keyOverride){
@@ -4809,4 +4899,5 @@ async function saveDealerData(){
 </script>
 </body>
 </html>
+
 
