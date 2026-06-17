@@ -3,96 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>지사별 대리점 지도 데모</title>
+<title>지사별 대리점 지도</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0f0f0}
-#mapWrap{width:100%;height:100vh;display:flex;flex-direction:column}
-#topBar{background:linear-gradient(135deg,#1a3a5c,#2563eb);color:#fff;padding:10px 14px;z-index:1000;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#e8edf2}
+#wrap{width:100%;height:100vh;display:flex;flex-direction:column}
+#topBar{background:linear-gradient(135deg,#1a3a5c,#2563eb);color:#fff;padding:9px 14px;z-index:1000;display:flex;align-items:center;gap:8px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 #topBar h1{font-size:14px;font-weight:700}
-#topBar .sub{font-size:10px;opacity:.7;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px}
-#mapContainer{flex:1;position:relative}
+#topBar .sub{font-size:10px;opacity:.75;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:10px}
+#mc{flex:1;position:relative;overflow:hidden}
 #map{width:100%;height:100%}
 /* 사이드 패널 */
-#sidePanel{position:absolute;top:0;right:0;bottom:0;width:270px;background:#fff;box-shadow:-3px 0 12px rgba(0,0,0,.15);overflow-y:auto;z-index:900;transition:transform .25s}
-#sidePanel.hidden{transform:translateX(100%)}
-#toggleBtn{position:absolute;top:10px;right:280px;z-index:901;background:#fff;border:1px solid #ccc;border-radius:6px 0 0 6px;padding:7px 9px;cursor:pointer;font-size:12px;box-shadow:-2px 2px 5px rgba(0,0,0,.1);transition:right .25s;white-space:nowrap}
+#sp{position:absolute;top:0;right:0;bottom:0;width:265px;background:#fff;box-shadow:-3px 0 14px rgba(0,0,0,.18);z-index:900;display:flex;flex-direction:column;transition:transform .22s}
+#sp.hide{transform:translateX(100%)}
+#toggleBtn{position:absolute;top:10px;z-index:901;background:#fff;border:1px solid #ccc;padding:7px 9px;cursor:pointer;font-size:12px;box-shadow:-2px 2px 6px rgba(0,0,0,.12);white-space:nowrap;transition:right .22s,border-radius .22s;right:275px;border-radius:6px 0 0 6px}
 #toggleBtn.col{right:10px;border-radius:6px}
-/* 패널 내부 */
-.panelHead{padding:12px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:#fff}
-.panelHead h2{font-size:13px;font-weight:700}
-.panelBody{padding:10px}
-.kwSep{font-size:11px;font-weight:700;padding:5px 2px 3px;border-bottom:2px solid;margin-bottom:5px;letter-spacing:.5px;margin-top:6px}
-.jiRow{display:flex;align-items:center;gap:7px;padding:6px 8px;border-left:3px solid;border-radius:5px;margin-bottom:4px;cursor:pointer;background:#f8f9fb;transition:background .15s}
+.ph{padding:11px 12px;background:linear-gradient(135deg,#1a3a5c,#2563eb);color:#fff;flex-shrink:0}
+.ph h2{font-size:13px;font-weight:700}
+.ph .phSub{font-size:10px;opacity:.7;margin-top:2px}
+.pb{padding:10px;overflow-y:auto;flex:1}
+.kwSep{font-size:11px;font-weight:700;padding:5px 2px 3px;border-bottom:2px solid;margin:8px 0 5px;letter-spacing:.5px}
+.jiRow{display:flex;align-items:center;gap:7px;padding:7px 9px;border-left:3px solid;border-radius:6px;margin-bottom:4px;cursor:pointer;background:#f8f9fb;transition:background .15s}
 .jiRow:hover{background:#eef2ff}
-.jiName{font-size:12px;font-weight:700}
-.jiCnt{font-size:10px;font-weight:700}
-.spChips{flex:1;display:flex;flex-wrap:wrap;gap:2px}
-.spChip{font-size:9px;border-radius:5px;padding:1px 4px;border:1px solid}
-/* 상세뷰 */
-.detailHead{display:flex;align-items:center;gap:8px;padding:10px 12px}
-.backBtn{font-size:11px;cursor:pointer;padding:3px 8px;border:1px solid rgba(255,255,255,.5);border-radius:5px;background:rgba(255,255,255,.18);color:#fff;font-family:inherit}
-.spBlock{margin-bottom:10px}
-.spTitle{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.jiName{font-size:12px;font-weight:700;min-width:72px}
+.jiCnt{font-size:10px;font-weight:700;min-width:24px}
+.spW{flex:1;display:flex;flex-wrap:wrap;gap:2px}
+.spC{font-size:9px;border-radius:5px;padding:1px 4px;border:1px solid}
+/* 상세 */
+.dh{display:flex;align-items:center;gap:8px;padding:10px 12px;flex-shrink:0}
+.bk{font-size:11px;cursor:pointer;padding:3px 8px;border:1px solid rgba(255,255,255,.45);border-radius:5px;background:rgba(255,255,255,.16);color:#fff;font-family:inherit}
+.spBlk{margin-bottom:11px}
+.spT{display:flex;align-items:center;gap:6px;margin-bottom:5px}
 .spDot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .chips{display:flex;flex-wrap:wrap;gap:3px;padding-left:15px}
 .chip{font-size:9px;border-radius:4px;padding:2px 5px;border:1px solid}
 /* 범례 */
-#legend{position:absolute;bottom:20px;left:10px;z-index:800;background:rgba(255,255,255,.93);border-radius:8px;padding:8px 10px;box-shadow:0 2px 8px rgba(0,0,0,.18);font-size:10px;max-width:130px}
-#legend .lTitle{font-weight:700;margin-bottom:5px;font-size:11px;color:#333}
-.lItem{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.lDot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-/* 툴팁 */
-.jisa-tooltip{background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:4px;padding:3px 8px;font-size:11px;font-family:-apple-system,sans-serif;white-space:nowrap}
+#leg{position:absolute;bottom:16px;left:10px;z-index:800;background:rgba(255,255,255,.95);border-radius:8px;padding:8px 10px;box-shadow:0 2px 8px rgba(0,0,0,.18);font-size:10px}
+#leg .lTit{font-weight:700;margin-bottom:5px;font-size:11px;color:#1a3a5c}
+.lI{display:flex;align-items:center;gap:5px;margin-bottom:3px;cursor:pointer;padding:1px 3px;border-radius:3px;transition:background .1s}
+.lI:hover{background:#f0f0f0}
+.lD{width:12px;height:10px;border-radius:2px;flex-shrink:0;opacity:.8}
+/* Leaflet 툴팁 커스텀 */
+.dlabel{background:rgba(255,255,255,.93)!important;border:1px solid #cbd5e1!important;border-radius:4px!important;font-size:10px!important;padding:2px 5px!important;box-shadow:0 1px 4px rgba(0,0,0,.15)!important;white-space:nowrap!important;font-family:-apple-system,sans-serif!important;pointer-events:none!important}
+.dlabel::before{border-right-color:transparent!important}
+.jlabel{background:rgba(255,255,255,.88)!important;border:none!important;border-radius:4px!important;font-size:11px!important;font-weight:700!important;padding:3px 7px!important;box-shadow:0 1px 5px rgba(0,0,0,.2)!important;pointer-events:none!important}
+.jlabel::before{display:none!important}
 </style>
 </head>
 <body>
-<div id="mapWrap">
+<div id="wrap">
   <div id="topBar">
-    <h1>🗺️ 지사별 대리점 지도</h1>
-    <span class="sub">지사 영역 클릭 → 대리점 확인</span>
-    <span class="sub" style="margin-left:auto">Leaflet + OSM (데모)</span>
+    <h1>🗺️ 지사별 대리점 현황</h1>
+    <span class="sub" id="topSub">전체 11개 지사</span>
   </div>
-  <div id="mapContainer">
+  <div id="mc">
     <div id="map"></div>
     <button id="toggleBtn" onclick="togglePanel()">◀ 목록</button>
-    <div id="sidePanel">
-      <div id="panelContent"></div>
+    <div id="sp">
+      <div id="panelContent" style="display:flex;flex-direction:column;height:100%"></div>
     </div>
-    <div id="legend">
-      <div class="lTitle">🗺️ 지사 영역</div>
-      <div id="legendItems"></div>
-    </div>
+    <div id="leg"><div class="lTit">지사 선택</div><div id="legItems"></div></div>
   </div>
 </div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-/* ── 좌표 변환 (SVG ↔ 위경도) ──────────────────────────────
-   SVG: x=15+(lon-126)*54.3  y=10+(38.6-lat)*69
-   역산: lon=126+(x-15)/54.3  lat=38.6-(y-10)/69           */
+/* ── 좌표 변환 ─────────────────────────────────────────── */
 function svgLL(x,y){return[38.6-(y-10)/69, 126+(x-15)/54.3];}
+function parsePath(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>svgLL(+m[1],+m[2]));}
 
-/* SVG path → [[lat,lng], ...] */
-function parsePath(d){
-  return [...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)]
-    .map(m=>svgLL(parseFloat(m[1]),parseFloat(m[2])));
-}
+/* ── 제주/특수 좌표 오버라이드 ─────────────────────────── */
+const LL_OV={'제주':[33.499,126.531],'제주시':[33.503,126.531],'서귀포':[33.254,126.560]};
 
-/* ── 지사 데이터 ──────────────────────────────────────────── */
+/* ── 데이터 ─────────────────────────────────────────────── */
 const JISA=[
-  {name:'인천지사',    color:'#3B82F6', lx:48,ly:73,  d:'M28,41 L71,41 L74,84 L62,105 L26,105 L24,72 Z'},
-  {name:'서울북부지사',color:'#10B981', lx:90,ly:62,  d:'M71,41 L108,30 L108,105 L85,102 L74,84 Z'},
-  {name:'서울남부지사',color:'#F59E0B', lx:93,ly:118, d:'M74,84 L85,102 L108,105 L120,118 L120,148 L90,148 L62,136 L60,105 Z'},
-  {name:'경기지사',    color:'#8B5CF6', lx:72,ly:150, d:'M26,105 L62,105 L60,136 L90,148 L120,148 L125,175 L78,175 L40,160 L20,140 Z'},
-  {name:'원주지사',    color:'#EF4444', lx:175,ly:88, d:'M108,30 L210,15 L210,152 L162,152 L135,135 L108,105 Z'},
-  {name:'대전지사',    color:'#06B6D4', lx:90,ly:178, d:'M20,140 L40,160 L78,175 L125,175 L162,152 L165,195 L128,198 L78,198 L40,185 L18,168 Z'},
-  {name:'전주지사',    color:'#EC4899', lx:60,ly:228, d:'M18,198 L40,185 L78,198 L110,215 L95,255 L65,265 L28,258 L14,238 Z'},
-  {name:'광주지사',    color:'#16A34A', lx:60,ly:282, d:'M14,258 L28,258 L65,265 L95,255 L115,275 L108,315 L75,325 L35,318 L14,290 Z'},
-  {name:'대구지사',    color:'#F97316', lx:180,ly:192,d:'M162,152 L210,152 L210,225 L188,235 L158,228 L128,198 L165,195 Z'},
-  {name:'경남지사',    color:'#14B8A6', lx:138,ly:252,d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,255 L110,215 Z'},
-  {name:'부산지사',    color:'#A855F7', lx:190,ly:262,d:'M188,235 L210,225 L210,272 L198,298 L172,298 L155,290 L182,278 Z'},
+  {name:'인천지사',    color:'#3B82F6',lx:48, ly:73,  d:'M28,41 L71,41 L74,84 L62,105 L26,105 L24,72 Z'},
+  {name:'서울북부지사',color:'#10B981',lx:90, ly:62,  d:'M71,41 L108,30 L108,105 L85,102 L74,84 Z'},
+  {name:'서울남부지사',color:'#F59E0B',lx:93, ly:118, d:'M74,84 L85,102 L108,105 L120,118 L120,148 L90,148 L62,136 L60,105 Z'},
+  {name:'경기지사',    color:'#8B5CF6',lx:72, ly:150, d:'M26,105 L62,105 L60,136 L90,148 L120,148 L125,175 L78,175 L40,160 L20,140 Z'},
+  {name:'원주지사',    color:'#EF4444',lx:175,ly:88,  d:'M108,30 L210,15 L210,152 L162,152 L135,135 L108,105 Z'},
+  {name:'대전지사',    color:'#06B6D4',lx:90, ly:178, d:'M20,140 L40,160 L78,175 L125,175 L162,152 L165,195 L128,198 L78,198 L40,185 L18,168 Z'},
+  {name:'전주지사',    color:'#EC4899',lx:60, ly:228, d:'M18,198 L40,185 L78,198 L110,215 L95,255 L65,265 L28,258 L14,238 Z'},
+  {name:'광주지사',    color:'#16A34A',lx:60, ly:282, d:'M14,258 L28,258 L65,265 L95,255 L115,275 L108,315 L75,325 L35,318 L14,290 Z'},
+  {name:'대구지사',    color:'#F97316',lx:180,ly:192, d:'M162,152 L210,152 L210,225 L188,235 L158,228 L128,198 L165,195 Z'},
+  {name:'경남지사',    color:'#14B8A6',lx:138,ly:252, d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,255 L110,215 Z'},
+  {name:'부산지사',    color:'#A855F7',lx:190,ly:262, d:'M188,235 L210,225 L210,272 L198,298 L172,298 L155,290 L182,278 Z'},
 ];
 const KWANYUK=[
   {name:'수도권',color:'#6366F1',jisas:['서울북부지사','서울남부지사','경기지사','인천지사']},
@@ -130,7 +125,7 @@ const CITY_XY={
   '순천':[96,262],'신순천':[97,263],'순천팔마':[97,262],'화순':[74,256],
   '장흥':[68,276],'장성':[62,253],'여수':[104,272],'광양':[102,266],
   '나주':[52,258],'남악':[51,262],'영암':[48,265],'해남':[46,282],
-  '담양':[72,251],'제주':[42,310],'서귀포':[70,320],
+  '담양':[72,251],
   '대구':[155,200],'달서':[149,202],'달성':[150,207],'수성':[159,200],
   '동대구':[158,198],'북대구':[152,196],'대구남부':[152,204],'대구중구':[154,200],
   '경산':[162,204],'하양':[163,197],'경주':[178,204],'포항':[197,187],'울진':[199,121],
@@ -235,8 +230,7 @@ const DEALERS=[
 
 function extractCity(n){
   n=n.replace(/\(.*?\)/g,'').trim().replace(/대리점$|특약점$|지점$|판매점$/,'');
-  n=n.replace(/동부$|서부$|남부$|북부$|중부$|제일$|중앙$/,'');
-  return n.trim()||'기타';
+  return n.replace(/동부$|서부$|남부$|북부$|중부$|제일$|중앙$/,'').trim()||'기타';
 }
 function cityXY(name,fb){
   if(CITY_XY[name])return CITY_XY[name];
@@ -244,175 +238,192 @@ function cityXY(name,fb){
   if(k){const[x,y]=CITY_XY[k];return[x+(name.charCodeAt(name.length-1)%7)-3,y+(name.charCodeAt(0)%7)-3];}
   return fb;
 }
+function getLL(nm,city,ji){
+  if(LL_OV[city])return LL_OV[city];
+  return svgLL(...cityXY(city,[ji.lx,ji.ly]));
+}
 
-/* ── jisaMap 빌드 ───────────────────────────────────────── */
-const jisaMap={};
-JISA.forEach(j=>{jisaMap[j.name]={...j,dealers:[],spSt:{},spColors:{}};});
+/* ── jisaMap 빌드 ─────────────────────────────────────── */
+const jM={};
+JISA.forEach(j=>{jM[j.name]={...j,dealers:[],spSt:{},spColors:{}};});
 DEALERS.forEach(([br,nm,csr])=>{
-  if(!jisaMap[br])return;
-  jisaMap[br].dealers.push({name:nm,consultant:csr});
-  if(!jisaMap[br].spSt[csr])jisaMap[br].spSt[csr]=[];
-  jisaMap[br].spSt[csr].push({name:nm});
+  if(!jM[br])return;
+  const city=extractCity(nm);
+  const [lat,lng]=getLL(nm,city,jM[br]);
+  const shortName=nm.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
+  jM[br].dealers.push({nm,shortName,csr,city,lat,lng});
+  if(!jM[br].spSt[csr])jM[br].spSt[csr]=[];
+  jM[br].spSt[csr].push({nm,shortName});
 });
 JISA.forEach(j=>{
-  const spList=Object.keys(jisaMap[j.name].spSt).filter(s=>s).sort();
-  spList.forEach((sp,idx)=>{jisaMap[j.name].spColors[sp]=SP_COLORS[idx%SP_COLORS.length];});
+  const spList=Object.keys(jM[j.name].spSt).filter(s=>s).sort();
+  spList.forEach((sp,i)=>{jM[j.name].spColors[sp]=SP_COLORS[i%SP_COLORS.length];});
 });
 
-/* ── Leaflet 초기화 ─────────────────────────────────────── */
-const map=L.map('map',{zoomControl:true,preferCanvas:true}).setView([36.5,127.8],7);
+/* ── Leaflet 초기화 ────────────────────────────────────── */
+const KOREA_BOUNDS=[[32.8,124.5],[38.9,130.8]];
+const map=L.map('map',{
+  zoomControl:true,
+  preferCanvas:true,
+  maxBounds:[[32.0,123.0],[40.0,132.0]],
+  maxBoundsViscosity:1.0,
+  minZoom:6,maxZoom:16
+});
+map.fitBounds(KOREA_BOUNDS);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   maxZoom:18
 }).addTo(map);
 
-/* ── 지사 영역 폴리곤 ──────────────────────────────────── */
-const polygonLayer={};
-let selectedJisa=null;
+/* ── 폴리곤 생성 ──────────────────────────────────────── */
+const polyLayer={};
+JISA.forEach(j=>{
+  const poly=L.polygon(parsePath(j.d),{
+    color:j.color,weight:2,opacity:0.85,
+    fillColor:j.color,fillOpacity:0.2
+  });
+  poly.bindTooltip(j.name,{sticky:true,direction:'center',className:'jlabel'});
+  poly.on('mouseover',function(){if(sel!==j.name)this.setStyle({fillOpacity:0.38,weight:3});});
+  poly.on('mouseout',function(){if(sel!==j.name)this.setStyle({fillOpacity:0.2,weight:2});});
+  poly.on('click',()=>selectJisa(j.name));
+  poly.addTo(map);
+  polyLayer[j.name]=poly;
+});
+
+/* ── 마커 레이어 생성 ─────────────────────────────────── */
+const overviewGrp={}, detailGrp={};
 
 JISA.forEach(j=>{
-  const latlngs=parsePath(j.d);
-  const poly=L.polygon(latlngs,{
-    color:j.color,
-    weight:2,
-    opacity:0.9,
-    fillColor:j.color,
-    fillOpacity:0.18
+  overviewGrp[j.name]=L.layerGroup();
+  detailGrp[j.name]=L.layerGroup();
+  const ji=jM[j.name];
+  const placed={};
+
+  ji.dealers.forEach(d=>{
+    const color=ji.spColors[d.csr]||j.color;
+    // 같은 좌표 오프셋
+    const rk=Math.round(d.lat*200)+','+Math.round(d.lng*200);
+    const n=(placed[rk]=(placed[rk]||0)+1);
+    const offs=[[0,0],[0.008,-0.008],[-0.008,0.008],[0.008,0.008],[-0.008,-0.008],[0,0.012],[0,-0.012],[0.012,0],[-0.012,0]];
+    const[dlat,dlng]=offs[(n-1)%9];
+    const lat=d.lat+dlat, lng=d.lng+dlng;
+
+    // 전체보기 마커 (작은 원, 호버시 이름)
+    const om=L.circleMarker([lat,lng],{radius:5,fillColor:color,color:'#fff',weight:1.5,fillOpacity:0.88});
+    om.bindTooltip(d.shortName,{direction:'right',offset:[6,0],className:'dlabel'});
+    om.on('click',()=>selectJisa(j.name));
+    overviewGrp[j.name].addLayer(om);
+
+    // 상세보기 마커 (크고, 이름 항상 표시)
+    const dm=L.circleMarker([lat,lng],{radius:7,fillColor:color,color:'#fff',weight:2,fillOpacity:0.95});
+    dm.bindTooltip(d.shortName,{permanent:true,direction:'right',offset:[8,0],className:'dlabel'});
+    dm.bindPopup(
+      '<div style="font-family:-apple-system,sans-serif;min-width:155px">'
+      +'<div style="font-size:11px;color:'+j.color+';font-weight:700;margin-bottom:2px">'+j.name+'</div>'
+      +'<div style="font-size:13px;font-weight:700;margin-bottom:3px">'+d.nm+'</div>'
+      +'<div style="font-size:11px;color:#555">CSR: <b style="color:'+color+'">'+d.csr+'</b></div>'
+      +'</div>',{maxWidth:220}
+    );
+    detailGrp[j.name].addLayer(dm);
   });
-  poly.bindTooltip(j.name,{
-    permanent:false,sticky:true,
-    className:'jisa-tooltip',
-    direction:'center'
-  });
-  poly.on('mouseover',function(){
-    if(selectedJisa!==j.name)this.setStyle({fillOpacity:0.38,weight:3});
-  });
-  poly.on('mouseout',function(){
-    if(selectedJisa!==j.name)this.setStyle({fillOpacity:0.18,weight:2});
-  });
-  poly.on('click',function(){
-    selectJisa(j.name);
-    map.fitBounds(this.getBounds(),{padding:[30,30]});
-  });
-  poly.addTo(map);
-  polygonLayer[j.name]=poly;
+  overviewGrp[j.name].addTo(map);
 });
 
-/* ── 대리점 마커 ───────────────────────────────────────── */
-const markerLayer=L.layerGroup().addTo(map);
-DEALERS.forEach(([br,nm,csr])=>{
-  const ji=jisaMap[br];if(!ji)return;
-  const city=extractCity(nm);
-  const[sx,sy]=cityXY(city,[ji.lx,ji.ly]);
-  const[lat,lng]=svgLL(sx,sy);
-  const color=ji.spColors[csr]||ji.color;
-  const m=L.circleMarker([lat,lng],{
-    radius:6,fillColor:color,color:'#fff',weight:1.5,fillOpacity:0.92
-  });
-  m.bindPopup(
-    '<div style="min-width:150px;font-family:-apple-system,sans-serif">'
-    +'<div style="font-size:11px;color:'+ji.color+';font-weight:700;margin-bottom:3px">'+br+'</div>'
-    +'<div style="font-size:13px;font-weight:700;margin-bottom:2px">'+nm+'</div>'
-    +'<div style="font-size:11px;color:#666">CSR: <b style="color:'+color+'">'+csr+'</b></div>'
-    +'</div>',
-    {maxWidth:200}
-  );
-  m.on('click',()=>selectJisa(br));
-  markerLayer.addLayer(m);
-});
-
-/* ── 지사 선택 ─────────────────────────────────────────── */
+/* ── 지사 선택/해제 ──────────────────────────────────── */
+let sel=null;
 function selectJisa(name){
-  // 이전 선택 스타일 초기화
-  if(selectedJisa){
-    const prev=polygonLayer[selectedJisa];
-    if(prev)prev.setStyle({fillOpacity:0.18,weight:2});
-  }
-  selectedJisa=name;
-  const poly=polygonLayer[name];
-  if(poly)poly.setStyle({fillOpacity:0.45,weight:3});
+  sel=name;
+  // 다른 지사 흐리게 + 마커 숨김
+  JISA.forEach(j=>{
+    overviewGrp[j.name].remove();
+    if(j.name===name){
+      polyLayer[j.name].setStyle({fillOpacity:0.3,weight:3,opacity:1});
+      detailGrp[j.name].addTo(map);
+    } else {
+      polyLayer[j.name].setStyle({fillOpacity:0.04,weight:1,opacity:0.3,color:'#999'});
+      detailGrp[j.name].remove();
+    }
+  });
+  map.fitBounds(polyLayer[name].getBounds(),{padding:[40,40]});
+  document.getElementById('topSub').textContent=name+' — '+jM[name].dealers.length+'개 대리점';
   showDetail(name);
-  // 패널 열기
-  if(document.getElementById('sidePanel').classList.contains('hidden'))togglePanel();
+  if(document.getElementById('sp').classList.contains('hide'))togglePanel();
+}
+function backToOverview(){
+  sel=null;
+  JISA.forEach(j=>{
+    detailGrp[j.name].remove();
+    overviewGrp[j.name].addTo(map);
+    polyLayer[j.name].setStyle({fillOpacity:0.2,weight:2,opacity:0.85,color:j.color});
+  });
+  map.fitBounds(KOREA_BOUNDS);
+  document.getElementById('topSub').textContent='전체 11개 지사';
+  renderOverview();
 }
 
-/* ── 범례 빌드 ─────────────────────────────────────────── */
-const legEl=document.getElementById('legendItems');
+/* ── 범례 ──────────────────────────────────────────────── */
+const legEl=document.getElementById('legItems');
 JISA.forEach(j=>{
-  legEl.innerHTML+='<div class="lItem" onclick="selectJisa(\''+j.name+'\');map.fitBounds(polygonLayer[\''+j.name+'\'].getBounds(),{padding:[30,30]})" style="cursor:pointer">'
-    +'<div class="lDot" style="background:'+j.color+'"></div>'
-    +'<span style="color:#333">'+j.name+'</span>'
-    +'</div>';
+  legEl.innerHTML+='<div class="lI" onclick="selectJisa(\''+j.name+'\')">'
+    +'<div class="lD" style="background:'+j.color+'"></div>'
+    +'<span>'+j.name+'</span></div>';
 });
 
-/* ── 패널: 전체 목록 ────────────────────────────────────── */
-function buildOverview(){
-  let h='<div class="panelHead"><h2>🗺️ 지사별 담당지역</h2></div><div class="panelBody">';
+/* ── 패널: 전체보기 ─────────────────────────────────────── */
+function renderOverview(){
+  let h='<div class="ph"><h2>🗺️ 지사별 담당지역</h2><div class="phSub">지사 클릭 → 상세 보기</div></div><div class="pb">';
   KWANYUK.forEach(kw=>{
     h+='<div class="kwSep" style="color:'+kw.color+';border-color:'+kw.color+'">'+kw.name+'</div>';
     kw.jisas.forEach(jn=>{
-      const ji=jisaMap[jn];if(!ji)return;
+      const ji=jM[jn];if(!ji)return;
       const spKeys=Object.keys(ji.spSt).filter(s=>s).sort();
-      const chips=spKeys.map(sp=>'<span class="spChip" style="background:'+ji.spColors[sp]+'18;border-color:'+ji.spColors[sp]+'55;color:'+ji.spColors[sp]+'">'+sp+'</span>').join('');
-      h+='<div class="jiRow" style="border-color:'+ji.color+'" onclick="selectJisa(\''+jn+'\');map.fitBounds(polygonLayer[\''+jn+'\'].getBounds(),{padding:[30,30]})">'
+      const chips=spKeys.map(sp=>'<span class="spC" style="background:'+ji.spColors[sp]+'15;border-color:'+ji.spColors[sp]+'55;color:'+ji.spColors[sp]+'">'+sp+'</span>').join('');
+      h+='<div class="jiRow" style="border-color:'+ji.color+'" onclick="selectJisa(\''+jn+'\')">'
         +'<span class="jiName" style="color:'+ji.color+'">'+jn+'</span>'
         +'<span class="jiCnt" style="color:'+ji.color+'">'+ji.dealers.length+'개</span>'
-        +'<div class="spChips">'+chips+'</div>'
-        +'<span style="font-size:10px;color:#bbb">▶</span>'
-        +'</div>';
+        +'<div class="spW">'+chips+'</div>'
+        +'<span style="font-size:10px;color:#bbb">▶</span></div>';
     });
     h+='<div style="margin-bottom:6px"></div>';
-  });
-  h+='</div>';
-  return h;
-}
-
-/* ── 패널: 지사 상세 ────────────────────────────────────── */
-function showDetail(name){
-  const ji=jisaMap[name];if(!ji)return;
-  const spKeys=Object.keys(ji.spSt).filter(s=>s).sort();
-  let h='<div class="detailHead" style="background:'+ji.color+'">'
-    +'<button class="backBtn" onclick="backToOverview()">← 전체</button>'
-    +'<span style="font-weight:700;font-size:13px">'+name+'</span>'
-    +'<span style="margin-left:auto;font-size:12px">'+ji.dealers.length+'개</span>'
-    +'</div><div class="panelBody">';
-  spKeys.forEach(sp=>{
-    const color=ji.spColors[sp]||ji.color;
-    const dls=ji.spSt[sp];
-    h+='<div class="spBlock">'
-      +'<div class="spTitle"><div class="spDot" style="background:'+color+'"></div>'
-      +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+sp+'</span>'
-      +'<span style="font-size:10px;color:#999">('+dls.length+'개)</span></div>'
-      +'<div class="chips">'+dls.map(d=>'<span class="chip" style="background:'+color+'10;border-color:'+color+'40;color:#444">'+d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'')+'</span>').join('')+'</div>'
-      +'</div>';
   });
   h+='</div>';
   document.getElementById('panelContent').innerHTML=h;
 }
 
-function backToOverview(){
-  if(selectedJisa){
-    const prev=polygonLayer[selectedJisa];
-    if(prev)prev.setStyle({fillOpacity:0.18,weight:2});
-  }
-  selectedJisa=null;
-  document.getElementById('panelContent').innerHTML=buildOverview();
-  map.setView([36.5,127.8],7);
+/* ── 패널: 지사 상세 ────────────────────────────────────── */
+function showDetail(name){
+  const ji=jM[name];if(!ji)return;
+  const spKeys=Object.keys(ji.spSt).filter(s=>s).sort();
+  let h='<div class="dh" style="background:'+ji.color+'">'
+    +'<button class="bk" onclick="backToOverview()">← 전체</button>'
+    +'<span style="font-weight:700;font-size:13px">'+name+'</span>'
+    +'<span style="margin-left:auto;font-size:12px">'+ji.dealers.length+'개</span>'
+    +'</div><div class="pb">';
+  spKeys.forEach(sp=>{
+    const c=ji.spColors[sp]||ji.color;
+    const dls=ji.spSt[sp];
+    h+='<div class="spBlk"><div class="spT"><div class="spDot" style="background:'+c+'"></div>'
+      +'<span style="font-size:12px;font-weight:700;color:'+c+'">'+sp+'</span>'
+      +'<span style="font-size:10px;color:#999">('+dls.length+'개)</span></div>'
+      +'<div class="chips">'+dls.map(d=>'<span class="chip" style="background:'+c+'10;border-color:'+c+'40;color:#444">'+d.shortName+'</span>').join('')+'</div></div>';
+  });
+  h+='</div>';
+  document.getElementById('panelContent').innerHTML=h;
 }
 
-let panelOpen=true;
+/* ── 패널 토글 ─────────────────────────────────────────── */
+let pOpen=true;
 function togglePanel(){
-  panelOpen=!panelOpen;
-  document.getElementById('sidePanel').classList.toggle('hidden',!panelOpen);
+  pOpen=!pOpen;
+  document.getElementById('sp').classList.toggle('hide',!pOpen);
   const b=document.getElementById('toggleBtn');
-  b.classList.toggle('col',!panelOpen);
-  b.textContent=panelOpen?'◀ 목록':'▶ 목록';
-  const r=panelOpen?'280px':'10px';
-  b.style.right=r;
+  b.classList.toggle('col',!pOpen);
+  b.textContent=pOpen?'◀ 목록':'▶ 목록';
+  b.style.right=pOpen?'275px':'10px';
 }
 
-// 초기 렌더
-document.getElementById('panelContent').innerHTML=buildOverview();
+renderOverview();
 </script>
 </body>
 </html>
