@@ -2316,7 +2316,7 @@ function _buildMapSVG(jisaInfo,zoom){
       const mk=cx+','+cy;
       if(placed[mk]){const n=placed[mk];const offs=[[7,0],[-7,0],[0,7],[0,-7],[7,7],[-7,-7],[7,-7],[-7,7]];const[ox,oy]=offs[(n-1)%8];cx+=ox;cy+=oy;}
       placed[mk]=(placed[mk]||0)+1;
-      const spSet=new Set(dls.map(d=>d.salesPerson||'미지정').filter(k=>k!=='미지정'));
+      const spSet=new Set(dls.map(d=>d.consultant||'미지정').filter(k=>k!=='미지정'));
       const dc=spSet.size===1?spCM[[...spSet][0]]||ji.color:ji.color;
       const r=Math.min(3.5+dls.length*0.5,7);
       s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+dc+'" fill-opacity="0.92" stroke="#fff" stroke-width="1" onclick="hlRgn('+zoom+')" style="cursor:default"/>';
@@ -2394,7 +2394,7 @@ async function loadMap(){
     const dl=dealers.filter(d=>d.branch===j.name);
     const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
     const citySt={};dl.forEach(d=>{const c=extractCity(d.name);if(!citySt[c])citySt[c]=[];citySt[c].push(d);});
-    const spSt={};dl.forEach(d=>{const sp=d.salesPerson||'미지정';if(!spSt[sp])spSt[sp]=[];spSt[sp].push(d);});
+    const spSt={};dl.forEach(d=>{const sp=d.consultant||'미지정';if(!spSt[sp])spSt[sp]=[];spSt[sp].push(d);});
     const spList=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').sort();
     const spColors={};spList.forEach((sp,idx)=>{spColors[sp]=SP_COLORS[idx%SP_COLORS.length];});
     return{...j,dl,cnt:dl.length,csrSt,citySt,spSt,spColors};
