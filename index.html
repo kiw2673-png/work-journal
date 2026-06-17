@@ -2219,6 +2219,13 @@ const JISA_DATA=[
   {name:'경남지사',    color:'#14B8A6',d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,255 L110,215 Z',lx:138,ly:252,bx:[75,195,192,300]},
   {name:'부산지사',    color:'#A855F7',d:'M188,235 L210,225 L210,272 L198,298 L172,298 L155,290 L182,278 Z',lx:190,ly:262,bx:[152,222,212,300]}
 ];
+const SP_COLORS=['#2563EB','#16A34A','#D97706','#DC2626','#9333EA','#0891B2','#EA580C','#059669'];
+const KWANYUK_DATA=[
+  {name:'수도권',color:'#6366F1',jisas:['서울북부지사','서울남부지사','경기지사','인천지사']},
+  {name:'충청권',color:'#0891B2',jisas:['원주지사','대전지사']},
+  {name:'영남권',color:'#B45309',jisas:['대구지사','부산지사','경남지사']},
+  {name:'호남권',color:'#047857',jisas:['광주지사','전주지사']},
+];
 const CITY_XY={
   '인천':[53,88],'인천남동':[56,90],'인천서구':[49,85],'인천계양':[56,84],'인천부평':[54,88],'인천중동구':[51,90],
   '일산':[57,72],'파주':[55,68],'김포':[50,78],'부천':[57,92],'시화':[52,100],'신천':[57,91],
@@ -2284,7 +2291,7 @@ function extractCity(n){
 function _buildMapSVG(jisaInfo,zoom){
   const isOv=zoom<0;
   let vb='0 0 220 340';
-  if(!isOv){const[bx1,by1,bx2,by2]=JISA_DATA[zoom].bx;const pad=12;vb=(bx1-pad)+','+(by1-pad)+','+(bx2-bx1+pad*2)+','+(by2-by1+pad*2);}
+  if(!isOv){const[bx1,by1,bx2,by2]=JISA_DATA[zoom].bx;const pad=22;vb=(bx1-pad)+','+(by1-pad)+','+(bx2-bx1+pad*2)+','+(by2-by1+pad*2);}
   let s='<defs><clipPath id="kclip"><path d="'+KO+'"/></clipPath></defs>';
   s+='<path d="'+KO+'" fill="#D8E4EE" stroke="#8FA8BE" stroke-width="0.8"/>';
   JISA_DATA.forEach((j,i)=>{
@@ -2300,56 +2307,83 @@ function _buildMapSVG(jisaInfo,zoom){
     });
   } else {
     const ji=jisaInfo[zoom];
+    const spKeys=Object.keys(ji.spSt||{}).filter(k=>k&&k!=='미지정').sort();
+    const spCM={};spKeys.forEach((k,idx)=>{spCM[k]=SP_COLORS[idx%SP_COLORS.length];});
     const placed={};
     Object.entries(ji.citySt).forEach(([city,dls])=>{
       const fb=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
       let[cx,cy]=_cityXY(city,fb);
-      // slight offset if same coords used twice
-      const k=cx+','+cy;if(placed[k]){cx+=placed[k]*4;cy-=placed[k]*3;}placed[k]=(placed[k]||0)+1;
+      const mk=cx+','+cy;
+      if(placed[mk]){const n=placed[mk];const offs=[[7,0],[-7,0],[0,7],[0,-7],[7,7],[-7,-7],[7,-7],[-7,7]];const[ox,oy]=offs[(n-1)%8];cx+=ox;cy+=oy;}
+      placed[mk]=(placed[mk]||0)+1;
+      const spSet=new Set(dls.map(d=>d.salesPerson||'미지정').filter(k=>k!=='미지정'));
+      const dc=spSet.size===1?spCM[[...spSet][0]]||ji.color:ji.color;
       const r=Math.min(3.5+dls.length*0.5,7);
-      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+ji.color+'" fill-opacity="0.92" stroke="#fff" stroke-width="1" onclick="hlRgn('+zoom+')" style="cursor:default"/>';
-      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+ji.color+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px">'+esc(city)+'</text>';
-      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+ji.color+'" style="pointer-events:none;opacity:.8">'+dls.length+'</text>';
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+dc+'" fill-opacity="0.92" stroke="#fff" stroke-width="1" onclick="hlRgn('+zoom+')" style="cursor:default"/>';
+      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px">'+esc(city)+'</text>';
+      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+dc+'" style="pointer-events:none;opacity:.8">'+dls.length+'</text>';
     });
+    if(spKeys.length>1){
+      const vbP=vb.split(',').map(Number);
+      const lgX=vbP[0]+2,lgY=vbP[1]+vbP[3]-2-(spKeys.length*7);
+      spKeys.forEach((k,idx)=>{const c=spCM[k];s+='<circle cx="'+(lgX+3)+'" cy="'+(lgY+idx*7)+'" r="2.5" fill="'+c+'" stroke="#fff" stroke-width="0.5" style="pointer-events:none"/><text x="'+(lgX+8)+'" y="'+(lgY+idx*7+2)+'" font-size="4.5" fill="'+c+'" font-weight="600" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:1.5px">'+esc(k)+'</text>';});
+    }
   }
-  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;max-width:260px;display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
+  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;max-width:320px;display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
 }
 function _buildMapCards(jisaInfo,zoom){
   const isOv=zoom<0;
   let h='';
-  (isOv?jisaInfo:[jisaInfo[zoom]]).forEach((ji,li)=>{
-    const i=isOv?li:zoom;
-    if(!ji.cnt)return;
-    const{name,color,cnt,csrSt,citySt}=ji;
-    const csrLine=Object.entries(csrSt).sort((a,b)=>b[1]-a[1])
-      .map(([c,n])=>'<span style="font-size:10px;background:'+color+'15;border:1px solid '+color+'35;border-radius:8px;padding:1px 6px">'+esc(c)+' <b style="color:'+color+'">'+n+'</b></span>').join(' ');
-    if(isOv){
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-left:3px solid '+color+';border-radius:6px;margin-bottom:5px;cursor:pointer" onclick="hlRgn('+i+')">'
-        +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(name)+'</span>'
-        +'<span style="font-size:10px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
-        +'<span style="font-size:10px;color:var(--ts);flex:1">'+csrLine+'</span>'
-        +'<span style="font-size:10px;color:var(--ts)">▶</span>'
-        +'</div>';
-    } else {
-      const cityRows=Object.entries(citySt).sort((a,b)=>b[1].length-a[1].length)
-        .map(([city,dls])=>{
-          const chips=dls.map(d=>'<span style="font-size:9px;color:#444;background:var(--ibg);border:1px solid var(--border);border-radius:3px;padding:1px 4px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$/,''))+'</span>').join(' ');
-          return'<div style="display:flex;align-items:flex-start;gap:6px;padding:3px 0;border-bottom:1px solid var(--border)">'
-            +'<span style="font-size:10px;font-weight:700;color:'+color+';min-width:56px;flex-shrink:0">📍'+esc(city)+'</span>'
-            +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:2px">'+chips+'</div>'
-            +'</div>';
-        }).join('');
-      h+='<div style="background:var(--card);border:2px solid '+color+';border-radius:10px;overflow:hidden">'
-        +'<div style="padding:8px 12px;background:'+color+'08;display:flex;align-items:center;gap:8px">'
-        +'<div style="width:12px;height:12px;border-radius:3px;background:'+color+'"></div>'
-        +'<span style="font-size:13px;font-weight:700">'+esc(name)+'</span>'
-        +'<span style="margin-left:auto;font-size:12px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
+  if(isOv){
+    KWANYUK_DATA.forEach(kw=>{
+      h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:5px;letter-spacing:.5px">'+esc(kw.name)+'</div>';
+      kw.jisas.forEach(jname=>{
+        const idx=JISA_DATA.findIndex(j=>j.name===jname);
+        if(idx<0)return;
+        const ji=jisaInfo[idx];
+        if(!ji.cnt)return;
+        const{name,color,cnt,spSt,spColors}=ji;
+        const spLine=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정')
+          .map(sp=>'<span style="font-size:9px;background:'+spColors[sp]+'18;border:1px solid '+spColors[sp]+'55;border-radius:6px;padding:1px 5px;color:'+spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
+        h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-left:3px solid '+color+';border-radius:6px;margin-bottom:5px;cursor:pointer" onclick="hlRgn('+idx+')">'
+          +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(name)+'</span>'
+          +'<span style="font-size:10px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
+          +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:3px">'+spLine+'</div>'
+          +'<span style="font-size:10px;color:var(--ts)">▶</span>'
+          +'</div>';
+      });
+      h+='<div style="margin-bottom:8px"></div>';
+    });
+  } else {
+    const ji=jisaInfo[zoom];
+    const{name,color,cnt,spSt,spColors}=ji;
+    const spList=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정');
+    const spRows=spList.map(sp=>{
+      const dc=spColors[sp]||color;
+      const dls=spSt[sp];
+      const chips=dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+dc+'12;border:1px solid '+dc+'45;border-radius:4px;padding:2px 6px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ');
+      return'<div style="margin-bottom:10px">'
+        +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'
+        +'<div style="width:10px;height:10px;border-radius:50%;background:'+dc+'"></div>'
+        +'<span style="font-size:12px;font-weight:700;color:'+dc+'">'+esc(sp)+'</span>'
+        +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span>'
         +'</div>'
-        +(csrLine?'<div style="padding:5px 10px;border-top:1px solid var(--border)"><span style="font-size:8px;font-weight:600;color:var(--ts);margin-right:6px">CSR</span>'+csrLine+'</div>':'')
-        +('<div style="padding:6px 10px 8px;border-top:1px solid var(--border)">'+cityRows+'</div>')
+        +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'+chips+'</div>'
         +'</div>';
-    }
-  });
+    }).join('');
+    const mijiDls=spSt['미지정']||[];
+    const mijiRow=mijiDls.length
+      ?'<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:10px;height:10px;border-radius:50%;background:#aaa"></div><span style="font-size:12px;font-weight:700;color:var(--ts)">미지정</span><span style="font-size:10px;color:var(--ts)">('+mijiDls.length+'개)</span></div><div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'+mijiDls.map(d=>'<span style="font-size:9px;color:var(--ts);background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 6px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ')+'</div></div>'
+      :'';
+    h='<div style="background:var(--card);border:2px solid '+color+';border-radius:10px;overflow:hidden">'
+      +'<div style="padding:8px 12px;background:'+color+'08;display:flex;align-items:center;gap:8px">'
+      +'<div style="width:12px;height:12px;border-radius:3px;background:'+color+'"></div>'
+      +'<span style="font-size:14px;font-weight:700">'+esc(name)+'</span>'
+      +'<span style="margin-left:auto;font-size:12px;font-weight:700;color:'+color+'">총 '+cnt+'개</span>'
+      +'</div>'
+      +'<div style="padding:10px 12px">'+spRows+mijiRow+'</div>'
+      +'</div>';
+  }
   return h;
 }
 async function loadMap(){
@@ -2360,7 +2394,10 @@ async function loadMap(){
     const dl=dealers.filter(d=>d.branch===j.name);
     const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
     const citySt={};dl.forEach(d=>{const c=extractCity(d.name);if(!citySt[c])citySt[c]=[];citySt[c].push(d);});
-    return{...j,dl,cnt:dl.length,csrSt,citySt};
+    const spSt={};dl.forEach(d=>{const sp=d.salesPerson||'미지정';if(!spSt[sp])spSt[sp]=[];spSt[sp].push(d);});
+    const spList=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').sort();
+    const spColors={};spList.forEach((sp,idx)=>{spColors[sp]=SP_COLORS[idx%SP_COLORS.length];});
+    return{...j,dl,cnt:dl.length,csrSt,citySt,spSt,spColors};
   });
   _mapData=jisaInfo;_mapZoom=-1;
   function render(){
