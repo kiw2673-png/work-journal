@@ -124,13 +124,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -576,7 +576,7 @@ function shErr(m){const e=document.getElementById("authErr");e.textContent=m;e.s
 function hiErr(){document.getElementById("authErr").style.display="none"}
 
 async function doLI(){hiErr();const id=eI.value.trim();if(id.length!==9){shErr("사번 9자리");return}
-  try{const doc=await db.collection("users").doc(id).get();if(doc.exists){liAs(doc.data())}else{document.getElementById("loginStep").style.display="none";document.getElementById("regStep").style.display="block";document.getElementById("regEmpId").textContent=id;document.getElementById("authSub").textContent="신규 등록"}}catch(e){shErr("연결 오류: "+e.message)}}
+  try{const doc=await db.collection("users").doc(id).get();if(doc.exists){const u=doc.data();if(u.status==='퇴사'){shErr("해당 계정은 비활성화(퇴사) 처리되었습니다.");return;}liAs(u)}else{document.getElementById("loginStep").style.display="none";document.getElementById("regStep").style.display="block";document.getElementById("regEmpId").textContent=id;document.getElementById("authSub").textContent="신규 등록"}}catch(e){shErr("연결 오류: "+e.message)}}
 
 async function doReg(){hiErr();const empId=eI.value.trim(),name=document.getElementById("nameInput").value.trim(),branch=document.getElementById("branchSelect").value;
   if(!name){shErr("이름 필요");return}if(!branch){shErr("지사 필요");return}
@@ -1210,7 +1210,8 @@ async function loadStats(){
   const today=tk();
   const allStats={};allEntries.forEach(e=>{if(!allStats[e.empId])allStats[e.empId]={count:0,dates:[]};allStats[e.empId].count++;allStats[e.empId].dates.push(e.date)});
   const ts=Object.values(allStats).reduce((s,v)=>s+v.count,0),tds=Object.values(allStats).reduce((s,v)=>s+(v.dates.includes(today)?1:0),0);
-  document.getElementById("admStats").innerHTML=[{i:"👥",v:users.length,l:"등록"},{i:"📝",v:tds,l:"오늘"},{i:"📊",v:ts,l:"누적"},{i:"🚨",v:Math.max(0,users.length-tds),l:"미제출"}].map(c=>'<div class="stci"><div style="font-size:14px">'+c.i+'</div><div class="v">'+c.v+'</div><div class="l">'+c.l+'</div></div>').join("");
+  const activeUCnt=users.filter(u=>!u.status||u.status==='무').length;
+  document.getElementById("admStats").innerHTML=[{i:"👥",v:users.length,l:"등록"},{i:"📝",v:tds,l:"오늘"},{i:"📊",v:ts,l:"누적"},{i:"🚨",v:Math.max(0,activeUCnt-tds),l:"미제출"}].map(c=>'<div class="stci"><div style="font-size:14px">'+c.i+'</div><div class="v">'+c.v+'</div><div class="l">'+c.l+'</div></div>').join("");
   renderStatsTable();
 }
 function renderStatsTable(){
@@ -1325,7 +1326,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   document.getElementById("rptLabel").textContent="📋 "+fds(dv);document.getElementById("rptBody").innerHTML='<div class="loading">불러오는 중...</div>';
   const [snap,usersSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get()]);
   const entries=snap.docs.map(d=>d.data());
-  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId);
+  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&(!u.status||u.status==='무'));
   entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
@@ -3072,22 +3073,35 @@ async function loadUsers(){
   }
   const roleMap={admin:'🛡 관리자',editor:'✏️ 편집자',viewer:'👁 조회자',user:'👤 사용자'};
   const roleColor={admin:'var(--admin)',editor:'#3498DB',viewer:'#16A085',user:'var(--ts)'};
-  h+='<div class="rw"><table class="rt" style="min-width:720px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th style="text-align:center">보고서</th><th style="text-align:center">최근제출</th><th>관리</th></tr></thead><tbody>';
+  const stCfg={
+    '무':{label:'무',color:'var(--primary)',bg:'',desc:'미제출 포함'},
+    '유':{label:'유',color:'#D97706',bg:'rgba(234,179,8,.06)',desc:'미제출 제외'},
+    '퇴사':{label:'퇴사',color:'var(--danger)',bg:'rgba(239,68,68,.06)',desc:'로그인 불가·미제출 제외'}
+  };
+  h+='<div class="rw"><table class="rt" style="min-width:800px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th style="text-align:center">상태</th><th style="text-align:center">보고서</th><th style="text-align:center">최근제출</th><th>관리</th></tr></thead><tbody>';
   users.forEach(u=>{
     const r=u.role||"user";
     const isEmp=(u.empId||"").startsWith("EMP");
-    const st=rptSt[u.empId]||{cnt:0,last:''};
-    const lastLabel=st.last?st.last.slice(5).replace('-','/'):'없음';
-    h+='<tr'+(isEmp?' style="background:rgba(243,156,18,.05)"':'')+'>'
+    const rst=rptSt[u.empId]||{cnt:0,last:''};
+    const lastLabel=rst.last?rst.last.slice(5).replace('-','/'):'없음';
+    const uSt=u.status||'무';
+    const sc=stCfg[uSt]||stCfg['무'];
+    const rowBg=sc.bg||(isEmp?'rgba(243,156,18,.05)':'');
+    const nameHtml=uSt==='퇴사'?'<span style="text-decoration:line-through;color:var(--ts)">'+esc(u.name||"")+'</span>':'<span style="font-weight:600">'+esc(u.name||"")+'</span>';
+    const stSel='<select onchange="setUserStatus(\''+u.empId+'\',this.value,\'usrRow_'+u.empId+'\')" style="padding:2px 4px;border:1px solid '+sc.color+';border-radius:4px;font-size:10px;font-family:inherit;color:'+sc.color+';font-weight:700;background:transparent;cursor:pointer">'
+      +['무','유','퇴사'].map(v=>'<option value="'+v+'"'+(uSt===v?' selected':'')+'>'+v+'</option>').join('')
+      +'</select>';
+    h+='<tr id="usrRow_'+u.empId+'" style="'+(rowBg?'background:'+rowBg+';':'')+'border-bottom:1px solid var(--border)">'
       +'<td>'+(isEmp?'<span style="color:#F39C12;font-weight:600">'+esc(u.empId)+'</span>':esc(u.empId))+'</td>'
-      +'<td style="font-weight:600">'+esc(u.name||"")+'</td>'
+      +'<td>'+nameHtml+'</td>'
       +'<td>'+esc(u.branch||"")+'</td>'
       +'<td><span style="color:'+roleColor[r]+';font-weight:'+(r==="admin"||r==="editor"?700:400)+'">'+(roleMap[r]||r)+'</span></td>'
-      +'<td style="text-align:center"><span style="font-size:11px;font-weight:700;color:'+(st.cnt>0?'var(--primary)':'var(--ts)')+'">'+st.cnt+'건</span></td>'
+      +'<td style="text-align:center">'+stSel+'</td>'
+      +'<td style="text-align:center"><span style="font-size:11px;font-weight:700;color:'+(rst.cnt>0?'var(--primary)':'var(--ts)')+'">'+rst.cnt+'건</span></td>'
       +'<td style="text-align:center;font-size:11px;color:var(--ts)">'+lastLabel+'</td>'
       +'<td style="white-space:nowrap">'
         +'<button onclick="openEM(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--admin);border-radius:4px;background:transparent;color:var(--admin);font-size:9px;cursor:pointer;font-family:inherit;margin-right:3px">수정</button>'
-        +(st.cnt>0?'<button onclick="openUserReports(\''+u.empId+'\',\''+esc(u.name||'')+'\','+st.cnt+')" style="padding:3px 8px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:9px;cursor:pointer;font-family:inherit;margin-right:3px">📋 보고서</button>':'')
+        +(rst.cnt>0?'<button onclick="openUserReports(\''+u.empId+'\',\''+esc(u.name||'')+'\','+rst.cnt+')" style="padding:3px 8px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:9px;cursor:pointer;font-family:inherit;margin-right:3px">📋 보고서</button>':'')
         +'<button onclick="cfDU(\''+u.empId+'\')" style="padding:3px 8px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">계정삭제</button>'
       +'</td></tr>';
   });
@@ -3125,6 +3139,20 @@ async function openUserReports(empId,name,cnt){
   }catch(e){document.getElementById("userRptBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--danger)">오류: '+esc(e.message)+'</div>';}
 }
 function closeUserRpts(){const ov=document.getElementById('userRptOv');if(ov)ov.style.display='none';document.body.style.overflow='';}
+async function setUserStatus(empId,val,rowId){
+  try{
+    await db.collection("users").doc(empId).update({status:val});
+    const row=document.getElementById(rowId);
+    if(row){
+      const bg=val==='퇴사'?'rgba(239,68,68,.06)':val==='유'?'rgba(234,179,8,.06)':'';
+      row.style.background=bg;
+      const nameTd=row.cells[1];
+      if(nameTd){const t=nameTd.querySelector('span');if(t){t.style.textDecoration=val==='퇴사'?'line-through':'';t.style.color=val==='퇴사'?'var(--ts)':val==='유'?'#b45309':'';t.style.fontWeight=val==='퇴사'?'400':'600';}}
+      const sel=row.querySelector('select');
+      if(sel){const sc={무:'var(--primary)',유:'#D97706',퇴사:'var(--danger)'};sel.style.borderColor=sc[val]||'var(--ts)';sel.style.color=sc[val]||'var(--ts)';}
+    }
+  }catch(e){alert("저장 오류: "+e.message);}
+}
 
 /* ══ 사번 통합 도구 ══ */
 async function openMergeUsers(){
