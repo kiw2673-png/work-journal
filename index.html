@@ -18,6 +18,7 @@
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes mapBlink{0%,100%{opacity:1}50%{opacity:.12}}
 .fi{animation:fadeIn .3s ease-out}.scr{display:none;min-height:100vh}.scr.active{display:block}
 .abg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0F2440,var(--primary),var(--pl));padding:20px}
 .acard{background:var(--card);border-radius:22px;padding:40px 32px;width:100%;max-width:390px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
@@ -123,13 +124,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.5.2</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.5.3</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.2</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.3</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -164,7 +165,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.2</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.3</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -2276,7 +2277,7 @@ const CITY_XY={
   '부산사하':[173,260],'부산북구':[177,246],'부산금정':[181,246],
   '부산동구':[180,257],'남해':[125,265],'사천':[140,261],'고성':[148,265]
 };
-let _mapZoom=-1,_mapData=null;
+let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2301,18 +2302,33 @@ function _buildMapSVG(jisaInfo,zoom){
     const pad=20,rw=Math.max(mxX-mnX,18),rh=Math.max(mxY-mnY,18);
     vb=(mnX-pad)+','+(mnY-pad)+','+(rw+pad*2)+','+(rh+pad*2);
   }
-  let s='<defs><clipPath id="kclip"><path d="'+KO+'"/></clipPath></defs>';
-  s+='<path d="'+KO+'" fill="#D8E4EE" stroke="#8FA8BE" stroke-width="0.8"/>';
-  JISA_DATA.forEach((j,i)=>{
-    const op=isOv?0.75:i===zoom?0.88:0.12;
-    s+='<path clip-path="url(#kclip)" id="mp'+i+'" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+op+'" stroke="#fff" stroke-width="'+(isOv?1.2:0.8)+'" onclick="hlRgn('+i+')" style="cursor:pointer;transition:all .25s"/>';
-  });
+  let s='<defs>'
+    +'<clipPath id="kclip"><path d="'+KO+'"/></clipPath>'
+    +'<filter id="fRaise" x="-25%" y="-25%" width="150%" height="150%">'
+    +'<feDropShadow dx="1" dy="5" stdDeviation="4.5" flood-color="#000" flood-opacity="0.45"/>'
+    +'</filter>'
+    +'</defs>';
+  s+='<path d="'+KO+'" fill="#C8D8E8" stroke="#8FA8BE" stroke-width="0.8"/>';
   if(isOv){
-    JISA_DATA.forEach((j,i)=>{
-      const ji=jisaInfo[i];
-      const sn=j.name.replace('지사','');
-      s+='<text x="'+j.lx+'" y="'+(j.ly-3)+'" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.55)">'+esc(sn)+'</text>';
-      if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+5)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.88)" style="pointer-events:none">'+ji.cnt+'개</text>';
+    KWANYUK_DATA.forEach((kw,ci)=>{
+      const isSel=ci===_mapCenter;
+      const isOtherSel=_mapCenter>=0&&!isSel;
+      const jIdxs=kw.jisas.map(jname=>JISA_DATA.findIndex(j=>j.name===jname)).filter(x=>x>=0);
+      s+='<g'+(isSel?' filter="url(#fRaise)"':'')+' style="transition:filter .3s,opacity .3s" opacity="'+(isOtherSel?.28:1)+'">';
+      jIdxs.forEach(i=>{
+        const j=JISA_DATA[i];const ji=jisaInfo[i];
+        const sn=j.name.replace('지사','');
+        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.94:.75)+'" stroke="#fff" stroke-width="'+(isSel?2:1.2)+'" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
+        s+='<text x="'+j.lx+'" y="'+(j.ly-3)+'" text-anchor="middle" font-size="'+(isSel?7:6.5)+'" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.65)">'+esc(sn)+'</text>';
+        if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+5)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.92)" style="pointer-events:none">'+ji.cnt+'개</text>';
+      });
+      if(isSel){
+        const avgX=Math.round(jIdxs.reduce((a,i)=>a+JISA_DATA[i].lx,0)/jIdxs.length);
+        const minY=Math.max(8,Math.min(...jIdxs.map(i=>JISA_DATA[i].ly))-16);
+        s+='<rect x="'+(avgX-19)+'" y="'+(minY-7)+'" width="38" height="13" rx="6.5" fill="'+kw.color+'" opacity="0.95" style="pointer-events:none"/>';
+        s+='<text x="'+avgX+'" y="'+(minY+2)+'" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" style="pointer-events:none;letter-spacing:.5px">'+esc(kw.name)+'</text>';
+      }
+      s+='</g>';
     });
   } else {
     const ji=jisaInfo[zoom];
@@ -2328,41 +2344,72 @@ function _buildMapSVG(jisaInfo,zoom){
       const spSet=new Set(dls.map(d=>d.consultant||'미지정').filter(k=>k!=='미지정'));
       const dc=spSet.size===1?spCM[[...spSet][0]]||ji.color:ji.color;
       const r=Math.min(3.5+dls.length*0.5,7);
-      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+dc+'" fill-opacity="0.92" stroke="#fff" stroke-width="1" onclick="hlRgn('+zoom+')" style="cursor:default"/>';
-      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px">'+esc(city)+'</text>';
-      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+dc+'" style="pointer-events:none;opacity:.8">'+dls.length+'</text>';
+      const isHL=_mapConsultant&&spSet.has(_mapConsultant);
+      const isDim=_mapConsultant&&!isHL;
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(isHL?r+1.5:r)+'" fill="'+dc+'" fill-opacity="'+(isDim?.1:.92)+'" stroke="#fff" stroke-width="'+(isHL?2.5:1)+'" style="cursor:default;'+(isHL?'animation:mapBlink .9s ease-in-out infinite':'')+'"/>';
+      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(isDim?.1:1)+'">'+esc(city)+'</text>';
+      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+dc+'" style="pointer-events:none;opacity:'+(isDim?.1:.8)+'">'+dls.length+'</text>';
     });
     if(spKeys.length>1){
       const vbP=vb.split(',').map(Number);
       const lgX=vbP[0]+2,lgY=vbP[1]+vbP[3]-2-(spKeys.length*7);
-      spKeys.forEach((k,idx)=>{const c=spCM[k];s+='<circle cx="'+(lgX+3)+'" cy="'+(lgY+idx*7)+'" r="2.5" fill="'+c+'" stroke="#fff" stroke-width="0.5" style="pointer-events:none"/><text x="'+(lgX+8)+'" y="'+(lgY+idx*7+2)+'" font-size="4.5" fill="'+c+'" font-weight="600" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:1.5px">'+esc(k)+'</text>';});
+      spKeys.forEach((k,idx)=>{
+        const c=spCM[k];const isSelSp=k===_mapConsultant;const dimSp=_mapConsultant&&!isSelSp;
+        s+='<circle cx="'+(lgX+3)+'" cy="'+(lgY+idx*7)+'" r="2.5" fill="'+c+'" stroke="#fff" stroke-width="0.5" style="pointer-events:none;opacity:'+(dimSp?.3:1)+'"/>';
+        s+='<text x="'+(lgX+8)+'" y="'+(lgY+idx*7+2)+'" font-size="4.5" fill="'+c+'" font-weight="'+(isSelSp?900:600)+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:1.5px;opacity:'+(dimSp?.3:1)+'">'+esc(k)+'</text>';
+      });
     }
   }
-  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;'+(isOv?'max-width:300px;':'')+';display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
+  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;'+(isOv?'max-width:300px;':'')+'display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
 }
 function _buildMapCards(jisaInfo,zoom){
   const isOv=zoom<0;
   let h='';
   if(isOv){
-    KWANYUK_DATA.forEach(kw=>{
-      h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:5px;letter-spacing:.5px">'+esc(kw.name)+'</div>';
+    if(_mapCenter>=0){
+      const kw=KWANYUK_DATA[_mapCenter];
+      h+='<div style="background:'+kw.color+'10;border:2px solid '+kw.color+'55;border-radius:10px;padding:10px 12px;margin-bottom:10px">';
+      h+='<div style="font-size:12px;font-weight:700;color:'+kw.color+';margin-bottom:8px;display:flex;align-items:center;gap:6px">📍 '+esc(kw.name)
+        +' <button onclick="hlCenter(-1)" style="margin-left:auto;padding:2px 8px;border:1px solid '+kw.color+'66;border-radius:5px;background:transparent;color:'+kw.color+';font-size:9px;cursor:pointer;font-family:inherit">전체보기</button></div>';
       kw.jisas.forEach(jname=>{
-        const idx=JISA_DATA.findIndex(j=>j.name===jname);
-        if(idx<0)return;
-        const ji=jisaInfo[idx];
-        if(!ji.cnt)return;
+        const idx=JISA_DATA.findIndex(j=>j.name===jname);if(idx<0)return;
+        const ji=jisaInfo[idx];if(!ji.cnt)return;
         const{name,color,cnt,spSt,spColors}=ji;
-        const spLine=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정')
-          .map(sp=>'<span style="font-size:9px;background:'+spColors[sp]+'18;border:1px solid '+spColors[sp]+'55;border-radius:6px;padding:1px 5px;color:'+spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
-        h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-left:3px solid '+color+';border-radius:6px;margin-bottom:5px;cursor:pointer" onclick="hlRgn('+idx+')">'
+        const spLine=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').map(sp=>'<span style="font-size:9px;background:'+spColors[sp]+'18;border:1px solid '+spColors[sp]+'55;border-radius:6px;padding:1px 5px;color:'+spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
+        h+='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card);border-left:4px solid '+color+';border-radius:8px;margin-bottom:6px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.07)" onclick="hlRgn('+idx+')">'
           +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(name)+'</span>'
           +'<span style="font-size:10px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
           +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:3px">'+spLine+'</div>'
-          +'<span style="font-size:10px;color:var(--ts)">▶</span>'
+          +'<span style="font-size:12px;color:var(--ts)">▶</span>'
           +'</div>';
       });
-      h+='<div style="margin-bottom:8px"></div>';
-    });
+      h+='</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">';
+      KWANYUK_DATA.forEach((kw2,ci)=>{
+        if(ci===_mapCenter)return;
+        h+='<div style="padding:6px 8px;background:var(--card);border:1px solid '+kw2.color+'44;border-radius:8px;cursor:pointer;opacity:.5;text-align:center" onclick="hlCenter('+ci+')">'
+          +'<span style="font-size:10px;font-weight:700;color:'+kw2.color+'">'+esc(kw2.name)+'</span></div>';
+      });
+      h+='</div>';
+    } else {
+      KWANYUK_DATA.forEach((kw,ci)=>{
+        h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 4px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:5px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="hlCenter('+ci+')">'
+          +'<span>'+esc(kw.name)+'</span><span style="font-size:9px;opacity:.65">탭하여 선택 ▶</span></div>';
+        kw.jisas.forEach(jname=>{
+          const idx=JISA_DATA.findIndex(j=>j.name===jname);if(idx<0)return;
+          const ji=jisaInfo[idx];if(!ji.cnt)return;
+          const{name,color,cnt,spSt,spColors}=ji;
+          const spLine=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').map(sp=>'<span style="font-size:9px;background:'+spColors[sp]+'18;border:1px solid '+spColors[sp]+'55;border-radius:6px;padding:1px 5px;color:'+spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
+          h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--card);border-left:3px solid '+color+';border-radius:6px;margin-bottom:5px;cursor:pointer" onclick="hlRgn('+idx+')">'
+            +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(name)+'</span>'
+            +'<span style="font-size:10px;font-weight:700;color:'+color+'">'+cnt+'개</span>'
+            +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:3px">'+spLine+'</div>'
+            +'<span style="font-size:10px;color:var(--ts)">▶</span>'
+            +'</div>';
+        });
+        h+='<div style="margin-bottom:8px"></div>';
+      });
+    }
   } else {
     const ji=jisaInfo[zoom];
     const{name,color,cnt,spSt,spColors}=ji;
@@ -2370,27 +2417,34 @@ function _buildMapCards(jisaInfo,zoom){
     const spRows=spList.map(sp=>{
       const dc=spColors[sp]||color;
       const dls=spSt[sp];
-      const chips=dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+dc+'12;border:1px solid '+dc+'45;border-radius:4px;padding:2px 6px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ');
-      return'<div style="margin-bottom:10px">'
+      const isSel=sp===_mapConsultant;
+      const isDim=_mapConsultant&&!isSel;
+      const chips=dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+dc+(isSel?'22':'12')+';border:1px solid '+dc+(isSel?'88':'45')+';border-radius:4px;padding:2px 6px;'+(isSel?'font-weight:700':'')+'">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ');
+      return'<div style="margin-bottom:8px;opacity:'+(isDim?.22:1)+';transition:opacity .25s;cursor:pointer;padding:6px 8px;border-radius:8px;'+(isSel?'background:'+dc+'0D;border:1px solid '+dc+'55':'border:1px solid transparent')+'" data-sp="'+esc(sp)+'" onclick="hlConsultant(this.dataset.sp)">'
         +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'
-        +'<div style="width:10px;height:10px;border-radius:50%;background:'+dc+'"></div>'
+        +'<div style="width:12px;height:12px;border-radius:50%;background:'+dc+';'+(isSel?'box-shadow:0 0 0 3px '+dc+'44;animation:mapBlink .9s ease-in-out infinite':'')+'"></div>'
         +'<span style="font-size:12px;font-weight:700;color:'+dc+'">'+esc(sp)+'</span>'
         +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span>'
+        +(isSel?'<span style="font-size:9px;background:'+dc+';color:#fff;border-radius:4px;padding:1px 6px;margin-left:auto">선택됨 ✕</span>':'')
         +'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'+chips+'</div>'
         +'</div>';
     }).join('');
     const mijiDls=spSt['미지정']||[];
     const mijiRow=mijiDls.length
-      ?'<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:10px;height:10px;border-radius:50%;background:#aaa"></div><span style="font-size:12px;font-weight:700;color:var(--ts)">미지정</span><span style="font-size:10px;color:var(--ts)">('+mijiDls.length+'개)</span></div><div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'+mijiDls.map(d=>'<span style="font-size:9px;color:var(--ts);background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 6px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ')+'</div></div>'
+      ?'<div style="margin-bottom:8px;opacity:'+(_mapConsultant?.22:1)+';transition:opacity .25s"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><div style="width:10px;height:10px;border-radius:50%;background:#aaa"></div><span style="font-size:12px;font-weight:700;color:var(--ts)">미지정</span><span style="font-size:10px;color:var(--ts)">('+mijiDls.length+'개)</span></div><div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'+mijiDls.map(d=>'<span style="font-size:9px;color:var(--ts);background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 6px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join(' ')+'</div></div>'
       :'';
     h='<div style="background:var(--card);border:2px solid '+color+';border-radius:10px;overflow:hidden">'
       +'<div style="padding:8px 12px;background:'+color+'08;display:flex;align-items:center;gap:8px">'
       +'<div style="width:12px;height:12px;border-radius:3px;background:'+color+'"></div>'
       +'<span style="font-size:14px;font-weight:700">'+esc(name)+'</span>'
       +'<span style="margin-left:auto;font-size:12px;font-weight:700;color:'+color+'">총 '+cnt+'개</span>'
+      +(_mapConsultant?'<button onclick="hlConsultant(null)" style="padding:2px 8px;border:1px solid '+color+';border-radius:5px;background:transparent;color:'+color+';font-size:9px;cursor:pointer;font-family:inherit">전체보기</button>':'')
       +'</div>'
-      +'<div style="padding:10px 12px">'+spRows+mijiRow+'</div>'
+      +'<div style="padding:10px 12px">'
+      +'<div style="font-size:10px;color:var(--ts);margin-bottom:8px;padding:4px 8px;background:var(--ibg);border-radius:6px">💡 담당자를 누르면 해당 대리점이 지도에서 깜빡입니다</div>'
+      +spRows+mijiRow
+      +'</div>'
       +'</div>';
   }
   return h;
@@ -2432,9 +2486,19 @@ async function loadMap(){
   render();
 }
 function hlRgn(i){
-  _mapZoom=i;
+  _mapZoom=i;_mapConsultant=null;
+  if(i<0){_mapCenter=-1;}
   if(window._mapRender)window._mapRender();
   if(i>=0){const el=document.getElementById('tabMap');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+function hlCenter(ci){
+  _mapCenter=(ci<0||_mapCenter===ci)?-1:ci;
+  _mapZoom=-1;_mapConsultant=null;
+  if(window._mapRender)window._mapRender();
+}
+function hlConsultant(sp){
+  _mapConsultant=(!sp||_mapConsultant===sp)?null:sp;
+  if(window._mapRender)window._mapRender();
 }
 
 async function checkOAIStatus(keyOverride){
