@@ -1286,7 +1286,7 @@ function downloadStatsExcel(){
     const yr=wr.s.slice(2,4);const sm=wr.s.slice(5,7);const sd=wr.s.slice(8,10);const em=wr.e.slice(5,7);const ed=wr.e.slice(8,10);
     const weekLabel=yr+'년 '+sm+'월 '+sd+'일 ~ '+em+'월 '+ed+'일';
     const rgList=getRegions();const brOrd={};DEF_BR.forEach((b,i)=>brOrd[b]=i);const rgOrd={};rgList.forEach((r,i)=>r.branches.forEach(b=>rgOrd[b]=i));
-    const so=[...f].sort((a,b)=>{const ra=rgOrd[a.branch]??99,rb=rgOrd[b.branch]??99;if(ra!==rb)return ra-rb;const ba=brOrd[a.branch]??99,bb=brOrd[b.branch]??99;if(ba!==bb)return ba-bb;const ma=mst[a.empId]||{cases:0,consult:0},mb=mst[b.empId]||{cases:0,consult:0};return(mb.cases+mb.consult)-(ma.cases+ma.consult);});
+    const so=[...f].sort((a,b)=>{const ra=rgOrd[a.branch]??99,rb=rgOrd[b.branch]??99;if(ra!==rb)return ra-rb;const wa=wst[a.empId]||{cases:0,consult:0},wb=wst[b.empId]||{cases:0,consult:0};return(wb.cases+wb.consult)-(wa.cases+wa.consult);});
     const rgGroups=[];rgList.forEach(r=>{const ru=so.filter(u=>r.branches.includes(u.branch));if(ru.length)rgGroups.push({name:r.name,users:ru});});
     const extra=so.filter(u=>!rgList.some(r=>r.branches.includes(u.branch)));if(extra.length)rgGroups.push({name:'기타',users:extra});
     let trs='';
