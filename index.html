@@ -124,13 +124,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.5.4</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.5.5</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.4</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.5.5</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -2501,8 +2501,8 @@ function hlConsultant(sp){
   if(window._mapRender)window._mapRender();
 }
 
-/* ══ 담당지역 (네이버 지도) ══════════════════════════════ */
-let _areaNmap=null,_areaIW=null,_areaSel=null;
+/* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
+let _areaNmap=null,_areaPopupOv=null,_areaSel=null;
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
 function _svgToLL(x,y){return[38.6-(y-10)/69,126+(x-15)/54.3];}
 function _pathToLL(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>_svgToLL(+m[1],+m[2]));}
@@ -2511,20 +2511,20 @@ function _dealerLL(city,fb){
   if(_JEJU_LL[city])return _JEJU_LL[city];
   const[x,y]=_cityXY(city,fb);return _svgToLL(x,y);
 }
-const _KBNDS_A=[[33.0,124.5],[38.9,130.8]];
 
 async function loadArea(){
   const el=document.getElementById('tabArea');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">지도 불러오는 중...</div>';
-  // 네이버 지도 SDK 동적 로드
+  // 카카오 지도 SDK 동적 로드
   await new Promise((res,rej)=>{
-    if(window.naver&&window.naver.maps){res();return;}
+    if(window.kakao&&window.kakao.maps&&window.kakao.maps.Map){res();return;}
     const s=document.createElement('script');
-    s.src='https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=at7d37o70s';
-    s.onload=res;s.onerror=()=>rej(new Error('Naver Maps 로드 실패'));
+    s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey=49b386987b14321518fccd8ae181cc23&autoload=false';
+    s.onload=()=>kakao.maps.load(res);
+    s.onerror=()=>rej(new Error('Kakao Maps 로드 실패'));
     document.head.appendChild(s);
   });
-  // 대리점 데이터 로드
+  // 대리점 데이터
   const dealers=await loadDealers();
   const jisaInfo=JISA_DATA.map(j=>{
     const dl=dealers.filter(d=>d.branch===j.name);
@@ -2544,7 +2544,7 @@ async function loadArea(){
     });
     return{...j,dealersLL,cnt:dl.length,spSt,spColors};
   });
-  // 레이아웃 구성
+  // 레이아웃
   el.innerHTML='<div style="padding:12px 12px 40px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     +'<h3 id="areaTtl" style="font-size:13px;font-weight:700">📍 지사별 담당지역</h3>'
@@ -2557,75 +2557,75 @@ async function loadArea(){
   let tip=document.getElementById('areaTip');
   if(!tip){tip=document.createElement('div');tip.id='areaTip';tip.style.cssText='position:fixed;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:2px 7px;display:none;z-index:9999;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.18);white-space:nowrap';document.body.appendChild(tip);}
   document.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY-9)+'px';},{passive:true});
-  // 지도 초기화 (최초 1회)
-  const nkBnds=new naver.maps.LatLngBounds(new naver.maps.LatLng(33.0,124.5),new naver.maps.LatLng(38.9,130.8));
-  if(!_areaNmap){
-    _areaNmap=new naver.maps.Map('areaMapDiv',{center:new naver.maps.LatLng(36.5,127.8),zoom:7,minZoom:6,maxZoom:16,mapTypeControl:false,scaleControl:false,mapDataControl:false,zoomControl:true,zoomControlOptions:{position:naver.maps.Position.TOP_LEFT}});
-    _areaNmap.fitBounds(nkBnds);
-    _areaIW=new naver.maps.InfoWindow({disableAnchor:false,borderWidth:1,borderColor:'#ddd',backgroundColor:'#fff',pixelOffset:new naver.maps.Point(0,-10)});
-  } else {
-    // 탭 재진입 시 기존 레이어 제거
-    Object.values(_areaPolyLayer).forEach(p=>p.setMap(null));
-    Object.values(_areaLabelMk).forEach(m=>m.setMap(null));
-    Object.values(_areaOvMks).forEach(a=>a.forEach(m=>m.setMap(null)));
-    Object.values(_areaDetMks).forEach(a=>a.forEach(m=>m.setMap(null)));
-    _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};_areaSel=null;
-    _areaNmap.setTarget('areaMapDiv');
-    _areaNmap.fitBounds(nkBnds);
-  }
+  // 지도 초기화 (탭 진입마다 새로 생성)
+  _areaSel=null;_areaPopupOv=null;
+  _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:8});
+  _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(14);
+  const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
+  _areaNmap.setBounds(kBnds);
+  window._areaClosePopup=()=>{if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}};
   // 폴리곤 + 마커 생성
   jisaInfo.forEach(j=>{
-    const coords=_pathToLL(j.d).map(([lat,lng])=>new naver.maps.LatLng(lat,lng));
-    const poly=new naver.maps.Polygon({map:_areaNmap,paths:coords,fillColor:j.color,fillOpacity:0.2,strokeColor:j.color,strokeWeight:2,strokeOpacity:0.85});
-    naver.maps.Event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.38,strokeWeight:3});});
-    naver.maps.Event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.2, strokeWeight:2});});
-    naver.maps.Event.addListener(poly,'click',()=>areaSelect(j.name,jisaInfo,nkBnds));
+    const path=_pathToLL(j.d).map(([lat,lng])=>new kakao.maps.LatLng(lat,lng));
+    const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:2,strokeColor:j.color,strokeOpacity:0.85,strokeStyle:'solid',fillColor:j.color,fillOpacity:0.2});
+    kakao.maps.event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.38,strokeWeight:3});});
+    kakao.maps.event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.2, strokeWeight:2});});
+    kakao.maps.event.addListener(poly,'click',()=>areaSelect(j.name,jisaInfo,kBnds));
     _areaPolyLayer[j.name]=poly;
     // 지사명 라벨
     const ll=_svgToLL(j.lx,j.ly);
-    _areaLabelMk[j.name]=new naver.maps.Marker({position:new naver.maps.LatLng(ll[0],ll[1]),map:_areaNmap,icon:{content:'<div style="transform:translate(-50%,-50%);font-size:11px;font-weight:700;background:rgba(255,255,255,.88);padding:3px 7px;border-radius:4px;box-shadow:0 1px 5px rgba(0,0,0,.2);pointer-events:none;white-space:nowrap">'+esc(j.name)+'</div>',anchor:new naver.maps.Point(0,0)},clickable:false,zIndex:10});
+    const lEl=document.createElement('div');
+    lEl.style.cssText='font-size:11px;font-weight:700;background:rgba(255,255,255,.88);padding:3px 7px;border-radius:4px;box-shadow:0 1px 5px rgba(0,0,0,.2);pointer-events:none;white-space:nowrap';
+    lEl.textContent=j.name;
+    const lmk=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(ll[0],ll[1]),content:lEl,xAnchor:0.5,yAnchor:0.5,zIndex:10});
+    lmk.setMap(_areaNmap);_areaLabelMk[j.name]=lmk;
     _areaOvMks[j.name]=[];_areaDetMks[j.name]=[];
     j.dealersLL.forEach(d=>{
       const color=j.spColors[d.consultant||'미지정']||j.color;
-      const pos=new naver.maps.LatLng(d.lat,d.lng);
-      // 전체보기 작은 점
+      const pos=new kakao.maps.LatLng(d.lat,d.lng);
+      // 전체보기 점
       const oe=document.createElement('div');
       oe.style.cssText='width:10px;height:10px;background:'+color+';border:1.5px solid #fff;border-radius:50%;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.3)';
       oe.addEventListener('mouseenter',()=>{tip.textContent=d.shortName;tip.style.display='block';});
       oe.addEventListener('mouseleave',()=>{tip.style.display='none';});
-      oe.addEventListener('click',()=>areaSelect(j.name,jisaInfo,nkBnds));
-      _areaOvMks[j.name].push(new naver.maps.Marker({position:pos,map:_areaNmap,icon:{content:oe,anchor:new naver.maps.Point(5,5)},zIndex:5}));
-      // 상세보기 마커+이름
-      const popup='<div style="font-family:\'Noto Sans KR\',sans-serif;min-width:155px;padding:8px 10px">'
-        +'<div style="font-size:11px;color:'+j.color+';font-weight:700;margin-bottom:2px">'+esc(j.name)+'</div>'
-        +'<div style="font-size:13px;font-weight:700;margin-bottom:3px">'+esc(d.name)+'</div>'
-        +(d.consultant?'<div style="font-size:11px;color:#555">담당: <b style="color:'+color+'">'+esc(d.consultant)+'</b></div>':'')
-        +'</div>';
+      oe.addEventListener('click',()=>areaSelect(j.name,jisaInfo,kBnds));
+      const om=new kakao.maps.CustomOverlay({position:pos,content:oe,xAnchor:0.5,yAnchor:0.5,zIndex:5});
+      om.setMap(_areaNmap);_areaOvMks[j.name].push(om);
+      // 상세보기 마커
       const de=document.createElement('div');
       de.style.cssText='display:flex;flex-direction:column;align-items:center;cursor:pointer';
       de.innerHTML='<div style="width:14px;height:14px;background:'+color+';border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.4)"></div>'
         +'<div style="font-size:9px;font-weight:700;color:#333;background:rgba(255,255,255,.92);padding:1px 4px;border-radius:3px;margin-top:2px;white-space:nowrap;max-width:64px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 2px rgba(0,0,0,.15)">'+esc(d.shortName)+'</div>';
       de.addEventListener('click',()=>{
-        if(_areaIW.getMap())_areaIW.close();
-        _areaIW.setContent(popup);_areaIW.open(_areaNmap,pos);
+        if(_areaPopupOv)_areaPopupOv.setMap(null);
+        const pEl=document.createElement('div');
+        pEl.style.cssText='background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 28px 8px 10px;min-width:155px;box-shadow:0 2px 10px rgba(0,0,0,.2);margin-bottom:10px;position:relative';
+        pEl.innerHTML='<div style="font-size:11px;color:'+j.color+';font-weight:700;margin-bottom:2px">'+esc(j.name)+'</div>'
+          +'<div style="font-size:13px;font-weight:700;margin-bottom:3px">'+esc(d.name)+'</div>'
+          +(d.consultant?'<div style="font-size:11px;color:#555">담당: <b style="color:'+color+'">'+esc(d.consultant)+'</b></div>':'')
+          +'<button onclick="window._areaClosePopup()" style="position:absolute;top:5px;right:7px;border:none;background:none;font-size:16px;cursor:pointer;color:#aaa;line-height:1;padding:0">✕</button>';
+        _areaPopupOv=new kakao.maps.CustomOverlay({position:pos,content:pEl,xAnchor:0.5,yAnchor:1.0,zIndex:30});
+        _areaPopupOv.setMap(_areaNmap);
       });
-      _areaDetMks[j.name].push(new naver.maps.Marker({position:pos,map:null,icon:{content:de,anchor:new naver.maps.Point(7,7)},zIndex:15}));
+      const dm=new kakao.maps.CustomOverlay({position:pos,content:de,xAnchor:0.5,yAnchor:0,zIndex:15});
+      _areaDetMks[j.name].push(dm);
     });
-    _areaOvMks[j.name].forEach(m=>m.setMap(_areaNmap));
   });
-  _areaRenderCards(jisaInfo,nkBnds);
+  _areaRenderCards(jisaInfo,kBnds);
 }
 
-function areaSelect(name,jisaInfo,nkBnds){
+function areaSelect(name,jisaInfo,kBnds){
   _areaSel=name;
-  if(_areaIW&&_areaIW.getMap())_areaIW.close();
+  if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+name;
   const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='inline-block';
   Object.keys(_areaPolyLayer).forEach(n=>{
     _areaOvMks[n].forEach(m=>m.setMap(null));
     _areaLabelMk[n].setMap(null);
     if(n===name){
-      _areaPolyLayer[n].setOptions({fillColor:_areaPolyLayer[n].getOptions().fillColor||'#ccc',fillOpacity:0.3,strokeWeight:3,strokeOpacity:1});
+      const ji=JISA_DATA.find(j=>j.name===n);
+      _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.3,strokeWeight:3,strokeOpacity:1});
       _areaDetMks[n].forEach(m=>m.setMap(_areaNmap));
     } else {
       _areaPolyLayer[n].setOptions({fillOpacity:0.04,strokeWeight:1,strokeOpacity:0.25});
@@ -2633,13 +2633,13 @@ function areaSelect(name,jisaInfo,nkBnds){
     }
   });
   const ji=JISA_DATA.find(j=>j.name===name);
-  if(ji){const b=new naver.maps.LatLngBounds();_pathToLL(ji.d).forEach(([a,o])=>b.extend(new naver.maps.LatLng(a,o)));_areaNmap.fitBounds(b);}
-  if(jisaInfo&&nkBnds)_areaRenderDetail(name,jisaInfo,nkBnds);
+  if(ji){const b=new kakao.maps.LatLngBounds();_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));_areaNmap.setBounds(b);}
+  if(jisaInfo)_areaRenderDetail(name,jisaInfo);
 }
 
 function areaBack(){
   _areaSel=null;
-  if(_areaIW&&_areaIW.getMap())_areaIW.close();
+  if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 지사별 담당지역';
   const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='none';
   Object.keys(_areaPolyLayer).forEach(n=>{
@@ -2649,28 +2649,27 @@ function areaBack(){
     const ji=JISA_DATA.find(j=>j.name===n);
     _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.2,strokeWeight:2,strokeOpacity:0.85});
   });
-  if(_areaNmap){const b=new naver.maps.LatLngBounds(new naver.maps.LatLng(33.0,124.5),new naver.maps.LatLng(38.9,130.8));_areaNmap.fitBounds(b);}
-  // 카드 재렌더
-  const cards=document.getElementById('areaCards');if(cards&&window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastNkBnds);
+  if(_areaNmap){const b=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));_areaNmap.setBounds(b);}
+  if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 
-function _areaRenderCards(jisaInfo,nkBnds){
-  window._areaLastJisaInfo=jisaInfo;window._areaLastNkBnds=nkBnds;
+function _areaRenderCards(jisaInfo,kBnds){
+  window._areaLastJisaInfo=jisaInfo;window._areaLastKBnds=kBnds;
   const wrap=document.getElementById('areaCards');if(!wrap)return;
-  const KWANYUK_DATA_A=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[
+  const KWD=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[
     {name:'수도권',color:'#6366F1',jisas:['서울북부지사','서울남부지사','경기지사','인천지사']},
     {name:'충청권',color:'#0891B2',jisas:['원주지사','대전지사']},
     {name:'영남권',color:'#B45309',jisas:['대구지사','부산지사','경남지사']},
     {name:'호남권',color:'#047857',jisas:['광주지사','전주지사']},
   ];
   let h='';
-  KWANYUK_DATA_A.forEach(kw=>{
+  KWD.forEach(kw=>{
     h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:6px;letter-spacing:.4px">'+esc(kw.name)+'</div>';
     kw.jisas.forEach(jn=>{
       const ji=jisaInfo.find(j=>j.name===jn);if(!ji)return;
       const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정').sort();
       const chips=spKeys.map(sp=>'<span style="font-size:9px;background:'+ji.spColors[sp]+'18;border:1px solid '+ji.spColors[sp]+'55;border-radius:5px;padding:1px 4px;color:'+ji.spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
-      h+='<div onclick="areaSelect(\''+esc(jn)+'\',window._areaLastJisaInfo,window._areaLastNkBnds)" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border-left:3px solid '+ji.color+';border-radius:7px;margin-bottom:5px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.06)">'
+      h+='<div onclick="areaSelect(\''+jn+'\',window._areaLastJisaInfo,window._areaLastKBnds)" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border-left:3px solid '+ji.color+';border-radius:7px;margin-bottom:5px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.06)">'
         +'<span style="font-size:12px;font-weight:700;color:'+ji.color+';min-width:70px">'+esc(jn)+'</span>'
         +'<span style="font-size:10px;font-weight:700;color:'+ji.color+'">'+ji.cnt+'개</span>'
         +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:3px">'+chips+'</div>'
@@ -2682,7 +2681,7 @@ function _areaRenderCards(jisaInfo,nkBnds){
   wrap.innerHTML=h;
 }
 
-function _areaRenderDetail(name,jisaInfo,nkBnds){
+function _areaRenderDetail(name,jisaInfo){
   const wrap=document.getElementById('areaCards');if(!wrap)return;
   const ji=jisaInfo.find(j=>j.name===name);if(!ji)return;
   const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정').sort();
