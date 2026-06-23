@@ -2594,9 +2594,9 @@ async function meSaveAll(){
     j.d=d;j.lx=c.x;j.ly=c.y;
     paths[j.name]={d,lx:c.x,ly:c.y};
   });
-  try{await db.collection('settings').doc('mapConfig').set({jisaPaths:paths});showToast('지사 영역 저장 완료 ✅');}
-  catch(e){showToast('저장 실패: '+e.message);}
-  if(typeof _mapRender==='function')_mapRender();
+  try{await db.collection('settings').doc('mapConfig').set({jisaPaths:paths});alert('지사 영역 저장 완료 ✅');}
+  catch(e){alert('저장 실패: '+e.message);return;}
+  if(window._mapRender)window._mapRender();
 }
 function meReset(){
   if(!confirm('현재 지사의 영역을 코드 기본값으로 초기화할까요?'))return;
