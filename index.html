@@ -2122,6 +2122,7 @@ let pendS=null;
 function loadSett(){pendS={models:JSON.parse(JSON.stringify(getModels())),cats:[...getCats()],syms:[...getSyms()],acts:[...getActs()],regions:JSON.parse(JSON.stringify(getRegions())),opencloseOpts:(_settings?.opencloseOpts)||["OD","CD"],whisperKey:_settings?.whisperKey||"",kakaoKey:_settings?.kakaoKey||"",tgBotToken:_settings?.tgBotToken||"",tgChatId:_settings?.tgChatId||"",tgAutoTime:_settings?.tgAutoTime||"21:00",field1Tags:[...(_settings?.field1Tags||[])],noteTags:[...(_settings?.noteTags||[])],field2Tags:[...(_settings?.field2Tags||[])],modelCategories:JSON.parse(JSON.stringify(getModelCats())),holidays:[...(_settings?.holidays||[])]};renderSett()}
 function renderSett(){const p=pendS;let h='';
   h+='<div class="stag" style="border-left:3px solid var(--admin);padding-left:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="margin-bottom:2px">📋 대리점 담당 설정</h4><p style="font-size:10px;color:var(--ts);margin:0">전국 대리점/특약점 CSR 담당 컨설턴트 배정 관리</p></div><button onclick="openDealerMgmt()" style="padding:7px 14px;border:none;border-radius:8px;background:var(--admin);color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">📋 관리 열기</button></div></div>';
+  h+='<div class="stag" style="border-left:3px solid #6366F1;padding-left:10px"><div style="display:flex;justify-content:space-between;align-items:center"><div><h4 style="margin-bottom:2px">🗺️ 지사 영역 편집</h4><p style="font-size:10px;color:var(--ts);margin:0">지도 탭의 지사별 영역 폴리곤을 직접 드래그로 편집</p></div><button onclick="openMapEditor()" style="padding:7px 14px;border:none;border-radius:8px;background:#6366F1;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap">🗺️ 편집 열기</button></div></div>';
   // 권역별 설정
   h+='<div class="stag"><h4>🗺️ 권역별 설정</h4>';
   p.regions.forEach((r,ri)=>{
@@ -2514,6 +2515,103 @@ const _JEJU_LL={'제주':[33.499,126.531],'제주시':[33.503,126.531],'서귀�
 function _dealerLL(city,fb){
   if(_JEJU_LL[city])return _JEJU_LL[city];
   const[x,y]=_cityXY(city,fb);return _svgToLL(x,y);
+}
+
+/* ══ MAP REGION EDITOR ══ */
+let _meJisa=0,_meDrag=-1,_meVerts=[],_meAll={},_meDefaultPaths={};
+function _meParseVerts(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>({x:+m[1],y:+m[2]}));}
+function _meBuildPath(v){return v.map((p,i)=>(i?'L':'M')+Math.round(p.x*2)/2+','+Math.round(p.y*2)/2).join(' ')+' Z';}
+function _meCentroid(v){return{x:Math.round(v.reduce((s,p)=>s+p.x,0)/v.length),y:Math.round(v.reduce((s,p)=>s+p.y,0)/v.length)};}
+
+function openMapEditor(){
+  _meDefaultPaths={};
+  JISA_DATA.forEach((j,i)=>{_meDefaultPaths[i]=j.d;_meAll[i]=_meParseVerts(j.d);});
+  _meJisa=0;_meVerts=[..._meAll[0]];
+  let btns='';
+  JISA_DATA.forEach((j,i)=>{ btns+='<button id="meB'+i+'" onclick="meSelJisa('+i+')" style="padding:3px 8px;border:2px solid '+j.color+';border-radius:14px;font-size:10px;cursor:pointer;font-weight:600;font-family:inherit;background:'+(i===0?j.color:'transparent')+';color:'+(i===0?'#fff':j.color)+'">'+j.name.replace('지사','')+'</button>'; });
+  document.getElementById('meJisaBtns').innerHTML=btns;
+  document.getElementById('mapEditorModal').style.display='flex';
+  _meRender();
+}
+function closeMapEditor(){document.getElementById('mapEditorModal').style.display='none';}
+
+function meSelJisa(i){
+  _meAll[_meJisa]=[..._meVerts];
+  _meJisa=i;_meVerts=[..._meAll[i]];
+  JISA_DATA.forEach((j,ii)=>{const b=document.getElementById('meB'+ii);if(b){b.style.background=ii===i?j.color:'transparent';b.style.color=ii===i?'#fff':j.color;}});
+  _meRender();
+}
+
+function _meRender(){
+  const svg=document.getElementById('meSVG');if(!svg)return;
+  let s='<defs><clipPath id="meclip"><path d="'+KO+'"/></clipPath></defs>';
+  s+='<path d="'+KO+'" fill="#C8D8E8" stroke="#8FA8BE" stroke-width="0.8"/>';
+  JISA_DATA.forEach((j,i)=>{
+    const d=i===_meJisa?_meBuildPath(_meVerts):_meBuildPath(_meAll[i]);
+    const isSel=i===_meJisa;
+    s+='<path clip-path="url(#meclip)" d="'+d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.55:.25)+'" stroke="#fff" stroke-width="'+(isSel?1.8:.6)+'" style="pointer-events:none"/>';
+  });
+  const jc=JISA_DATA[_meJisa].color;
+  _meVerts.forEach((v,i)=>{
+    const n=_meVerts[(i+1)%_meVerts.length];
+    const mx=(v.x+n.x)/2,my=(v.y+n.y)/2;
+    s+='<circle cx="'+mx+'" cy="'+my+'" r="2.5" fill="rgba(255,255,255,.7)" stroke="#aaa" stroke-width=".5" style="cursor:crosshair" onpointerdown="meAddV(event,'+i+')"/>';
+  });
+  _meVerts.forEach((v,i)=>{
+    s+='<circle cx="'+v.x+'" cy="'+v.y+'" r="5" fill="white" stroke="'+jc+'" stroke-width="2.5" style="cursor:grab;touch-action:none" onpointerdown="meDragV(event,'+i+')" ondblclick="meDelV('+i+')"/>';
+    s+='<text x="'+v.x+'" y="'+(v.y-7)+'" text-anchor="middle" font-size="4.5" fill="'+jc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:1.5px">'+Math.round(v.x)+','+Math.round(v.y)+'</text>';
+  });
+  svg.innerHTML=s;
+  document.getElementById('mePathStr').textContent='d: "'+_meBuildPath(_meVerts)+'"';
+}
+
+function _meSVGPt(e){
+  const svg=document.getElementById('meSVG');
+  const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+function meDragV(e,i){
+  e.preventDefault();e.stopPropagation();_meDrag=i;
+  const svg=document.getElementById('meSVG');
+  svg.setPointerCapture(e.pointerId);
+  svg.onpointermove=ev=>{if(_meDrag<0)return;const p=_meSVGPt(ev);_meVerts[_meDrag]={x:+p.x.toFixed(1),y:+p.y.toFixed(1)};_meRender();};
+  svg.onpointerup=()=>{_meDrag=-1;svg.onpointermove=null;svg.onpointerup=null;};
+}
+function meAddV(e,afterIdx){
+  e.preventDefault();e.stopPropagation();
+  const p=_meSVGPt(e);
+  _meVerts.splice(afterIdx+1,0,{x:+p.x.toFixed(1),y:+p.y.toFixed(1)});
+  _meRender();
+}
+function meDelV(i){if(_meVerts.length<=3)return;_meVerts.splice(i,1);_meRender();}
+
+async function meSaveAll(){
+  _meAll[_meJisa]=[..._meVerts];
+  const paths={};
+  JISA_DATA.forEach((j,i)=>{
+    const d=_meBuildPath(_meAll[i]);
+    const c=_meCentroid(_meAll[i]);
+    j.d=d;j.lx=c.x;j.ly=c.y;
+    paths[j.name]={d,lx:c.x,ly:c.y};
+  });
+  try{await db.collection('settings').doc('mapConfig').set({jisaPaths:paths});showToast('지사 영역 저장 완료 ✅');}
+  catch(e){showToast('저장 실패: '+e.message);}
+  if(typeof _mapRender==='function')_mapRender();
+}
+function meReset(){
+  if(!confirm('현재 지사의 영역을 코드 기본값으로 초기화할까요?'))return;
+  _meVerts=_meParseVerts(_meDefaultPaths[_meJisa]);
+  _meRender();
+}
+
+async function loadMapConfig(){
+  try{
+    const doc=await db.collection('settings').doc('mapConfig').get();
+    if(doc.exists&&doc.data().jisaPaths){
+      const p=doc.data().jisaPaths;
+      JISA_DATA.forEach(j=>{if(p[j.name]){j.d=p[j.name].d;j.lx=p[j.name].lx;j.ly=p[j.name].ly;}});
+    }
+  }catch(e){}
 }
 
 async function loadArea(){
@@ -5246,8 +5344,24 @@ function adminDeleteReport(docId,name,date){
 }
 
 /* ══ INIT ══ */
-(async function(){const sess=JSON.parse(localStorage.getItem("session")||"null");if(sess){await loadSettings();if(sess.type==="admin"){showS("adminScreen");loadAdm()}else if(sess.type==="user"&&sess.user){CU=sess.user;showS("journalScreen");initJ()}}})();
+(async function(){loadMapConfig();const sess=JSON.parse(localStorage.getItem("session")||"null");if(sess){await loadSettings();if(sess.type==="admin"){showS("adminScreen");loadAdm()}else if(sess.type==="user"&&sess.user){CU=sess.user;showS("journalScreen");initJ()}}})();
 </script>
+<div id="mapEditorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border-radius:14px;padding:16px;width:96vw;max-width:500px;max-height:96vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <b style="font-size:15px;color:var(--ts)">🗺️ 지사 영역 편집</b>
+      <button onclick="closeMapEditor()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ts);line-height:1">✕</button>
+    </div>
+    <div id="meJisaBtns" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px"></div>
+    <div style="font-size:10px;color:var(--tss);margin-bottom:6px">🔵 꼭짓점 드래그: 이동 &nbsp;|&nbsp; 더블클릭: 삭제 &nbsp;|&nbsp; 간선 흰 점 클릭: 꼭짓점 추가</div>
+    <svg id="meSVG" viewBox="0 0 220 340" style="width:100%;border:1px solid var(--border);border-radius:8px;touch-action:none;display:block;background:#d8e8f4;"></svg>
+    <div id="mePathStr" style="font-size:9px;font-family:monospace;color:var(--tss);margin-top:6px;word-break:break-all;background:var(--ibg);padding:4px 6px;border-radius:6px;"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button onclick="meSaveAll()" style="flex:1;padding:9px;background:var(--admin);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700">💾 저장</button>
+      <button onclick="meReset()" style="padding:9px 14px;background:var(--ibg);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;color:var(--ts)">초기화</button>
+    </div>
+  </div>
+</div>
 <div id="dealerMgmtModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f6f9;z-index:10000;overflow-y:auto">
   <div style="position:sticky;top:0;background:linear-gradient(135deg,var(--admin),var(--al));color:#fff;padding:12px 16px;z-index:10;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)">
     <div style="font-size:14px;font-weight:700">📋 대리점 담당 설정</div>
