@@ -535,7 +535,7 @@ let _dealers=null,_regUsers=null;
 async function loadDealers(){if(_dealers)return _dealers;try{const doc=await db.collection("settings").doc("dealersConfig").get();if(doc.exists&&doc.data().list){_dealers=doc.data().list;return _dealers;}}catch(e){}_dealers=DEF_DEALERS.map(d=>({...d}));return _dealers;}
 async function saveDealers(list){_dealers=list;await db.collection("settings").doc("dealersConfig").set({list,updatedAt:new Date().toISOString()});}
 async function loadRegUsers(){if(_regUsers)return _regUsers;try{const snap=await db.collection("users").get();_regUsers=snap.docs.map(d=>d.data()).filter(u=>u.name).sort((a,b)=>a.name.localeCompare(b.name));}catch(e){_regUsers=[];}return _regUsers;}
-function getDealerConsultants(){if(_regUsers&&_regUsers.length>0){return[...new Set(_regUsers.map(u=>u.name).filter(Boolean))].sort();}const s=new Set((_dealers||DEF_DEALERS).map(d=>d.consultant).filter(Boolean));return[...s].sort();}
+function getDealerConsultants(){if(_regUsers&&_regUsers.length>0){return[...new Set(_regUsers.filter(u=>u.status==='유').map(u=>u.name).filter(Boolean))].sort();}const s=new Set((_dealers||DEF_DEALERS).map(d=>d.consultant).filter(Boolean));return[...s].sort();}
 function getModels(){return _settings?.models||DEF_MODELS}
 function getCats(){return _settings?.categories||DEF_CATS}
 function getHolidays(){return _settings?.holidays||[]}
@@ -1210,7 +1210,7 @@ async function loadStats(){
   const today=tk();
   const allStats={};allEntries.forEach(e=>{if(!allStats[e.empId])allStats[e.empId]={count:0,dates:[]};allStats[e.empId].count++;allStats[e.empId].dates.push(e.date)});
   const ts=Object.values(allStats).reduce((s,v)=>s+v.count,0),tds=Object.values(allStats).reduce((s,v)=>s+(v.dates.includes(today)?1:0),0);
-  const activeUCnt=users.filter(u=>!u.status||u.status==='무').length;
+  const activeUCnt=users.filter(u=>u.status==='유').length;
   document.getElementById("admStats").innerHTML=[{i:"👥",v:users.length,l:"등록"},{i:"📝",v:tds,l:"오늘"},{i:"📊",v:ts,l:"누적"},{i:"🚨",v:Math.max(0,activeUCnt-tds),l:"미제출"}].map(c=>'<div class="stci"><div style="font-size:14px">'+c.i+'</div><div class="v">'+c.v+'</div><div class="l">'+c.l+'</div></div>').join("");
   renderStatsTable();
 }
@@ -1326,7 +1326,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   document.getElementById("rptLabel").textContent="📋 "+fds(dv);document.getElementById("rptBody").innerHTML='<div class="loading">불러오는 중...</div>';
   const [snap,usersSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get()]);
   const entries=snap.docs.map(d=>d.data());
-  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&(!u.status||u.status==='무'));
+  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&u.status==='유');
   entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
@@ -2962,7 +2962,7 @@ async function buildDailyText(dateStr){
   ]);
   const entries=rSnap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   if(!entries.length)return null;
-  const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&(!u.status||u.status==='무'));
+  const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&u.status==='유');
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=activeUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const dObj=new Date(dateStr+"T00:00:00");
@@ -3085,11 +3085,11 @@ async function loadUsers(){
   const roleMap={admin:'🛡 관리자',editor:'✏️ 편집자',viewer:'👁 조회자',user:'👤 사용자'};
   const roleColor={admin:'var(--admin)',editor:'#3498DB',viewer:'#16A085',user:'var(--ts)'};
   const stCfg={
-    '무':{label:'무',color:'var(--primary)',bg:'',desc:'미제출 포함'},
-    '유':{label:'유',color:'#D97706',bg:'rgba(234,179,8,.06)',desc:'미제출 제외'},
+    '무':{label:'무',color:'var(--primary)',bg:'',desc:'지역배정 없음·미제출 제외'},
+    '유':{label:'유',color:'#16A085',bg:'rgba(22,160,133,.06)',desc:'지역배정 있음·미제출 포함'},
     '퇴사':{label:'퇴사',color:'var(--danger)',bg:'rgba(239,68,68,.06)',desc:'로그인 불가·미제출 제외'}
   };
-  h+='<div class="rw"><table class="rt" style="min-width:800px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th style="text-align:center">상태</th><th style="text-align:center">보고서</th><th style="text-align:center">최근제출</th><th>관리</th></tr></thead><tbody>';
+  h+='<div class="rw"><table class="rt" style="min-width:800px"><thead><tr><th>사번</th><th>이름</th><th>지사</th><th>권한</th><th style="text-align:center">지역배정</th><th style="text-align:center">보고서</th><th style="text-align:center">최근제출</th><th>관리</th></tr></thead><tbody>';
   users.forEach(u=>{
     const r=u.role||"user";
     const isEmp=(u.empId||"").startsWith("EMP");
@@ -3155,12 +3155,12 @@ async function setUserStatus(empId,val,rowId){
     await db.collection("users").doc(empId).update({status:val});
     const row=document.getElementById(rowId);
     if(row){
-      const bg=val==='퇴사'?'rgba(239,68,68,.06)':val==='유'?'rgba(234,179,8,.06)':'';
+      const bg=val==='퇴사'?'rgba(239,68,68,.06)':val==='유'?'rgba(22,160,133,.06)':'';
       row.style.background=bg;
       const nameTd=row.cells[1];
-      if(nameTd){const t=nameTd.querySelector('span');if(t){t.style.textDecoration=val==='퇴사'?'line-through':'';t.style.color=val==='퇴사'?'var(--ts)':val==='유'?'#b45309':'';t.style.fontWeight=val==='퇴사'?'400':'600';}}
+      if(nameTd){const t=nameTd.querySelector('span');if(t){t.style.textDecoration=val==='퇴사'?'line-through':'';t.style.color=val==='퇴사'?'var(--ts)':val==='유'?'#0e7a67':'';t.style.fontWeight=val==='퇴사'?'400':'600';}}
       const sel=row.querySelector('select');
-      if(sel){const sc={무:'var(--primary)',유:'#D97706',퇴사:'var(--danger)'};sel.style.borderColor=sc[val]||'var(--ts)';sel.style.color=sc[val]||'var(--ts)';}
+      if(sel){const sc={무:'var(--primary)',유:'#16A085',퇴사:'var(--danger)'};sel.style.borderColor=sc[val]||'var(--ts)';sel.style.color=sc[val]||'var(--ts)';}
     }
   }catch(e){alert("저장 오류: "+e.message);}
 }
