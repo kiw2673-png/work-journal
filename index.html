@@ -2654,6 +2654,7 @@ async function loadArea(){
     +'<h3 id="areaTtl" style="font-size:13px;font-weight:700;margin:0">📍 지사별 담당지역</h3>'
     +'<select id="areaCsrSel" onchange="_areaFilterChange(this.value)" style="margin-left:auto;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"><option value="">전체 담당자</option>'+_csrOpts+'</select>'
     +'<button id="areaBackBtn" onclick="areaBack()" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
+    +(canChangeSettings()?'<button onclick="openMapEditor()" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">✏️ 영역 편집</button>':'')
     +'</div>'
     +'<div id="areaMapDiv" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px"></div>'
     +'<div id="areaCards"></div>'
@@ -2673,9 +2674,9 @@ async function loadArea(){
   // 폴리곤 + 마커 생성
   jisaInfo.forEach(j=>{
     const path=_pathToLL(j.d).map(([lat,lng])=>new kakao.maps.LatLng(lat,lng));
-    const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:2,strokeColor:j.color,strokeOpacity:0.85,strokeStyle:'solid',fillColor:j.color,fillOpacity:0.2});
-    kakao.maps.event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.38,strokeWeight:3});});
-    kakao.maps.event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.2, strokeWeight:2});});
+    const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:2,strokeColor:j.color,strokeOpacity:0.85,strokeStyle:'solid',fillColor:j.color,fillOpacity:0.12});
+    kakao.maps.event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.25,strokeWeight:3});});
+    kakao.maps.event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.12,strokeWeight:2});});
     kakao.maps.event.addListener(poly,'click',()=>areaSelect(j.name,jisaInfo,kBnds));
     _areaPolyLayer[j.name]=poly;
     // 지사명 라벨
@@ -2729,7 +2730,7 @@ function areaSelect(name,jisaInfo,kBnds){
     _areaLabelMk[n]?.setMap(null);
     if(n===name){
       const ji=JISA_DATA.find(j=>j.name===n);
-      _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.3,strokeWeight:3,strokeOpacity:1});
+      _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.2,strokeWeight:3,strokeOpacity:1});
     } else {
       _areaPolyLayer[n].setOptions({fillOpacity:0.04,strokeWeight:1,strokeOpacity:0.25});
     }
