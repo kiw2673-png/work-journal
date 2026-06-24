@@ -1,0 +1,21 @@
+name: CS업무일지 일일보고 텔레그램 전송
+
+on:
+  schedule:
+    # 평일 21:00 KST (= 12:00 UTC)
+    - cron: '0 12 * * 1-5'
+  workflow_dispatch:  # 수동 테스트용
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 일일보고 전송
+        run: node scripts/send-daily-report.js
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
