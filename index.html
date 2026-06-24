@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -1085,12 +1085,18 @@ function toggleHistList(){const list=document.getElementById("histList");const b
 let _draftTimer=null;
 function startDraftTimer(){
   if(_draftTimer)clearInterval(_draftTimer);
-  _draftTimer=setInterval(()=>{if(CU)autoSaveDraft()},30000); // 30초마다 자동저장
+  _draftTimer=setInterval(()=>{if(CU)autoSaveDraft()},10000); // 10초마다 자동저장
+  // 페이지 이탈/새로고침 직전 저장
+  window.addEventListener('beforeunload',()=>{if(CU)autoSaveDraft()},{once:false});
+  // 모바일: 탭 전환/홈 버튼 시 저장
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&CU)autoSaveDraft()});
 }
 function autoSaveDraft(){
   if(!CU)return;
   const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",field3:document.getElementById("field3")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
   localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
+  const st=document.getElementById("draftStatus");
+  if(st&&st.textContent.!st.textContent.includes("복원")){const now=new Date();st.textContent="자동저장 "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");st.style.color="var(--ts)";}
 }
 function toggleDraft(){
   if(!CU)return;
