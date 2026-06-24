@@ -1096,7 +1096,7 @@ function autoSaveDraft(){
   const draft={field1:document.getElementById("field1")?.value||"",field2:document.getElementById("field2")?.value||"",field3:document.getElementById("field3")?.value||"",cases:getCasesData(),ts:new Date().toISOString()};
   localStorage.setItem("draft:"+CU.empId,JSON.stringify(draft));
   const st=document.getElementById("draftStatus");
-  if(st&&st.textContent.!st.textContent.includes("복원")){const now=new Date();st.textContent="자동저장 "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");st.style.color="var(--ts)";}
+  if(st&&!st.textContent.includes("복원")){const now=new Date();st.textContent="자동저장 "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0")+":"+String(now.getSeconds()).padStart(2,"0");st.style.color="var(--ts)";}
 }
 function toggleDraft(){
   if(!CU)return;
