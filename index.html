@@ -2642,19 +2642,10 @@ function _aeSelJisa(name){
   });
   _aeRenderVtx();
 }
-function _aeVtxImg(color){
-  const cv=document.createElement('canvas');cv.width=18;cv.height=18;
-  const ctx=cv.getContext('2d');
-  ctx.beginPath();ctx.arc(9,9,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
-  return new kakao.maps.MarkerImage(cv.toDataURL(),new kakao.maps.Size(18,18),{offset:new kakao.maps.Point(9,9)});
-}
-function _aeMidImg(){
-  const cv=document.createElement('canvas');cv.width=12;cv.height=12;
-  const ctx=cv.getContext('2d');
-  ctx.beginPath();ctx.arc(6,6,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
-  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.stroke();
-  return new kakao.maps.MarkerImage(cv.toDataURL(),new kakao.maps.Size(12,12),{offset:new kakao.maps.Point(6,6)});
+function _aeScrToLL(clientX,clientY){
+  const cont=document.getElementById('areaMapDiv');if(!cont||!_areaNmap)return null;
+  const rect=cont.getBoundingClientRect();
+  return _areaNmap.getProjection().coordsFromPoint(new kakao.maps.Point(clientX-rect.left,clientY-rect.top));
 }
 function _aeRenderVtx(){
   _areaEditVtxMks.forEach(m=>m.setMap(null));_areaEditMidMks.forEach(m=>m.setMap(null));
@@ -2662,18 +2653,40 @@ function _aeRenderVtx(){
   const pts=_areaEditPaths[_areaEditJisa];if(!pts)return;
   const ji=JISA_DATA.find(j=>j.name===_areaEditJisa);
   const color=ji?ji.color:'#999';
-  const vi=_aeVtxImg(color);const mi=_aeMidImg();
   pts.forEach((pt,i)=>{
-    const mk=new kakao.maps.Marker({position:new kakao.maps.LatLng(pt.lat,pt.lng),image:vi,draggable:true,map:_areaNmap,zIndex:20});
-    kakao.maps.event.addListener(mk,'drag',()=>{const pos=mk.getPosition();pts[i]={lat:pos.getLat(),lng:pos.getLng()};_aeUpdatePoly();});
-    kakao.maps.event.addListener(mk,'dragend',()=>_aeRenderVtx());
-    kakao.maps.event.addListener(mk,'rightclick',()=>{if(pts.length<=3)return;pts.splice(i,1);_aeUpdatePoly();_aeRenderVtx();});
-    _areaEditVtxMks.push(mk);
+    // 꼭짓점 핸들 (CustomOverlay + pointer 이벤트)
+    const el=document.createElement('div');
+    el.style.cssText='width:18px;height:18px;background:#fff;border:2.5px solid '+color+';border-radius:50%;cursor:grab;touch-action:none;transform:translate(-50%,-50%);box-shadow:0 1px 5px rgba(0,0,0,.35);position:relative;z-index:20';
+    el.addEventListener('contextmenu',ev=>{ev.preventDefault();if(pts.length<=3)return;pts.splice(i,1);_aeUpdatePoly();_aeRenderVtx();});
+    el.addEventListener('pointerdown',ev=>{
+      ev.stopPropagation();ev.preventDefault();
+      _areaNmap.setDraggable(false);_areaNmap.setZoomable(false);
+      el.setPointerCapture(ev.pointerId);el.style.cursor='grabbing';
+      const ov=_areaEditVtxMks[i];
+      const onMove=mv=>{
+        const ll=_aeScrToLL(mv.clientX,mv.clientY);if(!ll)return;
+        pts[i]={lat:ll.getLat(),lng:ll.getLng()};
+        ov.setPosition(ll);_aeUpdatePoly();
+      };
+      const onUp=()=>{
+        _areaNmap.setDraggable(true);_areaNmap.setZoomable(true);
+        el.style.cursor='grab';
+        el.removeEventListener('pointermove',onMove);
+        el.removeEventListener('pointerup',onUp);
+        _aeRenderVtx();
+      };
+      el.addEventListener('pointermove',onMove);
+      el.addEventListener('pointerup',onUp);
+    });
+    const ov=new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(pt.lat,pt.lng),content:el,map:_areaNmap,zIndex:20});
+    _areaEditVtxMks.push(ov);
+    // 중간점 핸들 (클릭 시 꼭짓점 추가)
     const next=pts[(i+1)%pts.length];
     const mlat=(pt.lat+next.lat)/2,mlng=(pt.lng+next.lng)/2;
-    const mm=new kakao.maps.Marker({position:new kakao.maps.LatLng(mlat,mlng),image:mi,map:_areaNmap,zIndex:10});
-    kakao.maps.event.addListener(mm,'click',()=>{pts.splice(i+1,0,{lat:mlat,lng:mlng});_aeUpdatePoly();_aeRenderVtx();});
-    _areaEditMidMks.push(mm);
+    const mel=document.createElement('div');
+    mel.style.cssText='width:12px;height:12px;background:rgba(255,255,255,.75);border:1px solid #999;border-radius:50%;cursor:crosshair;transform:translate(-50%,-50%)';
+    mel.addEventListener('click',()=>{pts.splice(i+1,0,{lat:mlat,lng:mlng});_aeUpdatePoly();_aeRenderVtx();});
+    _areaEditMidMks.push(new kakao.maps.CustomOverlay({position:new kakao.maps.LatLng(mlat,mlng),content:mel,map:_areaNmap,zIndex:10}));
   });
 }
 function _aeUpdatePoly(){
