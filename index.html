@@ -2221,9 +2221,9 @@ const JISA_DATA=[
   {name:'원주지사',    color:'#EF4444',d:'M108,30 L210,15 L210,152 L162,152 L135,135 L108,90 Z',                                                            lx:175,ly:88, bx:[105,12,212,155]},
   {name:'대전지사',    color:'#06B6D4',d:'M20,130 L52,128 L83,120 L135,135 L162,152 L165,195 L128,198 L78,198 L40,185 L18,168 Z',                          lx:87, ly:170,bx:[15,118,168,200]},
   {name:'전주지사',    color:'#EC4899',d:'M18,198 L40,185 L78,198 L110,215 L95,240 L65,244 L28,244 L14,240 Z',                                             lx:60, ly:218,bx:[12,182,113,248]},
-  {name:'광주지사',    color:'#16A34A',d:'M14,240 L28,244 L65,244 L95,240 L115,265 L108,315 L75,325 L35,318 L14,290 Z',                                    lx:60, ly:278,bx:[12,238,118,328]},
+  {name:'광주지사',    color:'#84CC16',d:'M14,240 L28,244 L65,244 L95,240 L115,265 L108,315 L75,325 L35,318 L14,290 Z',                                    lx:60, ly:278,bx:[12,238,118,328]},
   {name:'대구지사',    color:'#F97316',d:'M162,152 L210,152 L210,225 L188,235 L158,228 L128,198 L165,195 Z',                                               lx:180,ly:192,bx:[125,148,212,238]},
-  {name:'경남지사',    color:'#14B8A6',d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,240 L110,215 Z',                      lx:138,ly:252,bx:[75,195,192,300]},
+  {name:'경남지사',    color:'#0D9488',d:'M78,198 L128,198 L158,228 L188,235 L182,278 L155,290 L128,298 L108,278 L95,240 L110,215 Z',                      lx:138,ly:252,bx:[75,195,192,300]},
   {name:'부산지사',    color:'#A855F7',d:'M188,235 L210,225 L210,272 L198,298 L172,298 L155,290 L182,278 Z',                                               lx:190,ly:262,bx:[152,222,212,300]}
 ];
 const SP_COLORS=['#2563EB','#16A34A','#D97706','#DC2626','#9333EA','#0891B2','#EA580C','#059669'];
@@ -2509,6 +2509,7 @@ function hlConsultant(sp){
 /* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
 let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='';
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
+let _areaEditMode=false,_areaEditJisa=null,_areaEditVtxMks=[],_areaEditMidMks=[],_areaEditPaths={};
 function _svgToLL(x,y){return[38.6-(y-10)/69,126+(x-15)/54.3];}
 function _pathToLL(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>_svgToLL(+m[1],+m[2]));}
 const _JEJU_LL={'제주':[33.499,126.531],'제주시':[33.503,126.531],'서귀포':[33.254,126.560]};
@@ -2614,6 +2615,91 @@ async function loadMapConfig(){
   }catch(e){}
 }
 
+function enterAreaEdit(){
+  if(!_areaNmap)return;
+  _areaEditMode=true;_areaEditPaths={};
+  JISA_DATA.forEach(j=>{_areaEditPaths[j.name]=_pathToLL(j.d).map(([lat,lng])=>({lat,lng}));});
+  const bar=document.getElementById('areaEditBar');if(!bar)return;
+  document.getElementById('areaEditJisaBtns').innerHTML=JISA_DATA.map((j,i)=>'<button id="aeJB'+i+'" onclick="_aeSelJisa(\''+j.name+'\')" style="padding:3px 9px;border:2px solid '+j.color+';border-radius:14px;font-size:10px;cursor:pointer;font-weight:600;font-family:inherit;background:transparent;color:'+j.color+'">'+j.name.replace('지사','')+'</button>').join('');
+  bar.style.display='flex';
+  _aeSelJisa(JISA_DATA[0].name);
+}
+function _aeSelJisa(name){
+  _areaEditJisa=name;
+  _areaEditVtxMks.forEach(m=>m.setMap(null));_areaEditMidMks.forEach(m=>m.setMap(null));
+  _areaEditVtxMks=[];_areaEditMidMks=[];
+  JISA_DATA.forEach((j,i)=>{
+    const p=_areaPolyLayer[j.name];if(!p)return;
+    p.setOptions(j.name===name?{fillOpacity:.22,strokeWeight:3,strokeOpacity:1}:{fillOpacity:.04,strokeWeight:1,strokeOpacity:.3});
+    const b=document.getElementById('aeJB'+i);if(!b)return;
+    b.style.background=j.name===name?j.color:'transparent';b.style.color=j.name===name?'#fff':j.color;
+  });
+  _aeRenderVtx();
+}
+function _aeVtxImg(color){
+  const cv=document.createElement('canvas');cv.width=18;cv.height=18;
+  const ctx=cv.getContext('2d');
+  ctx.beginPath();ctx.arc(9,9,7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+  return new kakao.maps.MarkerImage(cv.toDataURL(),new kakao.maps.Size(18,18),{offset:new kakao.maps.Point(9,9)});
+}
+function _aeMidImg(){
+  const cv=document.createElement('canvas');cv.width=12;cv.height=12;
+  const ctx=cv.getContext('2d');
+  ctx.beginPath();ctx.arc(6,6,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
+  ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.stroke();
+  return new kakao.maps.MarkerImage(cv.toDataURL(),new kakao.maps.Size(12,12),{offset:new kakao.maps.Point(6,6)});
+}
+function _aeRenderVtx(){
+  _areaEditVtxMks.forEach(m=>m.setMap(null));_areaEditMidMks.forEach(m=>m.setMap(null));
+  _areaEditVtxMks=[];_areaEditMidMks=[];
+  const pts=_areaEditPaths[_areaEditJisa];if(!pts)return;
+  const ji=JISA_DATA.find(j=>j.name===_areaEditJisa);
+  const color=ji?ji.color:'#999';
+  const vi=_aeVtxImg(color);const mi=_aeMidImg();
+  pts.forEach((pt,i)=>{
+    const mk=new kakao.maps.Marker({position:new kakao.maps.LatLng(pt.lat,pt.lng),image:vi,draggable:true,map:_areaNmap,zIndex:20});
+    kakao.maps.event.addListener(mk,'drag',()=>{const pos=mk.getPosition();pts[i]={lat:pos.getLat(),lng:pos.getLng()};_aeUpdatePoly();});
+    kakao.maps.event.addListener(mk,'dragend',()=>_aeRenderVtx());
+    kakao.maps.event.addListener(mk,'rightclick',()=>{if(pts.length<=3)return;pts.splice(i,1);_aeUpdatePoly();_aeRenderVtx();});
+    _areaEditVtxMks.push(mk);
+    const next=pts[(i+1)%pts.length];
+    const mlat=(pt.lat+next.lat)/2,mlng=(pt.lng+next.lng)/2;
+    const mm=new kakao.maps.Marker({position:new kakao.maps.LatLng(mlat,mlng),image:mi,map:_areaNmap,zIndex:10});
+    kakao.maps.event.addListener(mm,'click',()=>{pts.splice(i+1,0,{lat:mlat,lng:mlng});_aeUpdatePoly();_aeRenderVtx();});
+    _areaEditMidMks.push(mm);
+  });
+}
+function _aeUpdatePoly(){
+  const name=_areaEditJisa;const pts=_areaEditPaths[name];if(!pts)return;
+  const ji=JISA_DATA.find(j=>j.name===name);
+  const path=pts.map(p=>new kakao.maps.LatLng(p.lat,p.lng));
+  _areaPolyLayer[name].setMap(null);
+  const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:3,strokeColor:ji.color,strokeOpacity:1,strokeStyle:'solid',fillColor:ji.color,fillOpacity:.22});
+  _areaPolyLayer[name]=poly;
+}
+async function saveAreaEdit(){
+  const paths={};
+  JISA_DATA.forEach(j=>{
+    const pts=_areaEditPaths[j.name];if(!pts)return;
+    const vx=pts.map(p=>({x:+(15+(p.lng-126)*54.3).toFixed(1),y:+(10+(38.6-p.lat)*69).toFixed(1)}));
+    const d=vx.map((v,i)=>(i?'L':'M')+v.x+','+v.y).join(' ')+' Z';
+    const cx=Math.round(vx.reduce((s,v)=>s+v.x,0)/vx.length);
+    const cy=Math.round(vx.reduce((s,v)=>s+v.y,0)/vx.length);
+    j.d=d;j.lx=cx;j.ly=cy;paths[j.name]={d,lx:cx,ly:cy};
+  });
+  try{await db.collection('settings').doc('mapConfig').set({jisaPaths:paths});alert('영역 저장 완료 ✅');}
+  catch(e){alert('저장 실패: '+e.message);return;}
+  if(window._mapRender)window._mapRender();
+  await cancelAreaEdit();
+}
+async function cancelAreaEdit(){
+  _areaEditVtxMks.forEach(m=>m.setMap(null));_areaEditMidMks.forEach(m=>m.setMap(null));
+  _areaEditVtxMks=[];_areaEditMidMks=[];
+  _areaEditMode=false;_areaEditJisa=null;_areaEditPaths={};
+  await loadArea();
+}
+
 async function loadArea(){
   const el=document.getElementById('tabArea');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">지도 불러오는 중...</div>';
@@ -2654,8 +2740,15 @@ async function loadArea(){
     +'<h3 id="areaTtl" style="font-size:13px;font-weight:700;margin:0">📍 지사별 담당지역</h3>'
     +'<select id="areaCsrSel" onchange="_areaFilterChange(this.value)" style="margin-left:auto;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit"><option value="">전체 담당자</option>'+_csrOpts+'</select>'
     +'<button id="areaBackBtn" onclick="areaBack()" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
-    +(canChangeSettings()?'<button onclick="openMapEditor()" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">✏️ 영역 편집</button>':'')
+    +(canChangeSettings()?'<button onclick="enterAreaEdit()" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">✏️ 영역 편집</button>':'')
     +'</div>'
+    +'<div id="areaEditBar" style="display:none;flex-direction:column;gap:6px;margin-bottom:10px;padding:10px 12px;background:rgba(99,102,241,.07);border-radius:8px;border:1.5px dashed #6366F1">'
+    +'<div style="font-size:10px;color:#6366F1;font-weight:600">✏️ 편집 모드 &nbsp;|&nbsp; 꼭짓점 드래그: 이동 &nbsp;|&nbsp; 흰 점 클릭: 꼭짓점 추가 &nbsp;|&nbsp; 꼭짓점 우클릭: 삭제</div>'
+    +'<div id="areaEditJisaBtns" style="display:flex;flex-wrap:wrap;gap:4px"></div>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button onclick="saveAreaEdit()" style="padding:5px 14px;border:none;border-radius:6px;background:#22c55e;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">💾 저장</button>'
+    +'<button onclick="cancelAreaEdit()" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:11px;cursor:pointer;font-family:inherit">취소</button>'
+    +'</div></div>'
     +'<div id="areaMapDiv" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px"></div>'
     +'<div id="areaCards"></div>'
     +'</div>';
@@ -2722,6 +2815,7 @@ async function loadArea(){
 }
 
 function areaSelect(name,jisaInfo,kBnds){
+  if(_areaEditMode)return;
   _areaSel=name;
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+name;
