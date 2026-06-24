@@ -2642,11 +2642,6 @@ function _aeSelJisa(name){
   });
   _aeRenderVtx();
 }
-function _aeScrToLL(clientX,clientY){
-  const cont=document.getElementById('areaMapDiv');if(!cont||!_areaNmap)return null;
-  const rect=cont.getBoundingClientRect();
-  return _areaNmap.getProjection().coordsFromPoint(new kakao.maps.Point(clientX-rect.left,clientY-rect.top));
-}
 function _aeRenderVtx(){
   _areaEditVtxMks.forEach(m=>m.setMap(null));_areaEditMidMks.forEach(m=>m.setMap(null));
   _areaEditVtxMks=[];_areaEditMidMks=[];
@@ -2654,7 +2649,6 @@ function _aeRenderVtx(){
   const ji=JISA_DATA.find(j=>j.name===_areaEditJisa);
   const color=ji?ji.color:'#999';
   pts.forEach((pt,i)=>{
-    // 꼭짓점 핸들 (CustomOverlay + pointer 이벤트)
     const el=document.createElement('div');
     el.style.cssText='width:18px;height:18px;background:#fff;border:2.5px solid '+color+';border-radius:50%;cursor:grab;touch-action:none;transform:translate(-50%,-50%);box-shadow:0 1px 5px rgba(0,0,0,.35);position:relative;z-index:20';
     el.addEventListener('contextmenu',ev=>{ev.preventDefault();if(pts.length<=3)return;pts.splice(i,1);_aeUpdatePoly();_aeRenderVtx();});
@@ -2663,8 +2657,14 @@ function _aeRenderVtx(){
       _areaNmap.setDraggable(false);_areaNmap.setZoomable(false);
       el.setPointerCapture(ev.pointerId);el.style.cursor='grabbing';
       const ov=_areaEditVtxMks[i];
+      const proj=_areaNmap.getProjection();
+      // 드래그 시작 시점의 타일 좌표 기준점 확보
+      const startPt=proj.pointFromCoords(new kakao.maps.LatLng(pts[i].lat,pts[i].lng));
+      const startX=ev.clientX,startY=ev.clientY;
       const onMove=mv=>{
-        const ll=_aeScrToLL(mv.clientX,mv.clientY);if(!ll)return;
+        // 절대 좌표 변환 대신 델타만 더해 타일 좌표 이탈 방지
+        const newPt=new kakao.maps.Point(startPt.x+(mv.clientX-startX),startPt.y+(mv.clientY-startY));
+        const ll=proj.coordsFromPoint(newPt);if(!ll)return;
         pts[i]={lat:ll.getLat(),lng:ll.getLng()};
         ov.setPosition(ll);_aeUpdatePoly();
       };
