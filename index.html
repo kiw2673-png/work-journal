@@ -3164,7 +3164,7 @@ function startAutoTgScheduler(){
     if(now.getHours()!==hh||now.getMinutes()!==mm)return;
     if(!s.tgBotToken||!s.tgChatId)return;
     if(localStorage.getItem(todayKey))return;
-    localStorage.setItem(todayKey,'1');
+    localStorage.setItem(todayKey,JSON.stringify({by:'자동',time:now.toLocaleTimeString("ko-KR")}));
     await sendDailyReportNow(true);
   },30000);
 }
@@ -3222,6 +3222,15 @@ async function sendTgMessage(token,chatId,text){
 }
 
 async function sendDailyReportNow(silent=false){
+  const todayKey='tg_sent_'+new Date().toISOString().slice(0,10);
+  if(!silent){
+    const sent=localStorage.getItem(todayKey);
+    if(sent){
+      let msg='오늘 보고서가 이미 전송되었습니다.';
+      try{const d=JSON.parse(sent);msg='오늘 보고서가 이미 전송되었습니다.\n전송: '+d.by+' ('+d.time+')';}catch(e){}
+      if(!confirm(msg+'\n\n다시 전송하시겠습니까?'))return;
+    }
+  }
   const s=await loadSettings();
   const token=s.tgBotToken||document.getElementById("sTGT")?.value.trim()||"";
   const chatId=s.tgChatId||document.getElementById("sTGC")?.value.trim()||"";
@@ -3232,10 +3241,21 @@ async function sendDailyReportNow(silent=false){
     const today=new Date().toISOString().slice(0,10);
     const txt=await buildDailyText(today);
     if(!txt){if(st)st.textContent="📭 오늘 제출된 보고서가 없습니다";if(!silent)alert("오늘 제출된 보고서가 없습니다");return;}
-    await sendTgMessage(token,chatId,txt);
+    let finalTxt=txt;
+    if(!silent){
+      const sess=JSON.parse(localStorage.getItem("session")||"{}");
+      let senderName='관리자';
+      if(sess.user?.name)senderName=sess.user.name;
+      else if(sess.role==='super')senderName='슈퍼관리자';
+      const sentTime=new Date().toLocaleTimeString("ko-KR");
+      finalTxt='⚠️ 수동 전송 ('+senderName+', '+sentTime+')\n\n'+txt;
+      localStorage.setItem(todayKey,JSON.stringify({by:senderName,time:sentTime,manual:true}));
+    }
+    await sendTgMessage(token,chatId,finalTxt);
     if(st)st.textContent="✅ 전송 완료! "+new Date().toLocaleTimeString("ko-KR");
     if(!silent)alert("✅ 텔레그램 전송 완료!");
   }catch(e){
+    if(!silent)localStorage.removeItem(todayKey);
     if(st)st.textContent="❌ 오류: "+e.message;
     if(!silent)alert("전송 오류: "+e.message);
   }
