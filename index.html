@@ -588,7 +588,7 @@ function showAL(){hiErr();document.getElementById("loginStep").style.display="no
 
 async function doAL(){hiErr();const code=document.getElementById("admCodeInput").value.trim();
   if(SA.includes(code)){localStorage.setItem("session",JSON.stringify({type:"admin",code,role:"super"}));showS("adminScreen");await loadSettings();loadAdm();return}
-  try{const doc=await db.collection("users").doc(code).get();if(doc.exists){const u=doc.data();const r=u.role||"user";if(r==="admin"||r==="editor"||r==="viewer"){localStorage.setItem("session",JSON.stringify({type:"admin",code,role:r,user:u}));showS("adminScreen");await loadSettings();loadAdm();return}}}catch(e){}
+  try{const doc=await db.collection("users").doc(code).get();if(doc.exists){const u=doc.data();if(u.status==='퇴사'){shErr("해당 계정은 비활성화(퇴사) 처리되었습니다.");return;}const r=u.role||"user";if(r==="admin"||r==="editor"||r==="viewer"){localStorage.setItem("session",JSON.stringify({type:"admin",code,role:r,user:u}));showS("adminScreen");await loadSettings();loadAdm();return}}}catch(e){}
   shErr("관리자 코드 오류")}
 
 function backTL(){hiErr();document.getElementById("loginStep").style.display="block";document.getElementById("regStep").style.display="none";document.getElementById("admStep").style.display="none";document.getElementById("authIcon").className="aico ui";document.getElementById("authIcon").textContent="📋";document.getElementById("authSub").textContent="사번을 입력하세요"}
