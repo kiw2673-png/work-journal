@@ -1216,7 +1216,7 @@ async function loadStats(){
   const today=tk();
   const allStats={};allEntries.forEach(e=>{if(!allStats[e.empId])allStats[e.empId]={count:0,dates:[]};allStats[e.empId].count++;allStats[e.empId].dates.push(e.date)});
   const ts=Object.values(allStats).reduce((s,v)=>s+v.count,0),tds=Object.values(allStats).reduce((s,v)=>s+(v.dates.includes(today)?1:0),0);
-  const activeUCnt=users.filter(u=>u.status==='유').length;
+  const activeUCnt=users.filter(u=>u.status!=='무'&&u.status!=='퇴사'&&u.branch!=="CS본부"&&u.name&&u.empId).length;
   document.getElementById("admStats").innerHTML=[{i:"👥",v:users.length,l:"등록"},{i:"📝",v:tds,l:"오늘"},{i:"📊",v:ts,l:"누적"},{i:"🚨",v:Math.max(0,activeUCnt-tds),l:"미제출"}].map(c=>'<div class="stci"><div style="font-size:14px">'+c.i+'</div><div class="v">'+c.v+'</div><div class="l">'+c.l+'</div></div>').join("");
   renderStatsTable();
 }
@@ -1332,7 +1332,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   document.getElementById("rptLabel").textContent="📋 "+fds(dv);document.getElementById("rptBody").innerHTML='<div class="loading">불러오는 중...</div>';
   const [snap,usersSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get()]);
   const entries=snap.docs.map(d=>d.data());
-  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&u.status==='유');
+  const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&u.status!=='무'&&u.status!=='퇴사');
   entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
@@ -3176,7 +3176,7 @@ async function buildDailyText(dateStr){
   ]);
   const entries=rSnap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   if(!entries.length)return null;
-  const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&u.status==='유');
+  const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&u.status!=='무'&&u.status!=='퇴사');
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=activeUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const dObj=new Date(dateStr+"T00:00:00");
