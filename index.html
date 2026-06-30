@@ -5478,7 +5478,21 @@ function adminDeleteReport(docId,name,date){
 }
 
 /* ══ INIT ══ */
-(async function(){loadMapConfig();const sess=JSON.parse(localStorage.getItem("session")||"null");if(sess){await loadSettings();if(sess.type==="admin"){showS("adminScreen");loadAdm()}else if(sess.type==="user"&&sess.user){CU=sess.user;showS("journalScreen");initJ()}}})();
+(async function(){
+  loadMapConfig();
+  const sess=JSON.parse(localStorage.getItem("session")||"null");
+  if(!sess)return;
+  await loadSettings();
+  if(sess.type==="admin"){
+    if(!SA.includes(sess.code)&&sess.code){
+      try{const doc=await db.collection("users").doc(sess.code).get();if(!doc.exists||doc.data().status==='퇴사'){localStorage.removeItem("session");return;}}catch(e){}
+    }
+    showS("adminScreen");loadAdm();
+  }else if(sess.type==="user"&&sess.user){
+    try{const doc=await db.collection("users").doc(sess.user.empId).get();if(doc.exists&&doc.data().status==='퇴사'){localStorage.removeItem("session");return;}}catch(e){}
+    CU=sess.user;showS("journalScreen");initJ();
+  }
+})();
 </script>
 <div id="mapEditorModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;">
   <div style="background:var(--card);border-radius:14px;padding:16px;width:96vw;max-width:500px;max-height:96vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.3)">
