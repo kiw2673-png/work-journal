@@ -3157,14 +3157,25 @@ function startAutoTgScheduler(){
   _tgTimer=setInterval(async()=>{
     const now=new Date();
     if(now.getDay()===0||now.getDay()===6)return;
-    const todayKey='tg_sent_'+now.toISOString().slice(0,10);
+    const todayStr=now.toISOString().slice(0,10);
+    const todayKey='tg_sent_'+todayStr;
     if(localStorage.getItem(todayKey))return;
     const s=await loadSettings();
     const [hh,mm]=(s.tgAutoTime||"21:00").split(":").map(Number);
     if(now.getHours()!==hh||now.getMinutes()!==mm)return;
     if(!s.tgBotToken||!s.tgChatId)return;
+    // Firestore 기반 전송 여부 확인 (다른 기기/브라우저 중복 방지)
+    try{
+      const logDoc=await db.collection("settings").doc("tgSentLog").get();
+      if(logDoc.exists&&logDoc.data().sentDate===todayStr){
+        localStorage.setItem(todayKey,JSON.stringify({by:'다른기기',time:''}));
+        return;
+      }
+    }catch(e){}
     if(localStorage.getItem(todayKey))return;
     localStorage.setItem(todayKey,JSON.stringify({by:'자동',time:now.toLocaleTimeString("ko-KR")}));
+    // 전송 전에 Firestore에 먼저 기록하여 다른 기기가 중복 전송하지 못하게 차단
+    try{await db.collection("settings").doc("tgSentLog").set({sentDate:todayStr,sentAt:now.toISOString()});}catch(e){}
     await sendDailyReportNow(true);
   },30000);
 }
