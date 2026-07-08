@@ -3,7 +3,7 @@ name: CS업무일지 일일보고 텔레그램 전송
 on:
   schedule:
     # 평일 21:00 KST (= 12:00 UTC)
-    - cron: '0 12 * * 1-5'
+    - cron: '0 10 * * 1-5'
   workflow_dispatch:  # 수동 테스트용
 
 jobs:
