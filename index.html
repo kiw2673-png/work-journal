@@ -145,7 +145,18 @@
 <audio id="audioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
 <div id="audioList" style="margin-top:6px"></div>
 </div>
-<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(155,89,182,.05),rgba(142,68,173,.03))"><h3>📢 대리점 건의사항 (VOC)</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField3" onclick="toggleV(this,'field3')"><span>🎙</span> 말하기</button><button id="vpField3" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field3" class="sta" placeholder="대리점 건의사항 입력..."></textarea></div>
+<div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(155,89,182,.05),rgba(142,68,173,.03))"><h3>📢 대리점 건의사항 (VOC)</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField3" onclick="toggleV(this,'field3')"><span>🎙</span> 말하기</button><button id="vpField3" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><textarea id="field3" class="sta" placeholder="대리점 건의사항 입력..."></textarea>
+<div class="audio-upload" style="background:rgba(155,89,182,.05)">
+  <span style="font-size:11px;color:var(--ts)">🎵 VOC 음성파일</span>
+  <label for="vocAudioFile" style="background:#9B59B6">🎵 음성파일 추가</label>
+  <input type="file" id="vocAudioFile" accept="audio/*" onchange="handleVocAudioUpload(event)">
+  <span id="vocAudioStatus" style="font-size:10px;color:var(--ts)">mp3, wav, m4a 지원 · 텍스트 자동 변환</span>
+</div>
+<div class="prog-bar" id="vocAudioProg" style="display:none"><div class="prog-fill" id="vocAudioProgFill" style="background:#9B59B6"></div></div>
+<button id="vocAudioCancelBtn" onclick="cancelVocAudioUpload()" style="display:none;margin-top:6px;padding:6px 14px;border:1.5px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;width:100%">⏹ 업로드 취소</button>
+<audio id="vocAudioPlayer" controls style="width:100%;margin-top:6px;display:none"></audio>
+<div id="vocAudioList" style="margin-top:6px"></div>
+</div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(232,168,56,.06),transparent)"><h3>📷 사진/동영상 첨부 <span style="font-size:9px;font-weight:400;color:var(--ts)">(사진 최대 5장, 동영상 가능)</span></h3></div>
 <div class="audio-upload" style="background:rgba(232,168,56,.05)">
   <label for="mediaFile" style="background:var(--accent)">📷 사진/동영상 선택</label>
@@ -923,12 +934,12 @@ function removeCaseMedia(caseIdx,mediaIdx){
 /* ══ JOURNAL ══ */
 function getSelectedDate(){return document.getElementById("jDtInput")?.value||tk()}
 function fdsKor(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
-async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
-  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+async function onDateChange(){if(!CU)return;const sel=getSelectedDate();window._currentAudios=[];window._currentMedia=[];window._caseMedia={};window._currentVocAudios=[];
+  try{const doc=await db.collection("reports").doc(sel+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];window._currentVocAudios=s.vocAudios||[];
     // Restore case media from saved data
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
   }else{document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);}}catch(e){buildCG(null);}
-  renderAudioList();renderMediaList();
+  renderAudioList();renderMediaList();renderVocAudioList();
 }
 function resetForm(){
   if(!confirm("새로 작성하시겠습니까?\n\n현재 작성 중인 내용이 모두 삭제됩니다.\n(저장된 보고서는 영향 없음)"))return;
@@ -936,24 +947,25 @@ function resetForm(){
   document.getElementById("field2").value="";
   document.getElementById("field3").value="";
   caseCount=1;buildCG(null);
-  window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
+  window._currentAudios=[];window._currentMedia=[];window._caseMedia={};window._currentVocAudios=[];
   const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";
+  const vap=document.getElementById("vocAudioPlayer");if(vap)vap.style.display="none";
   document.getElementById("jDtInput").value=tk();
-  renderAudioList();renderMediaList();
+  renderAudioList();renderMediaList();renderVocAudioList();
   clearDraft();
   const ds=document.getElementById("draftStatus");if(ds)ds.textContent="";
 }
 async function initJ(){document.getElementById("jBr").textContent=CU.branch;document.getElementById("jUsr").textContent=CU.name+" ("+CU.empId+")";
   const dInp=document.getElementById("jDtInput");dInp.value=tk();
-  window._currentAudios=[];window._currentMedia=[];window._caseMedia={};
-  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];
+  window._currentAudios=[];window._currentMedia=[];window._caseMedia={};window._currentVocAudios=[];
+  try{const doc=await db.collection("reports").doc(tk()+"_"+CU.empId).get();if(doc.exists){const s=doc.data();document.getElementById("field1").value=s.field1||"";document.getElementById("field2").value=s.field2||"";document.getElementById("field3").value=s.field3||"";buildCG(s.cases||null);window._currentAudios=s.audios||[];window._currentMedia=s.media||[];window._currentVocAudios=s.vocAudios||[];
     if(s.cases)s.cases.forEach((c,i)=>{if(c.media&&c.media.length)window._caseMedia[i]=c.media});
   }else{if(!loadDraft()){buildCG(null);}}}catch(e){if(!loadDraft())buildCG(null);}
-  startDraftTimer();loadH();renderAudioList();renderMediaList();renderF1Tags();renderF2Tags();}
+  startDraftTimer();loadH();renderAudioList();renderMediaList();renderVocAudioList();renderF1Tags();renderF2Tags();}
 
 
 async function doSave(){
-  if(window._audioUploadInProgress||window._mediaUploadInProgress){
+  if(window._audioUploadInProgress||window._mediaUploadInProgress||window._vocAudioUploadInProgress){
     alert("⚠️ 파일 업로드가 진행 중입니다.\n\n업로드 완료 후 제출해주세요.\n(또는 ⏹ 업로드 취소 후 제출 가능)");
     return;
   }
@@ -968,14 +980,14 @@ async function doSave(){
     alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항, 첨부 중\n최소 하나 이상 입력해주세요.");
     return;
   }
-  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,field3:f3,cases,audios:window._currentAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
+  const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,field3:f3,cases,audios:window._currentAudios||[],vocAudios:window._currentVocAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
   try{await db.collection("reports").doc(t+"_"+CU.empId).set(e);
     b.style.background="var(--success)";b.textContent="✓ 제출 완료!";
     autoRegisterSolutionsFromReport(e);
     clearDraft();document.getElementById("draftStatus").textContent="";
     setTimeout(()=>{b.style.background="linear-gradient(135deg,var(--primary),var(--pl))";b.textContent="📤 제출하기";b.disabled=false;
-      document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();},1500);
+      document.getElementById("field1").value="";document.getElementById("field2").value="";document.getElementById("field3").value="";caseCount=1;buildCG(null);window._currentAudios=[];window._currentMedia=[];window._caseMedia={};window._currentVocAudios=[];const ap=document.getElementById("audioPlayer");if(ap)ap.style.display="none";const vap=document.getElementById("vocAudioPlayer");if(vap)vap.style.display="none";document.getElementById("jDtInput").value=tk();renderAudioList();renderMediaList();renderVocAudioList();},1500);
     loadH()}catch(e){alert("제출 오류: "+e.message);b.disabled=false;b.textContent="📤 제출하기"}}
 
 /* ══ 카톡 공유 ══ */
@@ -998,6 +1010,7 @@ function buildReportText(e){
   }
   if(e.field2&&e.field2.trim()){txt+="━━━ 💬 상담 & 특이사항 ━━━\n"+e.field2.trim()+"\n\n"}
   if(e.field3&&e.field3.trim()){txt+="━━━ 📢 대리점 건의사항(VOC) ━━━\n"+e.field3.trim()+"\n\n"}
+  if(e.vocAudios&&e.vocAudios.length)txt+="🎵 VOC 음성 첨부: "+e.vocAudios.length+"개\n";
   if(e.audios&&e.audios.length)txt+="🎵 음성 첨부: "+e.audios.length+"개\n";
   if(e.media&&e.media.length){const imgs=e.media.filter(m=>m.kind==="image").length;const vids=e.media.filter(m=>m.kind==="video").length;txt+="📷 첨부: 사진 "+imgs+"장, 동영상 "+vids+"개\n"}
   return txt;
@@ -1405,7 +1418,7 @@ async function renderVOC(){
       snap=await db.collection("reports").get();
     }
   }catch(e){vocBody.innerHTML='<div style="color:var(--danger);padding:20px">오류: '+e.message+'</div>';return;}
-  const entries=snap.docs.map(d=>d.data()).filter(e=>e.field3&&e.field3.trim());
+  const entries=snap.docs.map(d=>d.data()).filter(e=>(e.field3&&e.field3.trim())||(e.vocAudios&&e.vocAudios.length));
   entries.sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   window._vocEntries=entries;
   if(vocSummary){
@@ -1425,7 +1438,8 @@ async function renderVOC(){
         +'<span style="font-weight:700;font-size:11px;color:var(--primary)">👤 '+esc(e.name)+'</span>'
         +'<span style="font-size:10px;color:var(--ts);background:var(--ibg);padding:2px 7px;border-radius:10px">'+esc(e.branch||"")+'</span>'
         +'</div>'
-        +'<div style="background:rgba(155,89,182,.05);border-left:3px solid #9B59B6;border-radius:0 6px 6px 0;padding:9px 12px;font-size:11px;white-space:pre-wrap;line-height:1.7;color:#333">'+esc(e.field3.trim())+'</div>'
+        +(e.field3&&e.field3.trim()?'<div style="background:rgba(155,89,182,.05);border-left:3px solid #9B59B6;border-radius:0 6px 6px 0;padding:9px 12px;font-size:11px;white-space:pre-wrap;line-height:1.7;color:#333">'+esc(e.field3.trim())+'</div>':"")
+        +(e.vocAudios&&e.vocAudios.length?renderAudioLinks(e.vocAudios):"")
         +'</div>';
     });
     html+='</div>';
@@ -3926,8 +3940,121 @@ async function deleteAudioFile(docId,fileName){
   catch(e){alert("삭제 오류: "+e.message)}
 }
 
-/* Load audio list when journal is initialized */
+/* ══ VOC AUDIO UPLOAD ══ */
+async function handleVocAudioUpload(event){
+  const file=event.target.files[0];if(!file)return;
+  const st=document.getElementById("vocAudioStatus");
+  const prog=document.getElementById("vocAudioProg");const fill=document.getElementById("vocAudioProgFill");
+  const player=document.getElementById("vocAudioPlayer");
+  const cancelBtn=document.getElementById("vocAudioCancelBtn");
+  st.style.color="var(--ts)";
+  const localUrl=URL.createObjectURL(file);
+  player.src=localUrl;player.style.display="block";
+  prog.style.display="block";fill.style.width="5%";
+  st.textContent="📤 Firebase에 업로드 중...";
+  window._vocAudioUploadInProgress=true;
+  window._vocAudioUploadCancelled=false;
+  window._vocAudioAbortCtrl=new AbortController();
+  cancelBtn.style.display="block";cancelBtn.disabled=false;cancelBtn.textContent="⏹ 업로드 취소";
+  const submitBtn=document.getElementById("saveBtn");
+  if(submitBtn){submitBtn.style.opacity="0.5";submitBtn.title="음성 업로드 진행 중...";}
+  let downloadUrl="";
+  try{
+    const storageRef=storage.ref("audio/"+CU.empId+"/voc_"+Date.now()+"_"+file.name);
+    const uploadTask=storageRef.put(file);
+    window._vocCurrentUploadTask=uploadTask;
+    uploadTask.on('state_changed',snap=>{
+      if(window._vocAudioUploadCancelled)return;
+      fill.style.width=Math.round(snap.bytesTransferred/snap.totalBytes*40)+"%";
+    });
+    await uploadTask;
+    if(window._vocAudioUploadCancelled){
+      try{await storageRef.delete()}catch(e){}
+      throw new Error("CANCELLED");
+    }
+    downloadUrl=await storageRef.getDownloadURL();
+    fill.style.width="50%";
+    if(!window._currentVocAudios)window._currentVocAudios=[];
+    window._currentVocAudios.push({url:downloadUrl,fileName:file.name,fileSize:file.size,uploadedAt:new Date().toISOString()});
+    const audioRecord={empId:CU.empId,name:CU.name,branch:CU.branch,fileName:file.name,fileSize:file.size,mimeType:file.type||"audio/mpeg",downloadUrl,uploadedAt:new Date().toISOString(),date:tk(),source:"voc"};
+    await db.collection("audioFiles").add(audioRecord);
+    fill.style.width="65%";
+    if(window._vocAudioUploadCancelled){throw new Error("CANCELLED")}
+    const settings=await loadSettings();
+    const wKey=settings.whisperKey||"";
+    if(wKey&&wKey.startsWith("sk-")){
+      st.textContent="🎵 음성 처리 중...";
+      try{
+        const text=await transcribeAudio(file,wKey,st,fill,window._vocAudioAbortCtrl?.signal);
+        fill.style.width="100%";
+        if(text&&text.trim()){
+          const ta=document.getElementById("field3");
+          ta.value+=(ta.value&&!ta.value.endsWith("\n")?"\n":"")+"[음성변환] "+text.trim();
+          st.style.color="var(--success)";
+          st.textContent="✅ 변환 완료! ("+Math.round(file.size/1024)+"KB → VOC에 추가됨)";
+        }else{st.textContent="✅ 업로드 완료 (변환 내용 없음)"}
+      }catch(wErr){
+        if(wErr.name==="AbortError"||wErr.message==="CANCELLED")throw new Error("CANCELLED");
+        fill.style.width="100%";st.style.color="var(--danger)";
+        st.innerHTML='⚠️ <strong>변환 실패: '+esc(wErr.message.slice(0,100))+'</strong><br><span style="font-size:9px;color:var(--ts)">음성 파일은 보고서에 첨부되었습니다</span>';
+      }
+    }else{
+      fill.style.width="100%";st.style.color="#9B59B6";
+      st.innerHTML='✅ <strong>VOC 음성 파일 첨부 완료</strong><br><span style="font-size:9px;color:var(--ts)">관리자에게 OpenAI API Key 등록 요청 시 자동 변환 가능</span>';
+    }
+    cancelBtn.style.display="none";
+    renderVocAudioList();
+  }catch(e){
+    if(e.message==="CANCELLED"){
+      if(window._currentVocAudios&&downloadUrl){
+        const idx=window._currentVocAudios.findIndex(a=>a.url===downloadUrl);
+        if(idx>=0)window._currentVocAudios.splice(idx,1);
+      }
+      fill.style.width="0%";prog.style.display="none";player.style.display="none";
+      st.style.color="var(--danger)";st.textContent="❌ 업로드가 취소되었습니다";
+      document.getElementById("vocAudioFile").value="";
+    }else{
+      fill.style.width="100%";st.style.color="var(--danger)";
+      st.textContent="오류: "+e.message.slice(0,80);
+    }
+    cancelBtn.style.display="none";
+  }
+  window._vocCurrentUploadTask=null;window._vocAudioAbortCtrl=null;window._vocAudioUploadInProgress=false;
+  const submitBtn2=document.getElementById("saveBtn");
+  if(submitBtn2){submitBtn2.style.opacity="";submitBtn2.title="";}
+}
 
+function cancelVocAudioUpload(){
+  if(!confirm("VOC 음성파일 업로드를 취소하시겠습니까?"))return;
+  window._vocAudioUploadCancelled=true;
+  try{if(window._vocCurrentUploadTask)window._vocCurrentUploadTask.cancel()}catch(e){}
+  try{if(window._vocAudioAbortCtrl)window._vocAudioAbortCtrl.abort()}catch(e){}
+  const cancelBtn=document.getElementById("vocAudioCancelBtn");
+  cancelBtn.disabled=true;cancelBtn.textContent="⏹ 취소 중...";
+  document.getElementById("vocAudioStatus").textContent="취소 중...";
+}
+
+function renderVocAudioList(){
+  const listEl=document.getElementById("vocAudioList");if(!listEl)return;
+  let h='';
+  if(window._currentVocAudios&&window._currentVocAudios.length){
+    h+='<div style="margin-top:8px;padding:8px 10px;background:rgba(155,89,182,.08);border-left:3px solid #9B59B6;border-radius:6px"><div style="font-size:10px;font-weight:700;color:#9B59B6;margin-bottom:4px">📎 VOC 음성 첨부 ('+window._currentVocAudios.length+'개)</div>';
+    window._currentVocAudios.forEach((a,idx)=>{const sz=a.fileSize?Math.round(a.fileSize/1024)+"KB":"";
+      h+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:10px"><span>🎵 '+esc(a.fileName)+(sz?' <span style="color:var(--ts)">('+sz+')</span>':'')+'</span>'
+        +'<a href="'+a.url+'" target="_blank" style="color:var(--primary);font-size:9px">▶ 재생</a>'
+        +'<button onclick="removeAttachedVocAudio('+idx+')" style="border:none;background:none;color:var(--danger);font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
+    });
+    h+='</div>';
+  }
+  listEl.innerHTML=h;
+}
+
+function removeAttachedVocAudio(idx){
+  if(!window._currentVocAudios)return;
+  if(!confirm("첨부된 VOC 음성 파일을 제거하시겠습니까?\n(저장된 파일은 유지됩니다)"))return;
+  window._currentVocAudios.splice(idx,1);
+  renderVocAudioList();
+}
 
 /* ══ MONTHLY REPORT ══ */
 function loadMonthly(){
