@@ -2536,7 +2536,7 @@ function hlConsultant(sp){
 }
 
 /* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
-let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaSelKw=null,_areaSelMerged=[];
+let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaSelKw=null,_areaSelMerged=[],_areaSelKwIdx=-1;
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
 let _areaEditMode=false,_areaEditJisa=null,_areaEditVtxMks=[],_areaEditMidMks=[],_areaEditPaths={};
 let _areaBlinkInterval=null,_areaBlinkJisas=[];
@@ -2800,10 +2800,10 @@ async function loadArea(){
   if(!tip){tip=document.createElement('div');tip.id='areaTip';tip.style.cssText='position:fixed;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:2px 7px;display:none;z-index:9999;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.18);white-space:nowrap';document.body.appendChild(tip);}
   document.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY-9)+'px';},{passive:true});
   // 지도 초기화 (탭 진입마다 새로 생성)
-  _areaSel=null;_areaPopupOv=null;_areaSelKw=null;_areaSelMerged=[];
+  _areaSel=null;_areaPopupOv=null;_areaSelKw=null;_areaSelMerged=[];_areaSelKwIdx=-1;
   _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
-  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:12});
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:13});
   _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(13);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
   // 대한민국 범위 벗어나면 자동 복귀
@@ -2865,9 +2865,9 @@ async function loadArea(){
   _areaRenderCards(jisaInfo,kBnds);
 }
 
-function areaSelect(name,jisaInfo,kBnds){
+function areaSelect(name,jisaInfo,kBnds,kwIdx){
   if(_areaEditMode)return;
-  _areaSel=name;_areaSelKw=null;_areaSelMerged=[];
+  _areaSel=name;_areaSelKw=null;_areaSelMerged=[];_areaSelKwIdx=kwIdx!=null?kwIdx:-1;
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+name;
@@ -2889,7 +2889,7 @@ function areaSelect(name,jisaInfo,kBnds){
 }
 
 function areaBack(){
-  _areaSel=null;_areaSelKw=null;_areaSelMerged=[];
+  _areaSel=null;_areaSelKw=null;_areaSelMerged=[];_areaSelKwIdx=-1;
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 지사별 담당지역';
@@ -2933,7 +2933,7 @@ function _areaRenderCards(jisaInfo,kBnds){
         const mgTotal=mgInKw.reduce((s,n)=>{const j=jisaInfo.find(x=>x.name===n);return s+(j?j.cnt:0);},0);
         const isSel=_areaSelMerged.length>0&&mgInKw.every(n=>_areaSelMerged.includes(n));
         const color=(jisaInfo.find(j=>j.name===mgInKw[0])||{color:'#666'}).color;
-        h+='<div onclick="areaSelectMerged(\''+mg.label+'\',window._areaLastJisaInfo,window._areaLastKBnds)" '
+        h+='<div onclick="areaSelectMerged(\''+mg.label+'\',window._areaLastJisaInfo,window._areaLastKBnds,'+kwIdx+')" '
           +'style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;'
           +'background:'+(isSel?color:'var(--card)')+';'
           +'border:1.5px solid '+color+';border-radius:20px;cursor:pointer;'
@@ -2946,7 +2946,7 @@ function _areaRenderCards(jisaInfo,kBnds){
       const ji=jisaInfo.find(j=>j.name===jn);if(!ji)return;
       const isSel=_areaSel===jn;
       const label=jn.replace('지사','');
-      h+='<div onclick="areaSelect(\''+jn+'\',window._areaLastJisaInfo,window._areaLastKBnds)" '
+      h+='<div onclick="areaSelect(\''+jn+'\',window._areaLastJisaInfo,window._areaLastKBnds,'+kwIdx+')" '
         +'style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;'
         +'background:'+(isSel?ji.color:'var(--card)')+';'
         +'border:1.5px solid '+ji.color+';border-radius:20px;cursor:pointer;'
@@ -2959,18 +2959,11 @@ function _areaRenderCards(jisaInfo,kBnds){
     h+='<div id="kwSlot'+kwIdx+'"></div>';
   });
   wrap.innerHTML=h;
-  // innerHTML 완료 후 정확한 권역 슬롯에 상세 주입
-  let detailKwIdx=-1,detailNames=[];
-  if(_areaSel){
-    detailKwIdx=KWD.findIndex(kw=>kw.jisas.includes(_areaSel));
-    if(detailKwIdx>=0)detailNames=[_areaSel];
-  } else if(_areaSelMerged.length>0){
-    detailKwIdx=KWD.findIndex(kw=>_areaSelMerged.some(n=>kw.jisas.includes(n)));
-    if(detailKwIdx>=0)detailNames=_areaSelMerged.filter(n=>KWD[detailKwIdx].jisas.includes(n));
-  }
-  if(detailKwIdx>=0){
-    const slot=document.getElementById('kwSlot'+detailKwIdx);
-    if(slot)slot.innerHTML=detailNames.map(n=>_areaDetailHtml(n,jisaInfo)).join('');
+  // 클릭 시 전달된 kwIdx로 정확한 슬롯에 바로 주입
+  if(_areaSelKwIdx>=0){
+    const slot=document.getElementById('kwSlot'+_areaSelKwIdx);
+    const names=_areaSel?[_areaSel]:_areaSelMerged;
+    if(slot)slot.innerHTML=names.map(n=>_areaDetailHtml(n,jisaInfo)).join('');
   }
 }
 function _areaDetailHtml(name,jisaInfo){
@@ -3034,7 +3027,7 @@ function areaSelectKwanyuk(kwName){
   if(_areaEditMode)return;
   const KWD=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[];
   const kw=KWD.find(k=>k.name===kwName);if(!kw)return;
-  _areaSel=null;_areaSelKw=kwName;_areaSelMerged=[];
+  _areaSel=null;_areaSelKw=kwName;_areaSelMerged=[];_areaSelKwIdx=-1;
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+kwName;
@@ -3057,12 +3050,12 @@ function _areaFilterChange(val){
   _areaMarkersUpdate();
   _areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
-function areaSelectMerged(label,jisaInfo,kBnds){
+function areaSelectMerged(label,jisaInfo,kBnds,kwIdx){
   if(_areaEditMode)return;
   const MG=typeof MERGED_JISA_GROUPS!=='undefined'?MERGED_JISA_GROUPS:[];
   const mg=MG.find(m=>m.label===label);if(!mg)return;
   const names=mg.jisas;
-  _areaSel=null;_areaSelKw=null;_areaSelMerged=[...names];
+  _areaSel=null;_areaSelKw=null;_areaSelMerged=[...names];_areaSelKwIdx=kwIdx!=null?kwIdx:-1;
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+label;
