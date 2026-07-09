@@ -2798,16 +2798,24 @@ async function loadArea(){
   _areaSel=null;_areaPopupOv=null;
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
   _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:8});
-  _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(14);
+  _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(12);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
   _areaNmap.setBounds(kBnds);
+  // 대한민국 범위 벗어나면 자동 복귀
+  kakao.maps.event.addListener(_areaNmap,'dragend',function(){
+    const c=_areaNmap.getCenter();
+    let la=c.getLat(),lo=c.getLng(),chg=false;
+    if(la<33.0){la=33.0;chg=true;}if(la>38.9){la=38.9;chg=true;}
+    if(lo<124.5){lo=124.5;chg=true;}if(lo>130.8){lo=130.8;chg=true;}
+    if(chg)_areaNmap.setCenter(new kakao.maps.LatLng(la,lo));
+  });
   window._areaClosePopup=()=>{if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}};
   // 폴리곤 + 마커 생성
   jisaInfo.forEach(j=>{
     const path=_pathToLL(j.d).map(([lat,lng])=>new kakao.maps.LatLng(lat,lng));
-    const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:2,strokeColor:j.color,strokeOpacity:0.85,strokeStyle:'solid',fillColor:j.color,fillOpacity:0.12});
-    kakao.maps.event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.25,strokeWeight:3});});
-    kakao.maps.event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.12,strokeWeight:2});});
+    const poly=new kakao.maps.Polygon({map:_areaNmap,path,strokeWeight:2,strokeColor:j.color,strokeOpacity:0.7,strokeStyle:'solid',fillColor:j.color,fillOpacity:0.05});
+    kakao.maps.event.addListener(poly,'mouseover',()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.15,strokeWeight:3});});
+    kakao.maps.event.addListener(poly,'mouseout', ()=>{if(_areaSel!==j.name)poly.setOptions({fillOpacity:0.05,strokeWeight:2});});
     kakao.maps.event.addListener(poly,'click',()=>areaSelect(j.name,jisaInfo,kBnds));
     _areaPolyLayer[j.name]=poly;
     // 지사명 라벨
@@ -2862,9 +2870,9 @@ function areaSelect(name,jisaInfo,kBnds){
     _areaLabelMk[n]?.setMap(null);
     if(n===name){
       const ji=JISA_DATA.find(j=>j.name===n);
-      _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.2,strokeWeight:3,strokeOpacity:1});
+      _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.1,strokeWeight:3,strokeOpacity:1});
     } else {
-      _areaPolyLayer[n].setOptions({fillOpacity:0.04,strokeWeight:1,strokeOpacity:0.25});
+      _areaPolyLayer[n].setOptions({fillOpacity:0.02,strokeWeight:1,strokeOpacity:0.2});
     }
   });
   _areaMarkersUpdate();
@@ -2880,7 +2888,7 @@ function areaBack(){
   const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='none';
   Object.keys(_areaPolyLayer).forEach(n=>{
     const ji=JISA_DATA.find(j=>j.name===n);
-    _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.2,strokeWeight:2,strokeOpacity:0.85});
+    _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:0.05,strokeWeight:2,strokeOpacity:0.7});
   });
   _areaMarkersUpdate();
   if(_areaNmap){const b=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));_areaNmap.setBounds(b);}
@@ -2898,7 +2906,8 @@ function _areaRenderCards(jisaInfo,kBnds){
   ];
   let h='';
   KWD.forEach(kw=>{
-    h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:6px;letter-spacing:.4px">'+esc(kw.name)+'</div>';
+    const kwTotal=kw.jisas.reduce((sum,jn)=>{const ji=jisaInfo.find(j=>j.name===jn);return sum+(ji?ji.cnt:0);},0);
+    h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:6px;letter-spacing:.4px;display:flex;align-items:center;justify-content:space-between">'+esc(kw.name)+'<span style="font-size:10px;font-weight:700;color:'+kw.color+';opacity:0.8">총 '+kwTotal+'개</span></div>';
     kw.jisas.forEach(jn=>{
       const ji=jisaInfo.find(j=>j.name===jn);if(!ji)return;
       const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정').sort();
