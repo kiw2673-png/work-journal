@@ -2790,6 +2790,7 @@ async function loadArea(){
     +'</div></div>'
     +'<div id="areaMapDiv" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px"></div>'
     +'<div id="areaCards"></div>'
+    +'<div id="areaDetail"></div>'
     +'</div>';
   // 툴팁
   let tip=document.getElementById('areaTip');
@@ -2881,7 +2882,7 @@ function areaSelect(name,jisaInfo,kBnds){
   const ji=JISA_DATA.find(j=>j.name===name);
   if(ji){const b=new kakao.maps.LatLngBounds();_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));_areaNmap.setBounds(b);}
   _areaStartBlink([name]);
-  if(jisaInfo)_areaRenderDetail(name,jisaInfo);
+  if(jisaInfo){_areaRenderCards(jisaInfo,kBnds);_areaRenderDetail(name,jisaInfo);}
 }
 
 function areaBack(){
@@ -2896,6 +2897,7 @@ function areaBack(){
   });
   _areaMarkersUpdate();
   if(_areaNmap){const b=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));_areaNmap.setBounds(b);}
+  const _detEl=document.getElementById('areaDetail');if(_detEl)_detEl.innerHTML='';
   if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 
@@ -2992,16 +2994,18 @@ function areaSelectKwanyuk(kwName){
   kw.jisas.forEach(jn=>{const ji=JISA_DATA.find(j=>j.name===jn);if(ji)_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));});
   _areaNmap.setBounds(b);
   _areaStartBlink(kw.jisas);
+  const _kwDetEl=document.getElementById('areaDetail');if(_kwDetEl)_kwDetEl.innerHTML='';
   if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 function _areaFilterChange(val){
   _areaCsrFilter=val;
   _areaMarkersUpdate();
+  _areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
   if(_areaSel)_areaRenderDetail(_areaSel,window._areaLastJisaInfo);
-  else _areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
+  else{const d=document.getElementById('areaDetail');if(d)d.innerHTML='';}
 }
 function _areaRenderDetail(name,jisaInfo){
-  const wrap=document.getElementById('areaCards');if(!wrap)return;
+  const wrap=document.getElementById('areaDetail');if(!wrap)return;
   const ji=jisaInfo.find(j=>j.name===name);if(!ji)return;
   const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정'&&(!_areaCsrFilter||s===_areaCsrFilter)).sort();
   let h='<div style="background:'+ji.color+'12;border:1.5px solid '+ji.color+'44;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
