@@ -2799,8 +2799,8 @@ async function loadArea(){
   _areaSel=null;_areaPopupOv=null;_areaSelKw=null;
   _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
-  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:10});
-  _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(12);
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:12});
+  _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(13);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
   // 대한민국 범위 벗어나면 자동 복귀
   kakao.maps.event.addListener(_areaNmap,'dragend',function(){
