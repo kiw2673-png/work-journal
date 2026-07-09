@@ -2343,7 +2343,7 @@ function _buildMapSVG(jisaInfo,zoom){
       jIdxs.forEach(i=>{
         const j=JISA_DATA[i];const ji=jisaInfo[i];
         const sn=j.name.replace('지사','');
-        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.94:.75)+'" stroke="#fff" stroke-width="'+(isSel?2:1.2)+'" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
+        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.94:.8)+'" stroke="#fff" stroke-width="'+(isSel?2:1.2)+'" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
         s+='<text x="'+j.lx+'" y="'+(j.ly-3)+'" text-anchor="middle" font-size="'+(isSel?7:6.5)+'" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.65)">'+esc(sn)+'</text>';
         if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+5)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.92)" style="pointer-events:none">'+ji.cnt+'개</text>';
       });
@@ -2385,7 +2385,7 @@ function _buildMapSVG(jisaInfo,zoom){
       });
     }
   }
-  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;'+(isOv?'max-width:300px;':'')+'display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
+  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;max-width:'+(isOv?'100%':'520px')+';display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
 }
 function _buildMapCards(jisaInfo,zoom){
   const isOv=zoom<0;
@@ -2394,7 +2394,9 @@ function _buildMapCards(jisaInfo,zoom){
     if(_mapCenter>=0){
       const kw=KWANYUK_DATA[_mapCenter];
       h+='<div style="background:'+kw.color+'10;border:2px solid '+kw.color+'55;border-radius:10px;padding:10px 12px;margin-bottom:10px">';
+      const kwSelTotal=kw.jisas.reduce((s,jn)=>{const ii=JISA_DATA.findIndex(j=>j.name===jn);return s+(ii>=0?jisaInfo[ii].cnt:0);},0);
       h+='<div style="font-size:12px;font-weight:700;color:'+kw.color+';margin-bottom:8px;display:flex;align-items:center;gap:6px">📍 '+esc(kw.name)
+        +'<span style="font-size:10px;font-weight:700;color:'+kw.color+';background:'+kw.color+'18;border:1px solid '+kw.color+'44;border-radius:10px;padding:1px 8px">총 '+kwSelTotal+'개</span>'
         +' <button onclick="hlCenter(-1)" style="margin-left:auto;padding:2px 8px;border:1px solid '+kw.color+'66;border-radius:5px;background:transparent;color:'+kw.color+';font-size:9px;cursor:pointer;font-family:inherit">전체보기</button></div>';
       kw.jisas.forEach(jname=>{
         const idx=JISA_DATA.findIndex(j=>j.name===jname);if(idx<0)return;
@@ -2418,8 +2420,11 @@ function _buildMapCards(jisaInfo,zoom){
       h+='</div>';
     } else {
       KWANYUK_DATA.forEach((kw,ci)=>{
-        h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 4px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:5px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="hlCenter('+ci+')">'
-          +'<span>'+esc(kw.name)+'</span><span style="font-size:9px;opacity:.65">탭하여 선택 ▶</span></div>';
+        const kwTotal=kw.jisas.reduce((s,jn)=>{const ii=JISA_DATA.findIndex(j=>j.name===jn);return s+(ii>=0?jisaInfo[ii].cnt:0);},0);
+        h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 4px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:5px;letter-spacing:.5px;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="hlCenter('+ci+')">'
+          +'<span>'+esc(kw.name)+'</span>'
+          +'<span style="font-size:10px;font-weight:700;color:'+kw.color+';background:'+kw.color+'18;border:1px solid '+kw.color+'44;border-radius:10px;padding:1px 8px">총 '+kwTotal+'개</span>'
+          +'<span style="font-size:9px;opacity:.65;margin-left:auto">탭하여 선택 ▶</span></div>';
         kw.jisas.forEach(jname=>{
           const idx=JISA_DATA.findIndex(j=>j.name===jname);if(idx<0)return;
           const ji=jisaInfo[idx];if(!ji.cnt)return;
