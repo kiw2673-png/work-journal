@@ -2794,7 +2794,6 @@ async function loadArea(){
     +'</div></div>'
     +'<div id="areaMapDiv" style="width:100%;height:380px;border-radius:12px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px"></div>'
     +'<div id="areaCards"></div>'
-    +'<div id="areaDetail"></div>'
     +'</div>';
   // 툴팁
   let tip=document.getElementById('areaTip');
@@ -2804,7 +2803,7 @@ async function loadArea(){
   _areaSel=null;_areaPopupOv=null;_areaSelKw=null;_areaSelMerged=[];
   _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
-  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:12});
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:11});
   _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(13);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
   // 대한민국 범위 벗어나면 자동 복귀
@@ -2886,7 +2885,7 @@ function areaSelect(name,jisaInfo,kBnds){
   const ji=JISA_DATA.find(j=>j.name===name);
   if(ji){const b=new kakao.maps.LatLngBounds();_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));_areaNmap.setBounds(b);}
   _areaStartBlink([name]);
-  if(jisaInfo){_areaRenderCards(jisaInfo,kBnds);_areaRenderDetail(name,jisaInfo);}
+  if(jisaInfo)_areaRenderCards(jisaInfo,kBnds);
 }
 
 function areaBack(){
@@ -2901,7 +2900,6 @@ function areaBack(){
   });
   _areaMarkersUpdate();
   if(_areaNmap){const b=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));_areaNmap.setBounds(b);}
-  const _detEl=document.getElementById('areaDetail');if(_detEl)_detEl.innerHTML='';
   if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 
@@ -2958,8 +2956,32 @@ function _areaRenderCards(jisaInfo,kBnds){
         +'</div>';
     });
     h+='</div>';
+    // 선택된 지사 상세를 칩 바로 아래 인라인으로 삽입
+    if(_areaSel&&kw.jisas.includes(_areaSel)){
+      h+=_areaDetailHtml(_areaSel,jisaInfo);
+    } else if(_areaSelMerged.length>0&&_areaSelMerged.some(n=>kw.jisas.includes(n))){
+      _areaSelMerged.filter(n=>kw.jisas.includes(n)).forEach(n=>{h+=_areaDetailHtml(n,jisaInfo);});
+    }
   });
   wrap.innerHTML=h;
+}
+function _areaDetailHtml(name,jisaInfo){
+  const ji=jisaInfo.find(j=>j.name===name);if(!ji)return'';
+  const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정'&&(!_areaCsrFilter||s===_areaCsrFilter)).sort();
+  let h='<div style="background:'+ji.color+'12;border:1.5px solid '+ji.color+'44;border-radius:10px;padding:10px 12px;margin-bottom:10px">'
+    +'<div style="font-size:12px;font-weight:700;color:'+ji.color+';margin-bottom:8px">'+esc(name)+' · '+ji.cnt+'개 대리점</div>';
+  spKeys.forEach(sp=>{
+    const c=ji.spColors[sp]||ji.color;
+    const dls=ji.spSt[sp];
+    h+='<div style="margin-bottom:7px"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">'
+      +'<div style="width:8px;height:8px;border-radius:50%;background:'+c+'"></div>'
+      +'<span style="font-size:11px;font-weight:700;color:'+c+'">'+esc(sp)+'</span>'
+      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:13px">'
+      +dls.map(d=>'<span style="font-size:9px;background:'+c+'10;border:1px solid '+c+'40;border-radius:4px;padding:2px 5px;color:#444">'+esc(d.shortName||d.name)+'</span>').join('')
+      +'</div></div>';
+  });
+  return h+'</div>';
 }
 
 function _areaMarkersUpdate(){
@@ -3020,16 +3042,12 @@ function areaSelectKwanyuk(kwName){
   kw.jisas.forEach(jn=>{const ji=JISA_DATA.find(j=>j.name===jn);if(ji)_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));});
   _areaNmap.setBounds(b);
   _areaStartBlink(kw.jisas);
-  const _kwDetEl=document.getElementById('areaDetail');if(_kwDetEl)_kwDetEl.innerHTML='';
   if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 function _areaFilterChange(val){
   _areaCsrFilter=val;
   _areaMarkersUpdate();
   _areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
-  if(_areaSel)_areaRenderDetail(_areaSel,window._areaLastJisaInfo);
-  else if(_areaSelMerged.length>0)_areaRenderDetailMerged(_areaSelMerged,window._areaLastJisaInfo);
-  else{const d=document.getElementById('areaDetail');if(d)d.innerHTML='';}
 }
 function areaSelectMerged(label,jisaInfo,kBnds){
   if(_areaEditMode)return;
@@ -3052,50 +3070,7 @@ function areaSelectMerged(label,jisaInfo,kBnds){
   names.forEach(jn=>{const ji=JISA_DATA.find(j=>j.name===jn);if(ji)_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));});
   _areaNmap.setBounds(b);
   _areaStartBlink(names);
-  if(jisaInfo){_areaRenderCards(jisaInfo,kBnds);_areaRenderDetailMerged(names,jisaInfo);}
-}
-function _areaRenderDetailMerged(names,jisaInfo){
-  const wrap=document.getElementById('areaDetail');if(!wrap)return;
-  let h='';
-  names.forEach(name=>{
-    const ji=jisaInfo.find(j=>j.name===name);if(!ji)return;
-    const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정'&&(!_areaCsrFilter||s===_areaCsrFilter)).sort();
-    h+='<div style="background:'+ji.color+'12;border:1.5px solid '+ji.color+'44;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
-      +'<div style="font-size:12px;font-weight:700;color:'+ji.color+';margin-bottom:8px">'+esc(name)+' · '+ji.cnt+'개 대리점</div>';
-    spKeys.forEach(sp=>{
-      const c=ji.spColors[sp]||ji.color;
-      const dls=ji.spSt[sp];
-      h+='<div style="margin-bottom:7px"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">'
-        +'<div style="width:8px;height:8px;border-radius:50%;background:'+c+'"></div>'
-        +'<span style="font-size:11px;font-weight:700;color:'+c+'">'+esc(sp)+'</span>'
-        +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
-        +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:13px">'
-        +dls.map(d=>'<span style="font-size:9px;background:'+c+'10;border:1px solid '+c+'40;border-radius:4px;padding:2px 5px;color:#444">'+esc(d.shortName||d.name)+'</span>').join('')
-        +'</div></div>';
-    });
-    h+='</div>';
-  });
-  wrap.innerHTML=h;
-}
-function _areaRenderDetail(name,jisaInfo){
-  const wrap=document.getElementById('areaDetail');if(!wrap)return;
-  const ji=jisaInfo.find(j=>j.name===name);if(!ji)return;
-  const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정'&&(!_areaCsrFilter||s===_areaCsrFilter)).sort();
-  let h='<div style="background:'+ji.color+'12;border:1.5px solid '+ji.color+'44;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
-    +'<div style="font-size:12px;font-weight:700;color:'+ji.color+';margin-bottom:8px">'+esc(name)+' · '+ji.cnt+'개 대리점</div>';
-  spKeys.forEach(sp=>{
-    const c=ji.spColors[sp]||ji.color;
-    const dls=ji.spSt[sp];
-    h+='<div style="margin-bottom:7px"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">'
-      +'<div style="width:8px;height:8px;border-radius:50%;background:'+c+'"></div>'
-      +'<span style="font-size:11px;font-weight:700;color:'+c+'">'+esc(sp)+'</span>'
-      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:13px">'
-      +dls.map(d=>'<span style="font-size:9px;background:'+c+'10;border:1px solid '+c+'40;border-radius:4px;padding:2px 5px;color:#444">'+esc(d.shortName||d.name)+'</span>').join('')
-      +'</div></div>';
-  });
-  h+='</div>';
-  wrap.innerHTML=h;
+  if(jisaInfo)_areaRenderCards(jisaInfo,kBnds);
 }
 
 async function checkOAIStatus(keyOverride){
