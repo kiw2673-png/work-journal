@@ -2253,6 +2253,10 @@ const KWANYUK_DATA=[
   {name:'영남권',color:'#B45309',jisas:['대구지사','부산지사','경남지사']},
   {name:'호남권',color:'#047857',jisas:['광주지사','전주지사']},
 ];
+const MERGED_JISA_GROUPS=[
+  {label:'경기인천',jisas:['경기지사','인천지사']},
+  {label:'부산경남',jisas:['부산지사','경남지사']},
+];
 const CITY_XY={
   '인천':[53,88],'인천남동':[56,90],'인천서구':[49,85],'인천계양':[56,84],'인천부평':[54,88],'인천중동구':[51,90],
   '일산':[57,72],'파주':[55,68],'김포':[50,78],'부천':[57,92],'시화':[52,100],'신천':[57,91],
@@ -2532,7 +2536,7 @@ function hlConsultant(sp){
 }
 
 /* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
-let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaSelKw=null;
+let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaSelKw=null,_areaSelMerged=[];
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
 let _areaEditMode=false,_areaEditJisa=null,_areaEditVtxMks=[],_areaEditMidMks=[],_areaEditPaths={};
 let _areaBlinkInterval=null,_areaBlinkJisas=[];
@@ -2797,7 +2801,7 @@ async function loadArea(){
   if(!tip){tip=document.createElement('div');tip.id='areaTip';tip.style.cssText='position:fixed;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:2px 7px;display:none;z-index:9999;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.18);white-space:nowrap';document.body.appendChild(tip);}
   document.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY-9)+'px';},{passive:true});
   // 지도 초기화 (탭 진입마다 새로 생성)
-  _areaSel=null;_areaPopupOv=null;_areaSelKw=null;
+  _areaSel=null;_areaPopupOv=null;_areaSelKw=null;_areaSelMerged=[];
   _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
   _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:12});
@@ -2864,7 +2868,7 @@ async function loadArea(){
 
 function areaSelect(name,jisaInfo,kBnds){
   if(_areaEditMode)return;
-  _areaSel=name;_areaSelKw=null;
+  _areaSel=name;_areaSelKw=null;_areaSelMerged=[];
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+name;
@@ -2886,7 +2890,7 @@ function areaSelect(name,jisaInfo,kBnds){
 }
 
 function areaBack(){
-  _areaSel=null;_areaSelKw=null;
+  _areaSel=null;_areaSelKw=null;_areaSelMerged=[];
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 지사별 담당지역';
@@ -2919,7 +2923,28 @@ function _areaRenderCards(jisaInfo,kBnds){
       +'<span style="font-size:12px;font-weight:700;color:'+kw.color+';opacity:.85">'+kwTotal+'개</span>'
       +'</div>';
     h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">';
+    const MG=typeof MERGED_JISA_GROUPS!=='undefined'?MERGED_JISA_GROUPS:[];
+    const mergedSet={};MG.forEach(mg=>mg.jisas.forEach(jn=>{mergedSet[jn]=mg;}));
+    const renderedMg=new Set();
     kw.jisas.forEach(jn=>{
+      const mg=mergedSet[jn];
+      if(mg){
+        if(renderedMg.has(mg.label))return;
+        renderedMg.add(mg.label);
+        const mgInKw=mg.jisas.filter(n=>kw.jisas.includes(n));
+        const mgTotal=mgInKw.reduce((s,n)=>{const j=jisaInfo.find(x=>x.name===n);return s+(j?j.cnt:0);},0);
+        const isSel=_areaSelMerged.length>0&&mgInKw.every(n=>_areaSelMerged.includes(n));
+        const color=(jisaInfo.find(j=>j.name===mgInKw[0])||{color:'#666'}).color;
+        h+='<div onclick="areaSelectMerged(\''+mg.label+'\',window._areaLastJisaInfo,window._areaLastKBnds)" '
+          +'style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;'
+          +'background:'+(isSel?color:'var(--card)')+';'
+          +'border:1.5px solid '+color+';border-radius:20px;cursor:pointer;'
+          +'box-shadow:0 1px 4px rgba(0,0,0,.08)">'
+          +'<span style="font-size:11px;font-weight:700;color:'+(isSel?'#fff':color)+'">'+esc(mg.label)+'</span>'
+          +'<span style="font-size:10px;font-weight:600;color:'+(isSel?'rgba(255,255,255,.85)':color)+';opacity:.9">'+mgTotal+'</span>'
+          +'</div>';
+        return;
+      }
       const ji=jisaInfo.find(j=>j.name===jn);if(!ji)return;
       const isSel=_areaSel===jn;
       const label=jn.replace('지사','');
@@ -2939,17 +2964,18 @@ function _areaRenderCards(jisaInfo,kBnds){
 
 function _areaMarkersUpdate(){
   if(!_areaNmap||!window._areaLastJisaInfo)return;
-  const inDetail=_areaSel!==null;
+  const inDetail=_areaSel!==null||_areaSelMerged.length>0;
   const kwJisas=_areaSelKw?((typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[]).find(k=>k.name===_areaSelKw)?.jisas||null):null;
   window._areaLastJisaInfo.forEach(ji=>{
     const inKw=!kwJisas||kwJisas.includes(ji.name);
+    const inMerged=_areaSelMerged.includes(ji.name);
     _areaOvMks[ji.name]?.forEach((m,i)=>{
       const match=!_areaCsrFilter||(ji.dealersLL[i]?.consultant||'')===_areaCsrFilter;
       m.setMap(!inDetail&&match&&inKw?_areaNmap:null);
     });
     _areaDetMks[ji.name]?.forEach((m,i)=>{
       const match=!_areaCsrFilter||(ji.dealersLL[i]?.consultant||'')===_areaCsrFilter;
-      m.setMap(inDetail&&_areaSel===ji.name&&match?_areaNmap:null);
+      m.setMap(inDetail&&(_areaSel===ji.name||inMerged)&&match?_areaNmap:null);
     });
     _areaLabelMk[ji.name]?.setMap(!inDetail&&inKw?_areaNmap:null);
   });
@@ -2978,7 +3004,7 @@ function areaSelectKwanyuk(kwName){
   if(_areaEditMode)return;
   const KWD=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[];
   const kw=KWD.find(k=>k.name===kwName);if(!kw)return;
-  _areaSel=null;_areaSelKw=kwName;
+  _areaSel=null;_areaSelKw=kwName;_areaSelMerged=[];
   _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+kwName;
@@ -3002,7 +3028,54 @@ function _areaFilterChange(val){
   _areaMarkersUpdate();
   _areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
   if(_areaSel)_areaRenderDetail(_areaSel,window._areaLastJisaInfo);
+  else if(_areaSelMerged.length>0)_areaRenderDetailMerged(_areaSelMerged,window._areaLastJisaInfo);
   else{const d=document.getElementById('areaDetail');if(d)d.innerHTML='';}
+}
+function areaSelectMerged(label,jisaInfo,kBnds){
+  if(_areaEditMode)return;
+  const MG=typeof MERGED_JISA_GROUPS!=='undefined'?MERGED_JISA_GROUPS:[];
+  const mg=MG.find(m=>m.label===label);if(!mg)return;
+  const names=mg.jisas;
+  _areaSel=null;_areaSelKw=null;_areaSelMerged=[...names];
+  _areaStopBlink();
+  if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
+  const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+label;
+  const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='inline-block';
+  Object.keys(_areaPolyLayer).forEach(n=>{
+    const ji=JISA_DATA.find(j=>j.name===n);
+    const inGroup=names.includes(n);
+    _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:inGroup?0.1:0.02,strokeWeight:inGroup?3:1,strokeOpacity:inGroup?1:0.2});
+    _areaLabelMk[n]?.setMap(null);
+  });
+  _areaMarkersUpdate();
+  const b=new kakao.maps.LatLngBounds();
+  names.forEach(jn=>{const ji=JISA_DATA.find(j=>j.name===jn);if(ji)_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));});
+  _areaNmap.setBounds(b);
+  _areaStartBlink(names);
+  if(jisaInfo){_areaRenderCards(jisaInfo,kBnds);_areaRenderDetailMerged(names,jisaInfo);}
+}
+function _areaRenderDetailMerged(names,jisaInfo){
+  const wrap=document.getElementById('areaDetail');if(!wrap)return;
+  let h='';
+  names.forEach(name=>{
+    const ji=jisaInfo.find(j=>j.name===name);if(!ji)return;
+    const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정'&&(!_areaCsrFilter||s===_areaCsrFilter)).sort();
+    h+='<div style="background:'+ji.color+'12;border:1.5px solid '+ji.color+'44;border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="font-size:12px;font-weight:700;color:'+ji.color+';margin-bottom:8px">'+esc(name)+' · '+ji.cnt+'개 대리점</div>';
+    spKeys.forEach(sp=>{
+      const c=ji.spColors[sp]||ji.color;
+      const dls=ji.spSt[sp];
+      h+='<div style="margin-bottom:7px"><div style="display:flex;align-items:center;gap:5px;margin-bottom:4px">'
+        +'<div style="width:8px;height:8px;border-radius:50%;background:'+c+'"></div>'
+        +'<span style="font-size:11px;font-weight:700;color:'+c+'">'+esc(sp)+'</span>'
+        +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:13px">'
+        +dls.map(d=>'<span style="font-size:9px;background:'+c+'10;border:1px solid '+c+'40;border-radius:4px;padding:2px 5px;color:#444">'+esc(d.shortName||d.name)+'</span>').join('')
+        +'</div></div>';
+    });
+    h+='</div>';
+  });
+  wrap.innerHTML=h;
 }
 function _areaRenderDetail(name,jisaInfo){
   const wrap=document.getElementById('areaDetail');if(!wrap)return;
