@@ -2803,7 +2803,7 @@ async function loadArea(){
   _areaSel=null;_areaPopupOv=null;_areaSelKw=null;_areaSelMerged=[];
   _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
-  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:11});
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:12});
   _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(13);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
   // 대한민국 범위 벗어나면 자동 복귀
@@ -2913,7 +2913,7 @@ function _areaRenderCards(jisaInfo,kBnds){
     {name:'호남권',color:'#047857',jisas:['광주지사','전주지사']},
   ];
   let h='';
-  KWD.forEach(kw=>{
+  KWD.forEach((kw,kwIdx)=>{
     const kwTotal=kw.jisas.reduce((sum,jn)=>{const ji=jisaInfo.find(j=>j.name===jn);return sum+(ji?ji.cnt:0);},0);
     const kwSelStyle=_areaSelKw===kw.name?'background:'+kw.color+'18;border-radius:8px;padding:6px 8px 4px;margin:-2px -4px 4px;':'padding:6px 2px 4px;';
     h+='<div onclick="areaSelectKwanyuk(\''+kw.name+'\')" style="'+kwSelStyle+'border-bottom:2.5px solid '+kw.color+';margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.4px">'
@@ -2956,14 +2956,22 @@ function _areaRenderCards(jisaInfo,kBnds){
         +'</div>';
     });
     h+='</div>';
-    // 선택된 지사 상세를 칩 바로 아래 인라인으로 삽입
-    if(_areaSel&&kw.jisas.includes(_areaSel)){
-      h+=_areaDetailHtml(_areaSel,jisaInfo);
-    } else if(_areaSelMerged.length>0&&_areaSelMerged.some(n=>kw.jisas.includes(n))){
-      _areaSelMerged.filter(n=>kw.jisas.includes(n)).forEach(n=>{h+=_areaDetailHtml(n,jisaInfo);});
-    }
+    h+='<div id="kwSlot'+kwIdx+'"></div>';
   });
   wrap.innerHTML=h;
+  // innerHTML 완료 후 정확한 권역 슬롯에 상세 주입
+  let detailKwIdx=-1,detailNames=[];
+  if(_areaSel){
+    detailKwIdx=KWD.findIndex(kw=>kw.jisas.includes(_areaSel));
+    if(detailKwIdx>=0)detailNames=[_areaSel];
+  } else if(_areaSelMerged.length>0){
+    detailKwIdx=KWD.findIndex(kw=>_areaSelMerged.some(n=>kw.jisas.includes(n)));
+    if(detailKwIdx>=0)detailNames=_areaSelMerged.filter(n=>KWD[detailKwIdx].jisas.includes(n));
+  }
+  if(detailKwIdx>=0){
+    const slot=document.getElementById('kwSlot'+detailKwIdx);
+    if(slot)slot.innerHTML=detailNames.map(n=>_areaDetailHtml(n,jisaInfo)).join('');
+  }
 }
 function _areaDetailHtml(name,jisaInfo){
   const ji=jisaInfo.find(j=>j.name===name);if(!ji)return'';
