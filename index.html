@@ -2532,9 +2532,10 @@ function hlConsultant(sp){
 }
 
 /* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
-let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='';
+let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaSelKw=null;
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
 let _areaEditMode=false,_areaEditJisa=null,_areaEditVtxMks=[],_areaEditMidMks=[],_areaEditPaths={};
+let _areaBlinkInterval=null,_areaBlinkJisas=[];
 function _svgToLL(x,y){return[38.6-(y-10)/69,126+(x-15)/54.3];}
 function _pathToLL(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>_svgToLL(+m[1],+m[2]));}
 const _JEJU_LL={'제주':[33.499,126.531],'제주시':[33.503,126.531],'서귀포':[33.254,126.560]};
@@ -2795,12 +2796,12 @@ async function loadArea(){
   if(!tip){tip=document.createElement('div');tip.id='areaTip';tip.style.cssText='position:fixed;background:rgba(255,255,255,.95);border:1px solid #cbd5e1;border-radius:4px;font-size:10px;padding:2px 7px;display:none;z-index:9999;pointer-events:none;box-shadow:0 1px 5px rgba(0,0,0,.18);white-space:nowrap';document.body.appendChild(tip);}
   document.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+13)+'px';tip.style.top=(e.clientY-9)+'px';},{passive:true});
   // 지도 초기화 (탭 진입마다 새로 생성)
-  _areaSel=null;_areaPopupOv=null;
+  _areaSel=null;_areaPopupOv=null;_areaSelKw=null;
+  _areaStopBlink();
   _areaPolyLayer={};_areaLabelMk={};_areaOvMks={};_areaDetMks={};
-  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:8});
+  _areaNmap=new kakao.maps.Map(document.getElementById('areaMapDiv'),{center:new kakao.maps.LatLng(36.5,127.8),level:10});
   _areaNmap.setMinLevel(6);_areaNmap.setMaxLevel(12);
   const kBnds=new kakao.maps.LatLngBounds(new kakao.maps.LatLng(33.0,124.5),new kakao.maps.LatLng(38.9,130.8));
-  _areaNmap.setBounds(kBnds);
   // 대한민국 범위 벗어나면 자동 복귀
   kakao.maps.event.addListener(_areaNmap,'dragend',function(){
     const c=_areaNmap.getCenter();
@@ -2862,7 +2863,8 @@ async function loadArea(){
 
 function areaSelect(name,jisaInfo,kBnds){
   if(_areaEditMode)return;
-  _areaSel=name;
+  _areaSel=name;_areaSelKw=null;
+  _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+name;
   const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='inline-block';
@@ -2878,11 +2880,13 @@ function areaSelect(name,jisaInfo,kBnds){
   _areaMarkersUpdate();
   const ji=JISA_DATA.find(j=>j.name===name);
   if(ji){const b=new kakao.maps.LatLngBounds();_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));_areaNmap.setBounds(b);}
+  _areaStartBlink([name]);
   if(jisaInfo)_areaRenderDetail(name,jisaInfo);
 }
 
 function areaBack(){
-  _areaSel=null;
+  _areaSel=null;_areaSelKw=null;
+  _areaStopBlink();
   if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
   const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 지사별 담당지역';
   const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='none';
@@ -2907,19 +2911,26 @@ function _areaRenderCards(jisaInfo,kBnds){
   let h='';
   KWD.forEach(kw=>{
     const kwTotal=kw.jisas.reduce((sum,jn)=>{const ji=jisaInfo.find(j=>j.name===jn);return sum+(ji?ji.cnt:0);},0);
-    h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';padding:5px 2px 3px;border-bottom:2px solid '+kw.color+'44;margin-bottom:6px;letter-spacing:.4px;display:flex;align-items:center;justify-content:space-between">'+esc(kw.name)+'<span style="font-size:10px;font-weight:700;color:'+kw.color+';opacity:0.8">총 '+kwTotal+'개</span></div>';
+    const kwSelStyle=_areaSelKw===kw.name?'background:'+kw.color+'18;border-radius:8px;padding:6px 8px 4px;margin:-2px -4px 4px;':'padding:6px 2px 4px;';
+    h+='<div onclick="areaSelectKwanyuk(\''+kw.name+'\')" style="'+kwSelStyle+'border-bottom:2.5px solid '+kw.color+';margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:6px;letter-spacing:.4px">'
+      +'<span style="font-size:14px;font-weight:800;color:'+kw.color+'">'+esc(kw.name)+'</span>'
+      +'<span style="font-size:12px;font-weight:700;color:'+kw.color+';opacity:.85">'+kwTotal+'개</span>'
+      +'</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">';
     kw.jisas.forEach(jn=>{
       const ji=jisaInfo.find(j=>j.name===jn);if(!ji)return;
-      const spKeys=Object.keys(ji.spSt).filter(s=>s&&s!=='미지정').sort();
-      const chips=spKeys.map(sp=>'<span style="font-size:9px;background:'+ji.spColors[sp]+'18;border:1px solid '+ji.spColors[sp]+'55;border-radius:5px;padding:1px 4px;color:'+ji.spColors[sp]+'">'+esc(sp)+'</span>').join(' ');
-      h+='<div onclick="areaSelect(\''+jn+'\',window._areaLastJisaInfo,window._areaLastKBnds)" style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border-left:3px solid '+ji.color+';border-radius:7px;margin-bottom:5px;cursor:pointer;box-shadow:0 1px 5px rgba(0,0,0,.06)">'
-        +'<span style="font-size:12px;font-weight:700;color:'+ji.color+';min-width:70px">'+esc(jn)+'</span>'
-        +'<span style="font-size:10px;font-weight:700;color:'+ji.color+'">'+ji.cnt+'개</span>'
-        +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:3px">'+chips+'</div>'
-        +'<span style="font-size:10px;color:var(--ts)">▶</span>'
+      const isSel=_areaSel===jn;
+      const label=jn.replace('지사','');
+      h+='<div onclick="areaSelect(\''+jn+'\',window._areaLastJisaInfo,window._areaLastKBnds)" '
+        +'style="display:inline-flex;align-items:center;gap:4px;padding:5px 11px;'
+        +'background:'+(isSel?ji.color:'var(--card)')+';'
+        +'border:1.5px solid '+ji.color+';border-radius:20px;cursor:pointer;'
+        +'box-shadow:0 1px 4px rgba(0,0,0,.08)">'
+        +'<span style="font-size:11px;font-weight:700;color:'+(isSel?'#fff':ji.color)+'">'+esc(label)+'</span>'
+        +'<span style="font-size:10px;font-weight:600;color:'+(isSel?'rgba(255,255,255,.85)':ji.color)+';opacity:.9">'+ji.cnt+'</span>'
         +'</div>';
     });
-    h+='<div style="margin-bottom:8px"></div>';
+    h+='</div>';
   });
   wrap.innerHTML=h;
 }
@@ -2927,17 +2938,61 @@ function _areaRenderCards(jisaInfo,kBnds){
 function _areaMarkersUpdate(){
   if(!_areaNmap||!window._areaLastJisaInfo)return;
   const inDetail=_areaSel!==null;
+  const kwJisas=_areaSelKw?((typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[]).find(k=>k.name===_areaSelKw)?.jisas||null):null;
   window._areaLastJisaInfo.forEach(ji=>{
+    const inKw=!kwJisas||kwJisas.includes(ji.name);
     _areaOvMks[ji.name]?.forEach((m,i)=>{
       const match=!_areaCsrFilter||(ji.dealersLL[i]?.consultant||'')===_areaCsrFilter;
-      m.setMap(!inDetail&&match?_areaNmap:null);
+      m.setMap(!inDetail&&match&&inKw?_areaNmap:null);
     });
     _areaDetMks[ji.name]?.forEach((m,i)=>{
       const match=!_areaCsrFilter||(ji.dealersLL[i]?.consultant||'')===_areaCsrFilter;
       m.setMap(inDetail&&_areaSel===ji.name&&match?_areaNmap:null);
     });
-    _areaLabelMk[ji.name]?.setMap(!inDetail?_areaNmap:null);
+    _areaLabelMk[ji.name]?.setMap(!inDetail&&inKw?_areaNmap:null);
   });
+}
+function _areaStartBlink(jisaNames){
+  _areaStopBlink();
+  _areaBlinkJisas=jisaNames;
+  let v=true;
+  _areaBlinkInterval=setInterval(()=>{
+    v=!v;
+    jisaNames.forEach(jn=>{
+      _areaOvMks[jn]?.forEach(m=>{const el=m.getContent();if(el)el.style.opacity=v?'1':'0';});
+      _areaDetMks[jn]?.forEach(m=>{const el=m.getContent();if(el)el.style.opacity=v?'1':'0';});
+    });
+  },1000);
+}
+function _areaStopBlink(){
+  if(_areaBlinkInterval){clearInterval(_areaBlinkInterval);_areaBlinkInterval=null;}
+  _areaBlinkJisas.forEach(jn=>{
+    _areaOvMks[jn]?.forEach(m=>{const el=m.getContent();if(el)el.style.opacity='1';});
+    _areaDetMks[jn]?.forEach(m=>{const el=m.getContent();if(el)el.style.opacity='1';});
+  });
+  _areaBlinkJisas=[];
+}
+function areaSelectKwanyuk(kwName){
+  if(_areaEditMode)return;
+  const KWD=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[];
+  const kw=KWD.find(k=>k.name===kwName);if(!kw)return;
+  _areaSel=null;_areaSelKw=kwName;
+  _areaStopBlink();
+  if(_areaPopupOv){_areaPopupOv.setMap(null);_areaPopupOv=null;}
+  const ttl=document.getElementById('areaTtl');if(ttl)ttl.textContent='📍 '+kwName;
+  const bb=document.getElementById('areaBackBtn');if(bb)bb.style.display='inline-block';
+  Object.keys(_areaPolyLayer).forEach(n=>{
+    const ji=JISA_DATA.find(j=>j.name===n);
+    const inKw=kw.jisas.includes(n);
+    _areaPolyLayer[n].setOptions({fillColor:ji?ji.color:'#999',strokeColor:ji?ji.color:'#999',fillOpacity:inKw?0.1:0.02,strokeWeight:inKw?2:1,strokeOpacity:inKw?0.7:0.2});
+    _areaLabelMk[n]?.setMap(inKw?_areaNmap:null);
+  });
+  _areaMarkersUpdate();
+  const b=new kakao.maps.LatLngBounds();
+  kw.jisas.forEach(jn=>{const ji=JISA_DATA.find(j=>j.name===jn);if(ji)_pathToLL(ji.d).forEach(([a,o])=>b.extend(new kakao.maps.LatLng(a,o)));});
+  _areaNmap.setBounds(b);
+  _areaStartBlink(kw.jisas);
+  if(window._areaLastJisaInfo)_areaRenderCards(window._areaLastJisaInfo,window._areaLastKBnds);
 }
 function _areaFilterChange(val){
   _areaCsrFilter=val;
