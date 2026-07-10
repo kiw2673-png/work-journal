@@ -2436,10 +2436,9 @@ async function loadMap(){
   _mapData=jisaInfo;_mapZoom=-1;_mapCenter=-1;_mapConsultant=null;
 
   const W=420,H=500;
-  const proj=d3.geoMercator().center([127.8,36.2]).scale(4800).translate([W/2,H/2]);
-  const pathGen=d3.geoPath().projection(proj);
+  const defProj=d3.geoMercator().center([127.8,36.2]).scale(4800).translate([W/2,H/2]);
+  const pathGen=d3.geoPath().projection(defProj);
 
-  // KW data
   const KWD=typeof KWANYUK_DATA!=='undefined'?KWANYUK_DATA:[
     {name:'수도권',color:'#6366F1',jisas:['경기지사','서울북부지사','서울남부지사','인천지사']},
     {name:'충청권',color:'#0891B2',jisas:['원주지사','대전지사']},
@@ -2449,113 +2448,230 @@ async function loadMap(){
   const kwCnt={};KWD.forEach(kw=>{let cnt=0;kw.jisas.forEach(jn=>{const ji=jisaInfo.find(j=>j.name===jn);if(ji)cnt+=ji.cnt;});kwCnt[kw.name]=cnt;});
   const total=jisaInfo.reduce((s,j)=>s+j.cnt,0);
 
-  function getColor(code){
-    const m=SIDO_JISA_MAP[code];if(!m)return'#999';
-    if(_mapCenter<0)return m.color;
-    return m.jisa===KWD[_mapCenter]?.name?m.color:'#D1D5DB';
+  // Get jisa's SIDO codes
+  function jisaSidoCodes(jisaIdx){
+    const j=JISA_DATA[jisaIdx];if(!j)return[];
+    const nameMap={'인천지사':['23'],'서울북부지사':['11'],'서울남부지사':['11'],'경기지사':['31','23'],
+      '경인지사':['31','23'],'원주지사':['32'],'대전지사':['33','34','25','29'],
+      '전주지사':['35'],'광주지사':['36','24','39'],'대구지사':['37','22'],'경남지사':['38'],'부산지사':['21','26']};
+    return nameMap[j.name]||[];
   }
-  function getOpacity(code){
-    const m=SIDO_JISA_MAP[code];if(!m)return 0.3;
-    if(_mapCenter<0)return 0.72;
-    return m.jisa===KWD[_mapCenter]?.name?0.85:0.18;
+
+  // Compute zoom projection for a set of sido codes
+  function zoomProj(codes){
+    const feats=SIDO_GEO.features.filter(f=>codes.includes(f.properties.code));
+    if(!feats.length)return defProj;
+    const fc={type:'FeatureCollection',features:feats};
+    const p=d3.geoMercator();
+    p.fitExtent([[30,30],[W-30,H-30]],fc);
+    return p;
   }
 
   function render(){
-    // SVG map
-    let svgH='<svg id="geoMapSvg" viewBox="0 0 '+W+' '+H+'" style="width:100%;display:block;cursor:default">';
-    svgH+='<rect width="'+W+'" height="'+H+'" fill="var(--ibg)" rx="4"/>';
+    const isZoomed=_mapZoom>=0;
+    const selJi=isZoomed?jisaInfo[_mapZoom]:null;
+    const codes=isZoomed?jisaSidoCodes(_mapZoom):[];
+    const proj=isZoomed?zoomProj(codes):defProj;
+    const pg=d3.geoPath().projection(proj);
+
+    // --- SVG MAP ---
+    let svgH='<svg id="geoMapSvg" viewBox="0 0 '+W+' '+H+'" style="width:100%;display:block">';
+    svgH+='<rect width="'+W+'" height="'+H+'" fill="var(--ibg)" rx="4" onclick="hlRgn(-1)" style="cursor:pointer"/>';
+
+    // Draw polygons
     SIDO_GEO.features.forEach((feat,i)=>{
       const code=feat.properties.code;
-      const name=feat.properties.name;
-      const d=pathGen(feat);
-      svgH+='<path d="'+d+'" fill="'+getColor(code)+'" fill-opacity="'+getOpacity(code)+'" stroke="#fff" stroke-width="1.2" data-code="'+code+'" data-name="'+name+'" style="cursor:pointer;transition:fill-opacity .3s"/>';
+      const m=SIDO_JISA_MAP[code];if(!m)return;
+      const d=pg(feat);if(!d)return;
+      let fillC=m.color,fillO=0.72;
+      if(isZoomed){
+        fillO=codes.includes(code)?0.5:0.1;
+        fillC=codes.includes(code)?selJi.color:'#9CA3AF';
+      } else if(_mapCenter>=0){
+        const kwName=KWD[_mapCenter]?.name;
+        fillO=m.jisa===kwName?0.85:0.18;
+        fillC=m.jisa===kwName?m.color:'#D1D5DB';
+      }
+      svgH+='<path d="'+d+'" fill="'+fillC+'" fill-opacity="'+fillO+'" stroke="#fff" stroke-width="'+(isZoomed&&codes.includes(code)?2:1)+'" data-code="'+code+'" style="cursor:pointer;transition:fill-opacity .3s"/>';
     });
-    // Labels
-    SIDO_GEO.features.forEach(feat=>{
-      const c=pathGen.centroid(feat);if(!c[0]||!c[1])return;
-      const code=feat.properties.code;
-      const short=feat.properties.name.replace(/특별자치|특별|광역/g,'').replace(/시$|도$/,'');
-      const op=getOpacity(code);
-      const fs=["11","21","22","24","25","26","29"].includes(code)?7:9;
-      svgH+='<text x="'+c[0]+'" y="'+c[1]+'" text-anchor="middle" font-size="'+fs+'" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:'+(op>0.5?1:0.3)+'">'+esc(short)+'</text>';
-    });
-    svgH+='</svg>';
-    document.getElementById('geoMapWrap').innerHTML=svgH;
 
-    // Attach events
+    // Labels (only in overview)
+    if(!isZoomed){
+      SIDO_GEO.features.forEach(feat=>{
+        const c=pg.centroid(feat);if(!c[0]||!c[1]||isNaN(c[0]))return;
+        const code=feat.properties.code;
+        const m=SIDO_JISA_MAP[code];if(!m)return;
+        const short=feat.properties.name.replace(/특별자치|특별|광역/g,'').replace(/시$|도$/,'');
+        let op=0.72;
+        if(_mapCenter>=0){op=m.jisa===KWD[_mapCenter]?.name?1:0.2;}
+        const fs=["11","21","22","24","25","26","29"].includes(code)?7:9;
+        svgH+='<text x="'+c[0]+'" y="'+c[1]+'" text-anchor="middle" font-size="'+fs+'" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.6);opacity:'+op+'">'+esc(short)+'</text>';
+      });
+    }
+
+    // --- DEALER MARKERS (zoomed into jisa) ---
+    if(isZoomed&&selJi){
+      const placed={};
+      Object.entries(selJi.citySt).forEach(([city,dls])=>{
+        const fb=[JISA_DATA[_mapZoom].lx,JISA_DATA[_mapZoom].ly];
+        const[sx,sy]=_cityXY(city,fb);
+        const ll=_svgToLL(sx,sy);
+        let[px,py]=proj([ll[1],ll[0]]);
+        if(isNaN(px)||isNaN(py))return;
+        // Offset overlapping
+        const mk=Math.round(px)+','+Math.round(py);
+        if(placed[mk]){const n=placed[mk];const offs=[[8,0],[-8,0],[0,8],[0,-8],[8,8],[-8,-8]];const[ox,oy]=offs[(n-1)%6];px+=ox;py+=oy;}
+        placed[mk]=(placed[mk]||0)+1;
+
+        const spSet=new Set(dls.map(d=>d.consultant||'미지정').filter(k=>k!=='미지정'));
+        const dc=spSet.size===1?selJi.spColors[[...spSet][0]]||selJi.color:selJi.color;
+        const r=Math.min(4+dls.length*1.2,12);
+        const isHL=_mapConsultant&&spSet.has(_mapConsultant);
+        const isDim=_mapConsultant&&!isHL;
+
+        // Outer glow
+        if(isHL)svgH+='<circle cx="'+px+'" cy="'+py+'" r="'+(r+5)+'" fill="'+dc+'" fill-opacity=".15" style="pointer-events:none"><animate attributeName="r" values="'+(r+3)+';'+(r+8)+';'+(r+3)+'" dur="1.5s" repeatCount="indefinite"/></circle>';
+        // Marker
+        svgH+='<circle cx="'+px+'" cy="'+py+'" r="'+r+'" fill="'+dc+'" fill-opacity="'+(isDim?.12:.9)+'" stroke="#fff" stroke-width="'+(isHL?2.5:1.2)+'" style="cursor:pointer;transition:fill-opacity .3s" data-city="'+esc(city)+'"/>';
+        // City label
+        svgH+='<text x="'+px+'" y="'+(py-r-3)+'" text-anchor="middle" font-size="8" font-weight="600" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(isDim?.1:1)+'">'+esc(city)+'</text>';
+        // Count
+        if(dls.length>1)svgH+='<text x="'+px+'" y="'+(py+3)+'" text-anchor="middle" font-size="7" font-weight="700" fill="#fff" style="pointer-events:none;opacity:'+(isDim?.1:1)+'">'+dls.length+'</text>';
+      });
+
+      // Consultant legend on map
+      const spKeys=Object.keys(selJi.spSt||{}).filter(k=>k&&k!=='미지정');
+      if(spKeys.length>1){
+        spKeys.forEach((k,idx)=>{
+          const c=selJi.spColors[k]||selJi.color;
+          const isSel=k===_mapConsultant;const dimSp=_mapConsultant&&!isSel;
+          const ly=20+idx*18;
+          svgH+='<circle cx="18" cy="'+ly+'" r="5" fill="'+c+'" stroke="#fff" stroke-width="1" style="cursor:pointer;opacity:'+(dimSp?.25:1)+'" onclick="hlConsultant(\''+esc(k)+'\')"/>';
+          svgH+='<text x="28" y="'+(ly+4)+'" font-size="10" font-weight="'+(isSel?'700':'500')+'" fill="'+c+'" style="cursor:pointer;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(dimSp?.25:1)+'" onclick="hlConsultant(\''+esc(k)+'\')">'+esc(k)+'</text>';
+        });
+      }
+    }
+    svgH+='</svg>';
+    document.getElementById('geoMapWrap').innerHTML='<div id="geoTip" style="position:absolute;background:#1F2937;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10"></div>'+svgH;
+
+    // Attach hover events
     document.querySelectorAll('#geoMapSvg path[data-code]').forEach(p=>{
       p.addEventListener('click',function(){
         const code=this.getAttribute('data-code');
         const m=SIDO_JISA_MAP[code];if(!m)return;
+        if(isZoomed)return;
         const ci=KWD.findIndex(k=>k.name===m.jisa);
         hlCenter(ci===_mapCenter?-1:ci);
       });
-      p.addEventListener('mouseenter',function(e){
-        this.setAttribute('stroke','#1F2937');this.setAttribute('stroke-width','2.5');
-        const tip=document.getElementById('geoTip');
-        tip.textContent=this.getAttribute('data-name');
-        tip.style.opacity=1;
-      });
-      p.addEventListener('mousemove',function(e){
-        const tip=document.getElementById('geoTip');
-        const r=document.getElementById('geoMapWrap').getBoundingClientRect();
-        tip.style.left=(e.clientX-r.left+12)+'px';
-        tip.style.top=(e.clientY-r.top-8)+'px';
-      });
-      p.addEventListener('mouseleave',function(){
-        this.setAttribute('stroke','#fff');this.setAttribute('stroke-width','1.2');
-        document.getElementById('geoTip').style.opacity=0;
-      });
+      p.addEventListener('mouseenter',function(){this.setAttribute('stroke','#1F2937');this.setAttribute('stroke-width','2.5');
+        document.getElementById('geoTip').textContent=this.getAttribute('data-name')||this.getAttribute('data-code');
+        document.getElementById('geoTip').style.opacity=1;});
+      p.addEventListener('mousemove',function(e){const tip=document.getElementById('geoTip');const r=document.getElementById('geoMapWrap').getBoundingClientRect();tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-8)+'px';});
+      p.addEventListener('mouseleave',function(){this.setAttribute('stroke','#fff');this.setAttribute('stroke-width',isZoomed?'2':'1');document.getElementById('geoTip').style.opacity=0;});
+    });
+    // Dealer marker hover
+    document.querySelectorAll('#geoMapSvg circle[data-city]').forEach(c=>{
+      c.addEventListener('mouseenter',function(){
+        document.getElementById('geoTip').textContent=this.getAttribute('data-city');
+        document.getElementById('geoTip').style.opacity=1;});
+      c.addEventListener('mousemove',function(e){const tip=document.getElementById('geoTip');const r=document.getElementById('geoMapWrap').getBoundingClientRect();tip.style.left=(e.clientX-r.left+12)+'px';tip.style.top=(e.clientY-r.top-8)+'px';});
+      c.addEventListener('mouseleave',function(){document.getElementById('geoTip').style.opacity=0;});
     });
 
-    // Legend
-    document.getElementById('geoLegend').innerHTML=KWD.map((k,ci)=>{
-      const isSel=_mapCenter===ci;const isDim=_mapCenter>=0&&!isSel;
-      return'<span style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;opacity:'+(isDim?.4:1)+';'+(isSel?'font-weight:700':'')+'" onclick="hlCenter('+(_mapCenter===ci?-1:ci)+')"><span style="width:10px;height:10px;border-radius:3px;background:'+k.color+';display:inline-block"></span>'+esc(k.name)+'</span>';
-    }).join('');
+    // --- LEGEND ---
+    let lgH='';
+    if(!isZoomed){
+      lgH=KWD.map((k,ci)=>{
+        const isSel=_mapCenter===ci;const isDim=_mapCenter>=0&&!isSel;
+        return'<span style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;opacity:'+(isDim?.4:1)+';font-weight:'+(isSel?'700':'400')+'" onclick="hlCenter('+(_mapCenter===ci?-1:ci)+')"><span style="width:10px;height:10px;border-radius:3px;background:'+k.color+';display:inline-block"></span>'+esc(k.name)+'</span>';
+      }).join('');
+    } else {
+      lgH='<span style="font-size:11px;color:var(--ts)">💡 담당자를 클릭하면 해당 대리점이 강조됩니다</span>';
+      if(_mapConsultant)lgH+=' <span onclick="hlConsultant(null)" style="font-size:10px;padding:2px 8px;border:1px solid '+selJi.color+';border-radius:6px;cursor:pointer;color:'+selJi.color+'">전체보기</span>';
+    }
+    document.getElementById('geoLegend').innerHTML=lgH;
 
-    // Sidebar cards
-    const selKw=_mapCenter>=0?KWD[_mapCenter]:null;
-    const selJisas=selKw?jisaInfo.filter(j=>selKw.jisas.includes(j.name)):jisaInfo.filter(j=>j.cnt>0);
+    // --- SIDEBAR ---
     let sh='';
-    // Total card
-    sh+='<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--card);margin-bottom:10px">';
-    sh+='<div style="font-size:11px;color:var(--ts)">전체 대리점</div>';
-    sh+='<div style="font-size:24px;font-weight:700;color:var(--text)">'+total+'</div>';
-    sh+='<div style="font-size:11px;color:var(--ts)">'+JISA_DATA.length+'개 지사</div></div>';
-
-    // KW bar chart
-    sh+='<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--card);margin-bottom:10px">';
-    sh+='<div style="font-size:11px;color:var(--ts);margin-bottom:8px">권역별 대리점</div>';
-    KWD.forEach((k,ci)=>{
-      const cnt=kwCnt[k.name]||0;const isSel=_mapCenter===ci;const isDim=_mapCenter>=0&&!isSel;
-      sh+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;opacity:'+(isDim?.3:1)+'" onclick="hlCenter('+(_mapCenter===ci?-1:ci)+')">';
-      sh+='<span style="font-size:11px;width:42px;font-weight:'+(isSel?'700':'500')+';color:var(--text)">'+esc(k.name)+'</span>';
-      sh+='<div style="flex:1;height:8px;border-radius:4px;background:var(--ibg);overflow:hidden"><div style="height:100%;border-radius:4px;background:'+k.color+';width:'+(cnt/60*100).toFixed(0)+'%;transition:width .4s"></div></div>';
-      sh+='<span style="font-size:12px;font-weight:700;color:'+k.color+';width:28px;text-align:right">'+cnt+'</span></div>';
-    });
-    sh+='</div>';
-
-    // Jisa list
-    sh+='<div style="border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden">';
-    sh+='<div style="padding:8px 14px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border)">'+(selKw?'📍 '+selKw.name+' 지사':'📋 지사별 현황')+'</div>';
-    selJisas.sort((a,b)=>b.cnt-a.cnt).forEach(j=>{
-      const spList=Object.keys(j.spSt||{}).filter(sp=>sp&&sp!=='미지정');
-      sh+='<div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid var(--ibg)">';
-      sh+='<span style="width:8px;height:8px;border-radius:50%;background:'+j.color+';flex-shrink:0"></span>';
-      sh+='<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">'+esc(j.name)+'</div>';
-      if(spList.length)sh+='<div style="font-size:10px;color:var(--ts)">'+spList.join(', ')+'</div>';
+    if(isZoomed){
+      // Zoomed: show jisa detail with consultant list
+      sh+='<div style="border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden;margin-bottom:10px">';
+      sh+='<div style="padding:10px 14px;background:'+selJi.color+'10;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">';
+      sh+='<span style="width:12px;height:12px;border-radius:3px;background:'+selJi.color+'"></span>';
+      sh+='<span style="font-size:14px;font-weight:700">'+esc(selJi.name)+'</span>';
+      sh+='<span style="margin-left:auto;font-size:14px;font-weight:700;color:'+selJi.color+'">'+selJi.cnt+'개</span></div>';
+      // Consultant breakdown
+      const spKeys=Object.keys(selJi.spSt||{}).filter(k=>k&&k!=='미지정');
+      spKeys.forEach(sp=>{
+        const dc=selJi.spColors[sp]||selJi.color;
+        const dls=selJi.spSt[sp];
+        const isSel=sp===_mapConsultant;const isDim=_mapConsultant&&!isSel;
+        sh+='<div style="padding:8px 14px;border-bottom:1px solid var(--ibg);cursor:pointer;opacity:'+(isDim?.25:1)+';transition:opacity .25s;'+(isSel?'background:'+dc+'0D':'')+'" onclick="hlConsultant(\''+esc(sp)+'\')">';
+        sh+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+        sh+='<span style="width:10px;height:10px;border-radius:50%;background:'+dc+';flex-shrink:0"></span>';
+        sh+='<span style="font-size:12px;font-weight:700;color:'+dc+'">'+esc(sp)+'</span>';
+        sh+='<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span>';
+        if(isSel)sh+='<span style="font-size:9px;background:'+dc+';color:#fff;border-radius:4px;padding:1px 6px;margin-left:auto">선택됨 ✕</span>';
+        sh+='</div>';
+        sh+='<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">';
+        dls.forEach(d=>{
+          const sn=d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
+          sh+='<span style="font-size:9px;background:'+dc+'12;border:1px solid '+dc+'45;border-radius:4px;padding:2px 6px;color:var(--fg)">'+esc(sn)+'</span>';
+        });
+        sh+='</div></div>';
+      });
+      // 미지정
+      const miji=selJi.spSt['미지정']||[];
+      if(miji.length){
+        sh+='<div style="padding:8px 14px;opacity:'+(_mapConsultant?.25:1)+'"><div style="font-size:11px;color:var(--ts);margin-bottom:4px">미지정 ('+miji.length+'개)</div>';
+        sh+='<div style="display:flex;flex-wrap:wrap;gap:3px">';
+        miji.forEach(d=>{sh+='<span style="font-size:9px;background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 6px;color:var(--ts)">'+esc(extractCity(d.name))+'</span>';});
+        sh+='</div></div>';
+      }
       sh+='</div>';
-      sh+='<span style="font-size:14px;font-weight:700;color:'+j.color+'">'+j.cnt+'</span></div>';
-    });
-    sh+='</div>';
+    } else {
+      // Overview: stats + jisa list
+      sh+='<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--card);margin-bottom:10px">';
+      sh+='<div style="font-size:11px;color:var(--ts)">전체 대리점</div>';
+      sh+='<div style="font-size:24px;font-weight:700;color:var(--text)">'+total+'</div>';
+      sh+='<div style="font-size:11px;color:var(--ts)">'+JISA_DATA.length+'개 지사</div></div>';
+
+      sh+='<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--card);margin-bottom:10px">';
+      sh+='<div style="font-size:11px;color:var(--ts);margin-bottom:8px">권역별 대리점</div>';
+      KWD.forEach((k,ci)=>{
+        const cnt=kwCnt[k.name]||0;const isSel=_mapCenter===ci;const isDim=_mapCenter>=0&&!isSel;
+        sh+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;opacity:'+(isDim?.3:1)+'" onclick="hlCenter('+(_mapCenter===ci?-1:ci)+')">';
+        sh+='<span style="font-size:11px;width:42px;font-weight:'+(isSel?'700':'500')+';color:var(--text)">'+esc(k.name)+'</span>';
+        sh+='<div style="flex:1;height:8px;border-radius:4px;background:var(--ibg);overflow:hidden"><div style="height:100%;border-radius:4px;background:'+k.color+';width:'+(cnt/60*100).toFixed(0)+'%"></div></div>';
+        sh+='<span style="font-size:12px;font-weight:700;color:'+k.color+';width:28px;text-align:right">'+cnt+'</span></div>';
+      });
+      sh+='</div>';
+
+      // Jisa list (filtered by kwanyuk if selected)
+      const selKw=_mapCenter>=0?KWD[_mapCenter]:null;
+      const fJisas=selKw?jisaInfo.filter(j=>selKw.jisas.includes(j.name)):jisaInfo.filter(j=>j.cnt>0);
+      sh+='<div style="border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden">';
+      sh+='<div style="padding:8px 14px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border)">'+(selKw?'📍 '+selKw.name+' 지사':'📋 지사별 현황')+'</div>';
+      fJisas.sort((a,b)=>b.cnt-a.cnt).forEach((j,idx)=>{
+        const ji=JISA_DATA.indexOf(JISA_DATA.find(jd=>jd.name===j.name));
+        sh+='<div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid var(--ibg);cursor:pointer" onclick="hlRgn('+ji+')">';
+        sh+='<span style="width:8px;height:8px;border-radius:50%;background:'+j.color+';flex-shrink:0"></span>';
+        sh+='<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">'+esc(j.name)+'</div>';
+        const spList=Object.keys(j.spSt||{}).filter(sp=>sp&&sp!=='미지정');
+        if(spList.length)sh+='<div style="font-size:10px;color:var(--ts)">'+spList.join(', ')+'</div>';
+        sh+='</div>';
+        sh+='<span style="font-size:14px;font-weight:700;color:'+j.color+'">'+j.cnt+'</span>';
+        sh+='<span style="font-size:10px;color:var(--ts)">▶</span></div>';
+      });
+      sh+='</div>';
+    }
     document.getElementById('geoSidebar').innerHTML=sh;
 
-    // Title
+    // Title + back button
     const ttl=document.getElementById('geoMapTitle');
-    if(ttl)ttl.textContent=selKw?'📍 '+selKw.name:'🗺️ 지사별 담당지역';
+    if(ttl)ttl.textContent=isZoomed?'🗺️ '+selJi.name+' 상세':(_mapCenter>=0?'📍 '+KWD[_mapCenter].name:'🗺️ 지사별 담당지역');
     const bb=document.getElementById('geoBackBtn');
-    if(bb)bb.style.display=_mapCenter>=0?'inline-block':'none';
+    if(bb)bb.style.display=(_mapCenter>=0||isZoomed)?'inline-block':'none';
   }
   window._mapRender=render;
 
@@ -2563,18 +2679,16 @@ async function loadMap(){
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     +'<h3 id="geoMapTitle" style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역</h3>'
     +'<div style="display:flex;gap:6px">'
-    +'<button id="geoBackBtn" onclick="hlCenter(-1)" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
+    +'<button id="geoBackBtn" onclick="if(_mapZoom>=0){hlRgn(-1);}else{hlCenter(-1);}" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 뒤로</button>'
     +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️</button>':'')
     +'</div></div>'
-    +'<div style="display:grid;grid-template-columns:1fr 240px;gap:12px">'
+    +'<div style="display:grid;grid-template-columns:1fr 260px;gap:12px">'
     +'<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">'
-    +'<div id="geoMapWrap" style="position:relative;padding:4px"><div id="geoTip" style="position:absolute;background:#1F2937;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10"></div></div>'
-    
-    +'<div id="geoLegend" style="display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--border)"></div>'
+    +'<div id="geoMapWrap" style="position:relative;padding:4px"></div>'
+    +'<div id="geoLegend" style="display:flex;gap:12px;padding:8px 14px;border-top:1px solid var(--border);flex-wrap:wrap"></div>'
     +'</div>'
-    +'<div id="geoSidebar"></div>'
-    +'</div>'
-    +'</div>';
+    +'<div id="geoSidebar" style="max-height:540px;overflow-y:auto"></div>'
+    +'</div></div>';
   render();
 }
 
@@ -2593,6 +2707,8 @@ function hlConsultant(sp){
   _mapConsultant=(!sp||_mapConsultant===sp)?null:sp;
   if(window._mapRender)window._mapRender();
 }
+
+
 
 
 /* ══ 담당지역 (카카오 지도) ══════════════════════════════ */
