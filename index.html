@@ -1521,13 +1521,21 @@ function downloadVOCExcel(){
   if(!entries.length){alert("다운로드할 VOC 데이터가 없습니다.");return;}
   const ym=document.getElementById("vocMonth")?.value||"";
   const label=ym?(ym.replace("-","년 ")+"월"):"전체";
-  const rows=[["날짜","지사","이름","대리점 건의사항(VOC)"]];
-  entries.forEach(e=>rows.push([e.date||"",e.branch||"",e.name||"",(e.field3||"").trim()]));
+  const cache=window._vocSummaryCache||{};
+  const hasAnySummary=entries.some(e=>cache[e.empId+"_"+e.date]);
+  const headers=["날짜","지사","이름","대리점 건의사항(VOC)"];
+  if(hasAnySummary)headers.push("AI 요약");
+  const rows=[headers];
+  entries.forEach(e=>{
+    const cacheKey=e.empId+"_"+e.date;
+    const row=[e.date||"",e.branch||"",e.name||"",(e.field3||"").trim()];
+    if(hasAnySummary)row.push(cache[cacheKey]||"");
+    rows.push(row);
+  });
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  // 열 너비 설정
-  ws["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:60}];
-  // 헤더 행 스타일
-  ["A1","B1","C1","D1"].forEach(cell=>{
+  ws["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:60},...(hasAnySummary?[{wch:50}]:[])];
+  const headerCells=hasAnySummary?["A1","B1","C1","D1","E1"]:["A1","B1","C1","D1"];
+  headerCells.forEach(cell=>{
     if(ws[cell])ws[cell].s={font:{bold:true},fill:{fgColor:{rgb:"EDE7F6"}}};
   });
   const wb=XLSX.utils.book_new();
