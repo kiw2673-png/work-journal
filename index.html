@@ -1450,13 +1450,23 @@ async function renderVOC(){
   });
   vocBody.innerHTML=html;
 }
-async function summarizeVOC(idx){
+if(!window._vocSummaryCache)window._vocSummaryCache={};
+
+async function summarizeVOC(idx,force){
   const entries=window._vocEntries||[];
   const e=entries[idx];
   if(!e)return;
   const el=document.getElementById("vocSum_"+idx);
   const btn=document.getElementById("vocSumBtn_"+idx);
   if(!el)return;
+
+  const cacheKey=e.empId+"_"+e.date;
+
+  // 캐시 적중 시 API 호출 없이 바로 표시
+  if(!force&&window._vocSummaryCache[cacheKey]){
+    _renderVocSummary(el,btn,window._vocSummaryCache[cacheKey]);
+    return;
+  }
 
   const settings=await loadSettings();
   const apiKey=settings.whisperKey||"";
@@ -1465,7 +1475,6 @@ async function summarizeVOC(idx){
     return;
   }
 
-  // [음성변환] 태그가 붙은 줄만 추출
   const voiceText=(e.field3||"").split("\n")
     .filter(l=>l.includes("[음성변환]"))
     .map(l=>l.replace(/\[음성변환\]/g,"").trim())
@@ -1492,15 +1501,20 @@ async function summarizeVOC(idx){
     const data=await res.json();
     if(data.error)throw new Error(data.error.message||"API 오류");
     const summary=(data.choices?.[0]?.message?.content||"").trim();
-    el.innerHTML='<div style="background:rgba(155,89,182,.08);border:1px solid rgba(155,89,182,.25);border-radius:6px;padding:9px 12px;font-size:11px;line-height:1.8;color:#333;margin-top:6px">'
-      +'<div style="font-weight:700;color:#9B59B6;margin-bottom:5px;font-size:10px">🤖 AI 요약 (최대 5줄)</div>'
-      +esc(summary).replace(/\n/g,"<br>")
-      +'</div>';
-    if(btn){btn.textContent="🔄 재요약";btn.disabled=false;}
+    window._vocSummaryCache[cacheKey]=summary;
+    _renderVocSummary(el,btn,summary);
   }catch(err){
     el.innerHTML='<div style="color:var(--danger);font-size:11px;margin-top:6px">요약 실패: '+esc(err.message.slice(0,80))+'</div>';
     if(btn){btn.textContent="🤖 AI 요약";btn.disabled=false;}
   }
+}
+
+function _renderVocSummary(el,btn,summary){
+  el.innerHTML='<div style="background:rgba(155,89,182,.08);border:1px solid rgba(155,89,182,.25);border-radius:6px;padding:9px 12px;font-size:11px;line-height:1.8;color:#333;margin-top:6px">'
+    +'<div style="font-weight:700;color:#9B59B6;margin-bottom:5px;font-size:10px">🤖 AI 요약 (최대 5줄)</div>'
+    +esc(summary).replace(/\n/g,"<br>")
+    +'</div>';
+  if(btn){btn.textContent="🔄 재요약";btn.onclick=function(){summarizeVOC(parseInt(this.id.replace("vocSumBtn_","")),true);};btn.disabled=false;}
 }
 function downloadVOCExcel(){
   const entries=window._vocEntries||[];
