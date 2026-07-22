@@ -6039,6 +6039,7 @@ function renderDMTable(){
     consultants.forEach(c=>{h+='<option>'+esc(c)+'</option>';});
     h+='</select>';
     h+='<button onclick="_dm_bulkApply()" style="padding:4px 12px;border:none;border-radius:6px;background:var(--admin);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">일괄변경</button>';
+    h+='<button onclick="_dm_bulkDelete()" style="padding:4px 12px;border:none;border-radius:6px;background:#dc2626;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🗑️ 선택 삭제</button>';
     h+='<button onclick="_dm_clearCheck()" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ts);font-size:11px;cursor:pointer;font-family:inherit">✕ 선택해제</button>';
     h+='</div>';
   }
@@ -6187,6 +6188,13 @@ async function dmExcelImport(){
   }catch(e){alert("저장 오류: "+e.message);if(btn){btn.textContent="💾 저장";btn.disabled=false;}}
 }
 
+function _dm_bulkDelete(){
+  if(!_dmChecked.size)return;
+  if(!confirm(_dmChecked.size+'개 대리점을 삭제하시겠습니까?'))return;
+  _dmChecked.forEach(i=>{if(!_dealerEdits[i])_dealerEdits[i]={};_dealerEdits[i]._deleted=true;});
+  _dmChecked=new Set();
+  renderDMTable();
+}
 function _dm_bulkApply(){
   const sel=document.getElementById('dmBulkCsr');
   if(!sel||!_dmChecked.size)return;
