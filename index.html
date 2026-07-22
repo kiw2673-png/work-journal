@@ -2529,20 +2529,20 @@ function _buildMapSVG(jisaInfo,zoom){
     const spKeys=Object.keys(ji.spSt||{}).filter(k=>k&&k!=='미지정').sort();
     const spCM={};spKeys.forEach((k,idx)=>{spCM[k]=SP_COLORS[idx%SP_COLORS.length];});
     const placed={};
-    Object.entries(ji.citySt).forEach(([city,dls])=>{
+    ji.dl.forEach(d=>{
       const fb=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
-      let[cx,cy]=_cityXY(city,fb);
-      const mk=cx+','+cy;
-      if(placed[mk]){const n=placed[mk];const offs=[[7,0],[-7,0],[0,7],[0,-7],[7,7],[-7,-7],[7,-7],[-7,7]];const[ox,oy]=offs[(n-1)%8];cx+=ox;cy+=oy;}
-      placed[mk]=(placed[mk]||0)+1;
-      const spSet=new Set(dls.map(d=>d.consultant||'미지정').filter(k=>k!=='미지정'));
-      const dc=spSet.size===1?spCM[[...spSet][0]]||ji.color:ji.color;
-      const r=Math.min(3.5+dls.length*0.5,7);
-      const isHL=_mapConsultant&&spSet.has(_mapConsultant);
+      let cx,cy;
+      if(d._geoXY){[cx,cy]=d._geoXY;}else{const city=extractCity(d.name);[cx,cy]=_cityXY(city,fb);}
+      const mkKey=Math.round(cx*2)+','+Math.round(cy*2);
+      if(placed[mkKey]){const n=placed[mkKey];const offs=[[5,0],[-5,0],[0,5],[0,-5],[5,5],[-5,-5],[5,-5],[-5,5]];const[ox,oy]=offs[(n-1)%8];cx+=ox;cy+=oy;}
+      placed[mkKey]=(placed[mkKey]||0)+1;
+      const dc=spCM[d.consultant||'미지정']||ji.color;
+      const isHL=_mapConsultant&&(d.consultant||'미지정')===_mapConsultant;
       const isDim=_mapConsultant&&!isHL;
-      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(isHL?r+1.5:r)+'" fill="'+dc+'" fill-opacity="'+(isDim?.1:.92)+'" stroke="#fff" stroke-width="'+(isHL?2.5:1)+'" style="cursor:default;'+(isHL?'animation:mapBlink .9s ease-in-out infinite':'')+'"/>';
-      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(isDim?.1:1)+'">'+esc(city)+'</text>';
-      if(dls.length>1)s+='<text x="'+cx+'" y="'+(cy+r+5.5)+'" text-anchor="middle" font-size="4.5" fill="'+dc+'" style="pointer-events:none;opacity:'+(isDim?.1:.8)+'">'+dls.length+'</text>';
+      const r=d._geoXY?3.5:3;
+      const sn=(d.name||'').replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(isHL?r+1.5:r)+'" fill="'+dc+'" fill-opacity="'+(isDim?.1:.92)+'" stroke="#fff" stroke-width="'+(isHL?2:1)+'" style="cursor:default;'+(isHL?'animation:mapBlink .9s ease-in-out infinite':'')+'"/>';
+      s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="4.5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(isDim?.1:1)+'">'+esc(sn)+'</text>';
     });
     if(spKeys.length>1){
       const vbP=vb.split(',').map(Number);
@@ -2647,6 +2647,7 @@ async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
   const dealers=await loadDealers();
+  await _batchGeocodeDealers(dealers);
   const jisaInfo=JISA_DATA.map(j=>{
     const dl=dealers.filter(d=>d.branch===j.name);
     const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
@@ -2700,7 +2701,23 @@ let _areaNmap=null,_areaPopupOv=null,_areaSel=null,_areaCsrFilter='',_areaCenter
 let _areaPolyLayer={},_areaLabelMk={},_areaOvMks={},_areaDetMks={};
 let _areaEditMode=false,_areaEditJisa=null,_areaEditVtxMks=[],_areaEditMidMks=[],_areaEditPaths={};
 function _svgToLL(x,y){return[38.6-(y-10)/69,126+(x-15)/54.3];}
+function _llToSvg(lat,lng){return[(lng-126)*54.3+15,(38.6-lat)*69+10];}
 function _pathToLL(d){return[...d.matchAll(/[ML]([\d.]+),([\d.]+)/g)].map(m=>_svgToLL(+m[1],+m[2]));}
+const _dealerGeoCache={};
+async function _geocodeAddress(addr){
+  if(!addr)return null;
+  if(_dealerGeoCache[addr])return _dealerGeoCache[addr];
+  try{
+    const r=await fetch('https://dapi.kakao.com/v2/local/search/address.json?query='+encodeURIComponent(addr),{headers:{'Authorization':'KakaoAK 49b386987b14321518fccd8ae181cc23'}});
+    const data=await r.json();
+    if(data.documents&&data.documents.length>0){const ll={lat:parseFloat(data.documents[0].y),lng:parseFloat(data.documents[0].x)};_dealerGeoCache[addr]=ll;return ll;}
+  }catch(e){}
+  return null;
+}
+async function _batchGeocodeDealers(dealers){
+  await Promise.all(dealers.filter(d=>d.address&&!_dealerGeoCache[d.address]).map(d=>_geocodeAddress(d.address)));
+  dealers.forEach(d=>{if(d.address&&_dealerGeoCache[d.address]){const ll=_dealerGeoCache[d.address];d._geoXY=_llToSvg(ll.lat,ll.lng);}});
+}
 const _JEJU_LL={'제주':[33.499,126.531],'제주시':[33.503,126.531],'서귀포':[33.254,126.560]};
 function _dealerLL(city,fb){
   if(_JEJU_LL[city])return _JEJU_LL[city];
@@ -2916,6 +2933,7 @@ async function loadArea(){
   });
   // 대리점 데이터
   const [dealers]=await Promise.all([loadDealers(),loadRegUsers()]);
+  await _batchGeocodeDealers(dealers);
   _areaCsrFilter='';
   const jisaInfo=JISA_DATA.map(j=>{
     const dl=dealers.filter(d=>d.branch===j.name);
@@ -2925,13 +2943,15 @@ async function loadArea(){
     const placed={};
     const dealersLL=dl.map(d=>{
       const city=extractCity(d.name);
-      const ll=_dealerLL(city,[j.lx,j.ly]);
-      const rk=Math.round(ll[0]*200)+','+Math.round(ll[1]*200);
+      let baseLat,baseLng;
+      if(d._geoXY){const geo=_dealerGeoCache[d.address];baseLat=geo.lat;baseLng=geo.lng;}
+      else{const ll=_dealerLL(city,[j.lx,j.ly]);baseLat=ll[0];baseLng=ll[1];}
+      const rk=Math.round(baseLat*200)+','+Math.round(baseLng*200);
       const n=(placed[rk]=(placed[rk]||0)+1);
       const offs=[[0,0],[0.008,-0.008],[-0.008,0.008],[0.008,0.008],[-0.008,-0.008],[0,0.012],[0,-0.012],[0.012,0],[-0.012,0]];
       const[dlat,dlng]=offs[(n-1)%9];
       const shortName=d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
-      return{...d,city,lat:ll[0]+dlat,lng:ll[1]+dlng,shortName};
+      return{...d,city,lat:baseLat+dlat,lng:baseLng+dlng,shortName};
     });
     return{...j,dealersLL,cnt:dl.length,spSt,spColors};
   });
@@ -3007,6 +3027,7 @@ async function loadArea(){
         pEl.innerHTML='<div style="font-size:11px;color:'+j.color+';font-weight:700;margin-bottom:2px">'+esc(j.name)+'</div>'
           +'<div style="font-size:13px;font-weight:700;margin-bottom:3px">'+esc(d.name)+'</div>'
           +(d.consultant?'<div style="font-size:11px;color:#555">담당: <b style="color:'+color+'">'+esc(d.consultant)+'</b></div>':'')
+          +(d.address?'<div style="font-size:10px;color:#888;margin-top:3px">📍 '+esc(d.address)+'</div>':'')
           +'<button onclick="window._areaClosePopup()" style="position:absolute;top:5px;right:7px;border:none;background:none;font-size:16px;cursor:pointer;color:#aaa;line-height:1;padding:0">✕</button>';
         _areaPopupOv=new kakao.maps.CustomOverlay({position:pos,content:pEl,xAnchor:0.5,yAnchor:1.0,zIndex:30});
         _areaPopupOv.setMap(_areaNmap);
@@ -5976,7 +5997,7 @@ function _dm_setEdit(i,f,v){
 }
 function _dm_delete(i){if(!confirm('이 대리점을 삭제하시겠습니까?'))return;if(!_dealerEdits[i])_dealerEdits[i]={};_dealerEdits[i]._deleted=true;renderDMTable();}
 function _dm_deleteNew(idx){_dealerAdds.splice(idx,1);renderDMTable();}
-function _dm_addNew(){_dealerAdds.push({branch:JISA_DATA[0].name,name:'',code:'',type:'대리점',consultant:'',regionalMgr:'',salesPerson:''});renderDMTable();setTimeout(()=>{const t=document.getElementById('dmNewName'+(_dealerAdds.length-1));if(t)t.focus();},50);}
+function _dm_addNew(){_dealerAdds.push({branch:JISA_DATA[0].name,name:'',code:'',type:'대리점',consultant:'',address:''});renderDMTable();setTimeout(()=>{const t=document.getElementById('dmNewName'+(_dealerAdds.length-1));if(t)t.focus();},50);}
 function renderDMTable(){
   const fid=document.activeElement?.id;
   const fsel=document.activeElement?.selectionStart;
@@ -6022,7 +6043,7 @@ function renderDMTable(){
     h+='</div>';
   }
   h+='<div style="overflow-x:auto;padding:12px"><table style="width:100%;border-collapse:collapse;font-size:11px;min-width:700px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06)">';
-  h+='<thead><tr style="background:var(--admin);color:#fff"><th style="padding:7px 4px;text-align:center"><input type="checkbox" '+(allChked?'checked':'')+' onchange="_dm_checkAll(this.checked,['+filteredIds.join(',')+'])" style="cursor:pointer;width:14px;height:14px" title="전체선택"></th><th style="padding:7px 5px;text-align:left;white-space:nowrap">지사</th><th style="padding:7px 5px;text-align:left">대리점명</th><th style="padding:7px 4px;white-space:nowrap">코드</th><th style="padding:7px 4px">구분</th><th style="padding:7px 5px;min-width:90px">CSR담당</th><th style="padding:7px 5px">지역장</th><th style="padding:7px 5px">영업담당</th><th style="padding:7px 4px">삭제</th></tr></thead><tbody>';
+  h+='<thead><tr style="background:var(--admin);color:#fff"><th style="padding:7px 4px;text-align:center"><input type="checkbox" '+(allChked?'checked':'')+' onchange="_dm_checkAll(this.checked,['+filteredIds.join(',')+'])" style="cursor:pointer;width:14px;height:14px" title="전체선택"></th><th style="padding:7px 5px;text-align:left;white-space:nowrap">지사</th><th style="padding:7px 5px;text-align:left">대리점명</th><th style="padding:7px 4px;white-space:nowrap">코드</th><th style="padding:7px 4px">구분</th><th style="padding:7px 5px;min-width:90px">CSR담당</th><th style="padding:7px 5px;min-width:140px">주소</th><th style="padding:7px 4px">삭제</th></tr></thead><tbody>';
   _dealerAdds.forEach((d,ni)=>{
     h+='<tr style="background:rgba(16,185,129,.07);border-bottom:1px solid var(--border)">'
      +'<td style="padding:3px 4px"></td>'
@@ -6031,8 +6052,7 @@ function renderDMTable(){
      +'<td style="padding:3px 4px"><input value="'+esc(d.code)+'" oninput="_dealerAdds['+ni+'].code=this.value" placeholder="코드" autocomplete="off" style="'+IS+';max-width:70px"></td>'
      +'<td style="padding:3px 4px">'+typSel(d.type,'_dealerAdds['+ni+'].type=this.value')+'</td>'
      +'<td style="padding:3px 4px">'+csrSel(d.consultant,'_dealerAdds['+ni+'].consultant=this.value')+'</td>'
-     +'<td style="padding:3px 4px"><input value="'+esc(d.regionalMgr||'')+'" oninput="_dealerAdds['+ni+'].regionalMgr=this.value" autocomplete="off" style="'+IS+'"></td>'
-     +'<td style="padding:3px 4px"><input value="'+esc(d.salesPerson||'')+'" oninput="_dealerAdds['+ni+'].salesPerson=this.value" autocomplete="off" style="'+IS+'"></td>'
+     +'<td style="padding:3px 4px"><input value="'+esc(d.address||'')+'" oninput="_dealerAdds['+ni+'].address=this.value" placeholder="도로명 주소" autocomplete="off" style="'+IS+'"></td>'
      +'<td style="padding:3px 4px;text-align:center"><button onclick="_dm_deleteNew('+ni+')" style="padding:3px 8px;border:none;border-radius:4px;background:#fee2e2;color:#dc2626;font-size:11px;cursor:pointer;font-family:inherit">삭제</button></td>'
      +'</tr>';
   });
@@ -6047,8 +6067,7 @@ function renderDMTable(){
      +'<td style="padding:3px 4px"><input id="dmi'+i+'c" value="'+esc(cv('code'))+'" oninput="_dm_setEdit('+i+',\'code\',this.value)" autocomplete="off" style="'+IS+';max-width:70px'+(ed.code!==undefined?';border-color:var(--accent)':'')+'" placeholder="코드"></td>'
      +'<td style="padding:3px 4px">'+typSel(cv('type'),'_dm_setEdit('+i+',\'type\',this.value)')+'</td>'
      +'<td style="padding:3px 4px">'+csrSel(cv('consultant'),'_dm_setEdit('+i+',\'consultant\',this.value)')+'</td>'
-     +'<td style="padding:3px 4px"><input id="dmi'+i+'r" value="'+esc(cv('regionalMgr'))+'" oninput="_dm_setEdit('+i+',\'regionalMgr\',this.value)" autocomplete="off" style="'+IS+(ed.regionalMgr!==undefined?';border-color:var(--accent)':'')+'"></td>'
-     +'<td style="padding:3px 4px"><input id="dmi'+i+'s" value="'+esc(cv('salesPerson'))+'" oninput="_dm_setEdit('+i+',\'salesPerson\',this.value)" autocomplete="off" style="'+IS+(ed.salesPerson!==undefined?';border-color:var(--accent)':'')+'"></td>'
+     +'<td style="padding:3px 4px"><input id="dmi'+i+'a" value="'+esc(cv('address'))+'" oninput="_dm_setEdit('+i+',\'address\',this.value)" placeholder="도로명 주소" autocomplete="off" style="'+IS+(ed.address!==undefined?';border-color:var(--accent)':'')+'"></td>'
      +'<td style="padding:3px 4px;text-align:center"><button onclick="_dm_delete('+i+')" style="padding:3px 8px;border:none;border-radius:4px;background:#fee2e2;color:#dc2626;font-size:11px;cursor:pointer;font-family:inherit">삭제</button></td>'
      +'</tr>';
   });
@@ -6080,11 +6099,11 @@ function _dm_clearCheck(){_dmChecked=new Set();renderDMTable();}
 /* ── 대리점 엑셀 다운/업로드 ── */
 function dmExcelDownload(){
   const dl=_dealers||[];
-  const rows=[['지사','대리점명','코드','구분','CSR담당','지역장','영업담당']];
-  dl.forEach(d=>rows.push([d.branch||'',d.name||'',d.code||'',d.type||'대리점',d.consultant||'',d.regionalMgr||'',d.salesPerson||'']));
+  const rows=[['지사','대리점명','코드','구분','CSR담당','주소']];
+  dl.forEach(d=>rows.push([d.branch||'',d.name||'',d.code||'',d.type||'대리점',d.consultant||'',d.address||'']));
   const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:14},{wch:22},{wch:10},{wch:8},{wch:12},{wch:12},{wch:12}];
-  ['A1','B1','C1','D1','E1','F1','G1'].forEach(c=>{if(ws[c])ws[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
+  ws['!cols']=[{wch:14},{wch:22},{wch:10},{wch:8},{wch:12},{wch:40}];
+  ['A1','B1','C1','D1','E1','F1'].forEach(c=>{if(ws[c])ws[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'대리점목록');
   XLSX.writeFile(wb,'대리점목록_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
@@ -6105,22 +6124,20 @@ function dmExcelOnChange(inp){
         code:['코드','대리점코드','code'],
         type:['구분','유형','type'],
         consultant:['CSR담당','담당자','csr','consultant'],
-        regionalMgr:['지역장','지역담당','regionalmgr'],
-        salesPerson:['영업담당','영업','salesperson']
+        address:['주소','도로명주소','address']
       };
       const colMap={};
       Object.entries(aliases).forEach(([field,cands])=>{
         for(const c of cands){const idx=hdr.findIndex(h=>h.replace(/\s/g,'').toLowerCase()===c.replace(/\s/g,'').toLowerCase());if(idx>=0){colMap[field]=idx;break;}}
       });
-      if(colMap.name===undefined){alert("'대리점명' 열을 찾을 수 없습니다.\n첫 행에 열 제목(지사, 대리점명, 코드, 구분, CSR담당, 지역장, 영업담당)이 있어야 합니다.");return;}
+      if(colMap.name===undefined){alert("'대리점명' 열을 찾을 수 없습니다.\n첫 행에 열 제목(지사, 대리점명, 코드, 구분, CSR담당, 주소)이 있어야 합니다.");return;}
       const parsed=rows.slice(1).map(r=>({
         branch:colMap.branch!==undefined?(r[colMap.branch]||'').toString().trim():'',
         name:(r[colMap.name]||'').toString().trim(),
         code:colMap.code!==undefined?(r[colMap.code]||'').toString().trim():'',
         type:colMap.type!==undefined?(r[colMap.type]||'대리점').toString().trim():'대리점',
         consultant:colMap.consultant!==undefined?(r[colMap.consultant]||'').toString().trim():'',
-        regionalMgr:colMap.regionalMgr!==undefined?(r[colMap.regionalMgr]||'').toString().trim():'',
-        salesPerson:colMap.salesPerson!==undefined?(r[colMap.salesPerson]||'').toString().trim():''
+        address:colMap.address!==undefined?(r[colMap.address]||'').toString().trim():''
       })).filter(d=>d.name);
       if(!parsed.length){alert("유효한 행(대리점명이 있는 행)이 없습니다.");return;}
       _dmImportPreview=parsed;
