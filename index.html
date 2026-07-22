@@ -1346,7 +1346,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   const [snap,usersSnap,scSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get(),db.collection("schedules").where("startDate","<=",dv).get()]);
   const entries=snap.docs.map(d=>d.data());
   const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&u.status!=='무'&&u.status!=='퇴사');
-  const SC_ABSENT=['연차','반차(오전)','반차(오후)'];
+  const SC_ABSENT=['연차','반차(오전)','반차(오후)','출장','교육','B/S현장지원'];
   const absentMap={};scSnap.docs.forEach(d=>{const s=d.data();if(s.endDate>=dv&&SC_ABSENT.includes(s.type))absentMap[s.empId]=s.type;});
   entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const submittedIds=new Set(entries.map(e=>e.empId));
@@ -3464,7 +3464,7 @@ async function buildDailyText(dateStr){
   const entries=rSnap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   if(!entries.length)return null;
   const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&u.status!=='무'&&u.status!=='퇴사');
-  const SC_ABSENT=['연차','반차(오전)','반차(오후)'];
+  const SC_ABSENT=['연차','반차(오전)','반차(오후)','출장','교육','B/S현장지원'];
   const absentMap={};scSnap.docs.forEach(d=>{const s=d.data();if(s.endDate>=dateStr&&SC_ABSENT.includes(s.type))absentMap[s.empId]=s.type;});
   const submittedIds=new Set(entries.map(e=>e.empId));
   const notSubmitted=activeUsers.filter(u=>!submittedIds.has(u.empId)&&!absentMap[u.empId]).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
