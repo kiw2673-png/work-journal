@@ -1582,6 +1582,7 @@ function loadWeek(){
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
   h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderWk()">🔄</button>'
     +'<button onclick="downloadWkExcel()" style="padding:6px 12px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📥 엑셀 다운</button>'
+    +'<button onclick="downloadWkWord()" style="padding:6px 12px;border:none;border-radius:6px;background:#2B5797;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📄 워드 다운</button>'
     +'<button onclick="copyWkText()" style="padding:6px 12px;border:none;border-radius:6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>'
     +'</div><div id="wkBody"></div>';
   document.getElementById("tabWeekly").innerHTML=h;
@@ -1706,6 +1707,67 @@ function downloadWkExcel(){
   if(caseRows.length>1)XLSX.utils.book_append_sheet(wb,wsC,"현장지원");
   const fname="주간보고_"+label.replace(/\s/g,"_").replace(/~/g,"-")+"_"+new Date().toISOString().slice(0,10)+".xlsx";
   XLSX.writeFile(wb,fname);
+}
+async function downloadWkWord(){
+  const entries=window._wkEntries||[];
+  if(!entries.length){alert("다운로드할 데이터가 없습니다.");return;}
+  const label=window._wkLabel||"주간";
+  const btn=document.querySelector('[onclick="downloadWkWord()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ 이미지 수집 중...';}
+  // 이미지 URL 수집
+  const imgUrls=new Set();
+  entries.forEach(e=>{
+    (e.cases||[]).forEach(c=>(c.media||[]).filter(m=>m.kind==='image').forEach(m=>imgUrls.add(m.url)));
+    (e.media||[]).filter(m=>m.kind==='image').forEach(m=>imgUrls.add(m.url));
+  });
+  // 이미지 base64 변환 (실패 시 URL 그대로 사용)
+  const imgB64={};
+  await Promise.all([...imgUrls].map(async url=>{
+    try{
+      const r=await fetch(url);if(!r.ok)throw new Error();
+      const blob=await r.blob();
+      imgB64[url]=await new Promise(res=>{const fr=new FileReader();fr.onloadend=()=>res(fr.result);fr.readAsDataURL(blob);});
+    }catch(e2){imgB64[url]=url;}
+  }));
+  if(btn)btn.textContent='⏳ 문서 생성 중...';
+  function imgTag(url){const src=imgB64[url]||url;return '<img src="'+src+'" style="max-width:160pt;max-height:160pt;border:1pt solid #ddd;border-radius:2pt;margin:2pt">';}
+  const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e)});
+  let body='';
+  Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([date,list])=>{
+    body+='<h3 style="background:#1B3A5C;color:#fff;padding:5pt 10pt;font-size:11pt;margin:10pt 0 4pt">'+fds(date)+'</h3>';
+    list.forEach(e=>{
+      body+='<div style="border:1pt solid #ccc;border-radius:3pt;margin-bottom:8pt;padding:8pt;page-break-inside:avoid">';
+      body+='<div style="background:#E3F2FD;padding:4pt 8pt;margin:-8pt -8pt 6pt;font-weight:bold;font-size:10pt;border-radius:2pt 2pt 0 0">'+esc(e.branch)+' | '+esc(e.name)+'</div>';
+      const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+      if(fc.length){
+        body+='<table style="border-collapse:collapse;width:100%;margin:4pt 0;font-size:8pt"><thead><tr style="background:#E3F2FD"><th style="border:1pt solid #ccc;padding:3pt 4pt">모델</th><th style="border:1pt solid #ccc;padding:3pt 4pt">용량</th><th style="border:1pt solid #ccc;padding:3pt 4pt">기종구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt">구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt">S/N</th><th style="border:1pt solid #ccc;padding:3pt 4pt">증상</th><th style="border:1pt solid #ccc;padding:3pt 4pt">처리</th></tr></thead><tbody>';
+        fc.forEach(c=>{
+          body+='<tr><td style="border:1pt solid #ccc;padding:2pt 4pt;font-weight:600">'+esc(c.model||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;text-align:center">'+esc(c.capacity||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.openclose||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.category||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.serial||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.symptom||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.action||'')+'</td></tr>';
+          if(c.note)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; '+esc(c.note)+'</td></tr>';
+          const cImgs=(c.media||[]).filter(m=>m.kind==='image');
+          if(cImgs.length){body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:4pt"><div>';cImgs.forEach(m=>{body+=imgTag(m.url);});body+='</div></td></tr>';}
+        });
+        body+='</tbody></table>';
+      }
+      if(e.field1)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#2980B9;font-size:9pt">&#x25B6; 현장업무</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field1)+'</div></div>';
+      if(e.field2)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#27AE60;font-size:9pt">&#x25B6; 상담&amp;특이사항</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field2)+'</div></div>';
+      if(e.field3)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#8E44AD;font-size:9pt">&#x25B6; VOC</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field3)+'</div></div>';
+      const rImgs=(e.media||[]).filter(m=>m.kind==='image');
+      if(rImgs.length){body+='<div style="margin-top:6pt"><span style="font-weight:bold;font-size:9pt">&#x1F4F7; 첨부사진</span><div style="margin-top:4pt">';rImgs.forEach(m=>{body+=imgTag(m.url);});body+='</div></div>';}
+      body+='</div>';
+    });
+  });
+  const totalCases=entries.reduce((s,e)=>s+(e.cases||[]).filter(c=>c.model||c.symptom).length,0);
+  const html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>CS업무일지 주간보고</title><style>body{font-family:'맑은 고딕',sans-serif;font-size:10pt;margin:2cm}h1{color:#1B3A5C;font-size:14pt;border-bottom:2pt solid #1B3A5C;padding-bottom:4pt;margin-bottom:4pt}h3{font-size:11pt}p.sub{color:#555;font-size:9pt;margin:0 0 12pt}</style></head><body>"
+    +"<h1>CS업무일지 주간보고</h1>"
+    +"<p class='sub'>&#x1F4C5; "+label+" &nbsp;|&nbsp; 제출 "+entries.length+"건 &nbsp;&middot;&nbsp; 현장지원 "+totalCases+"건</p>"
+    +body
+    +"<p style='color:#999;font-size:8pt;margin-top:20pt;border-top:1pt solid #ddd;padding-top:6pt'>대성쎌틱에너시스(주) CS업무일지</p></body></html>";
+  const blob=new Blob(['﻿'+html],{type:'application/msword'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='주간보고_'+label.replace(/\s/g,'_').replace(/~/g,'-')+'_'+new Date().toISOString().slice(0,10)+'.doc';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+  if(btn){btn.disabled=false;btn.textContent='📄 워드 다운';}
 }
 function copyWkText(){
   const entries=window._wkEntries||[];
