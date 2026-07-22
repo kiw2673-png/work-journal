@@ -1343,15 +1343,20 @@ function mvRD(dir){const inp=document.getElementById("rptDate");const d=new Date
 function goTD(){document.getElementById("rptDate").value=tk();renderRpt()}
 async function renderRpt(){const dv=document.getElementById("rptDate").value;if(!dv)return;
   document.getElementById("rptLabel").textContent="📋 "+fds(dv);document.getElementById("rptBody").innerHTML='<div class="loading">불러오는 중...</div>';
-  const [snap,usersSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get()]);
+  const [snap,usersSnap,scSnap]=await Promise.all([db.collection("reports").where("date","==",dv).get(),db.collection("users").get(),db.collection("schedules").where("startDate","<=",dv).get()]);
   const entries=snap.docs.map(d=>d.data());
   const allUsers=usersSnap.docs.map(d=>d.data()).filter(u=>u.branch!=="CS본부"&&u.name&&u.empId&&u.status!=='무'&&u.status!=='퇴사');
+  const SC_ABSENT=['연차','반차(오전)','반차(오후)'];
+  const absentMap={};scSnap.docs.forEach(d=>{const s=d.data();if(s.endDate>=dv&&SC_ABSENT.includes(s.type))absentMap[s.empId]=s.type;});
   entries.sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const submittedIds=new Set(entries.map(e=>e.empId));
-  const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  const notSubmitted=allUsers.filter(u=>!submittedIds.has(u.empId)&&!absentMap[u.empId]).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  const onLeave=allUsers.filter(u=>!submittedIds.has(u.empId)&&absentMap[u.empId]).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const grpNS={};notSubmitted.forEach(u=>{if(!grpNS[u.branch])grpNS[u.branch]=[];grpNS[u.branch].push(u)});
-  let html='<div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-wrap:wrap;gap:6px"><span style="font-weight:600">'+fds(dv)+'</span><span><span style="color:var(--success);font-weight:700">제출 '+entries.length+'명</span> / <span style="color:var(--danger);font-weight:700">미제출 '+notSubmitted.length+'명</span></span></div>';
-  if(notSubmitted.length){html+='<div style="background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px"><div style="font-weight:700;color:var(--danger);margin-bottom:6px">🚨 미제출 ('+notSubmitted.length+'명)</div>'+Object.entries(grpNS).map(([br,list])=>'<div style="margin-bottom:2px"><span style="color:var(--ts)">🏢 '+esc(br)+'</span> '+list.map(u=>'<b>'+esc(u.name)+'</b>').join(', ')+'</div>').join('')+'</div>'}
+  const grpOL={};onLeave.forEach(u=>{if(!grpOL[u.branch])grpOL[u.branch]=[];grpOL[u.branch].push({...u,scType:absentMap[u.empId]})});
+  let html='<div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px;flex-wrap:wrap;gap:6px"><span style="font-weight:600">'+fds(dv)+'</span><span><span style="color:var(--success);font-weight:700">제출 '+entries.length+'명</span> / <span style="color:var(--danger);font-weight:700">미제출 '+notSubmitted.length+'명</span>'+(onLeave.length?'<span style="color:#D4AC0D;font-weight:700;margin-left:6px">휴가 '+onLeave.length+'명</span>':'')+'</span></div>';
+  if(notSubmitted.length){html+='<div style="background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:10px 14px;margin-bottom:8px;font-size:11px"><div style="font-weight:700;color:var(--danger);margin-bottom:6px">🚨 미제출 ('+notSubmitted.length+'명)</div>'+Object.entries(grpNS).map(([br,list])=>'<div style="margin-bottom:2px"><span style="color:var(--ts)">🏢 '+esc(br)+'</span> '+list.map(u=>'<b>'+esc(u.name)+'</b>').join(', ')+'</div>').join('')+'</div>'}
+  if(onLeave.length){html+='<div style="background:#FFFDE7;border:1px solid #F9E04B;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:11px"><div style="font-weight:700;color:#D4AC0D;margin-bottom:6px">📅 휴가/반차 ('+onLeave.length+'명)</div>'+Object.entries(grpOL).map(([br,list])=>'<div style="margin-bottom:2px"><span style="color:var(--ts)">🏢 '+esc(br)+'</span> '+list.map(u=>'<b>'+esc(u.name)+'</b> <span style="color:#D4AC0D">('+u.scType+')</span>').join(', ')+'</div>').join('')+'</div>'}
   if(!entries.length){html+='<div style="text-align:center;padding:40px;color:var(--ts)">없음</div>';document.getElementById("rptBody").innerHTML=html;return}
   const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
   for(const[branch,list]of Object.entries(grouped)){
@@ -3389,22 +3394,26 @@ function startAutoTgScheduler(){
 }
 
 async function buildDailyText(dateStr){
-  const [rSnap,uSnap]=await Promise.all([
+  const [rSnap,uSnap,scSnap]=await Promise.all([
     db.collection("reports").where("date","==",dateStr).get(),
-    db.collection("users").get()
+    db.collection("users").get(),
+    db.collection("schedules").where("startDate","<=",dateStr).get()
   ]);
   const entries=rSnap.docs.map(d=>d.data()).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   if(!entries.length)return null;
   const activeUsers=uSnap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.branch!=="CS본부"&&u.status!=='무'&&u.status!=='퇴사');
+  const SC_ABSENT=['연차','반차(오전)','반차(오후)'];
+  const absentMap={};scSnap.docs.forEach(d=>{const s=d.data();if(s.endDate>=dateStr&&SC_ABSENT.includes(s.type))absentMap[s.empId]=s.type;});
   const submittedIds=new Set(entries.map(e=>e.empId));
-  const notSubmitted=activeUsers.filter(u=>!submittedIds.has(u.empId)).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  const notSubmitted=activeUsers.filter(u=>!submittedIds.has(u.empId)&&!absentMap[u.empId]).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
+  const onLeave=activeUsers.filter(u=>!submittedIds.has(u.empId)&&absentMap[u.empId]).sort((a,b)=>(a.branch||"").localeCompare(b.branch||""));
   const dObj=new Date(dateStr+"T00:00:00");
   const wd=["일","월","화","수","목","금","토"][dObj.getDay()];
   const dtLabel=dObj.getFullYear()+"년 "+String(dObj.getMonth()+1).padStart(2,"0")+"월 "+String(dObj.getDate()).padStart(2,"0")+"일 ("+wd+")";
   const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
   let totalCases=0;entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
   let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
-  txt+="📊 제출 "+entries.length+"명 · 미제출 "+notSubmitted.length+"명 · 현장지원 "+totalCases+"건\n";
+  txt+="📊 제출 "+entries.length+"명 · 미제출 "+notSubmitted.length+"명"+(onLeave.length?" · 휴가 "+onLeave.length+"명":"")+" · 현장지원 "+totalCases+"건\n";
   Object.entries(grouped).forEach(([branch,list])=>{
     const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
     txt+="\n━━━ 🏢 "+branch+" ("+list.length+"명, "+brCases+"건) ━━━\n";
@@ -3424,6 +3433,11 @@ async function buildDailyText(dateStr){
     txt+="\n━━━ 🚨 미제출 ("+notSubmitted.length+"명) ━━━\n";
     const grpNS={};notSubmitted.forEach(u=>{if(!grpNS[u.branch])grpNS[u.branch]=[];grpNS[u.branch].push(u.name)});
     Object.entries(grpNS).forEach(([br,names])=>{txt+="🏢 "+br+": "+names.join(", ")+"\n";});
+  }
+  if(onLeave.length){
+    txt+="\n━━━ 📅 휴가/반차 ("+onLeave.length+"명) ━━━\n";
+    const grpOL={};onLeave.forEach(u=>{if(!grpOL[u.branch])grpOL[u.branch]=[];grpOL[u.branch].push(u.name+"("+absentMap[u.empId]+")")});
+    Object.entries(grpOL).forEach(([br,names])=>{txt+="🏢 "+br+": "+names.join(", ")+"\n";});
   }
   txt+="\n━━━━━━━━━━━━━━━━━━\n대성쎌틱에너시스(주) CS업무일지";
   return txt;
