@@ -3238,12 +3238,34 @@ async function openAddSchedule(prefill){
   let userRow='';
   if(isAdm){
     const snap=await db.collection("users").get();
-    const users=snap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId).sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
-    const opts=users.map(u=>'<option value=\''+esc(JSON.stringify({empId:u.empId,name:u.name,branch:u.branch}))+'\'>'+esc(u.branch)+' - '+esc(u.name)+'</option>').join('');
+    const users=snap.docs.map(d=>d.data()).filter(u=>u.name&&u.empId&&u.status!=='퇴사').sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
     const sess=JSON.parse(localStorage.getItem("session")||"{}");
     const myId=CU?.empId||sess.user?.empId||'';
-    userRow='<div><span class="fl">대상자</span><select id="scUserSel" class="fi-sel">'+opts+'</select></div>';
-    if(myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}}},50);}
+    // 지사별 그룹핑
+    const branches={};users.forEach(u=>{const b=u.branch||'기타';if(!branches[b])branches[b]=[];branches[b].push(u);});
+    let listH='';
+    Object.entries(branches).forEach(([branch,brUsers])=>{
+      listH+='<div style="font-size:10px;font-weight:700;color:var(--primary);padding:4px 6px 2px;background:var(--ibg);margin-bottom:2px;border-radius:4px">'+esc(branch)+'</div>';
+      brUsers.forEach(u=>{
+        const val=JSON.stringify({empId:u.empId,name:u.name,branch:u.branch});
+        const checked=u.empId===myId?' checked':'';
+        listH+='<label style="display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:5px;cursor:pointer;font-size:12px" onmouseenter="this.style.background=\'var(--ibg)\'" onmouseleave="this.style.background=\'\'">'
+          +'<input type="checkbox" id="scCb_'+u.empId+'" value=\''+val.replace(/'/g,"&#39;")+'\' onchange="scUpdateSelCount()"'+checked+' style="width:14px;height:14px;cursor:pointer">'
+          +'<span style="font-weight:600">'+esc(u.name)+'</span>'
+          +'</label>';
+      });
+    });
+    userRow='<div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'
+      +'<span class="fl" style="margin:0">대상자</span>'
+      +'<span id="scSelCount" style="font-size:10px;font-weight:700;color:#2CA5E0;background:#2CA5E010;border:1px solid #2CA5E044;border-radius:8px;padding:1px 8px;margin-left:auto">0명 선택</span>'
+      +'<button onclick="scSelectAll(true)" style="padding:2px 7px;border:1px solid var(--border);border-radius:5px;font-size:10px;cursor:pointer;font-family:inherit;background:var(--ibg)">전체</button>'
+      +'<button onclick="scSelectAll(false)" style="padding:2px 7px;border:1px solid var(--border);border-radius:5px;font-size:10px;cursor:pointer;font-family:inherit;background:var(--ibg)">해제</button>'
+      +'</div>'
+      +'<div id="scUserList" style="max-height:160px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:4px">'
+      +listH
+      +'</div>'
+      +'</div>';
   }
   document.getElementById("scFormBody").innerHTML=
     '<div style="display:flex;flex-direction:column;gap:10px">'
@@ -3254,22 +3276,45 @@ async function openAddSchedule(prefill){
     +'<button onclick="saveSchedule()" style="padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#2CA5E0,#1a85c0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">저장</button>'
     +'</div>';
   document.getElementById("scFormModal").classList.add("open");
-  if(isAdm&&myId){setTimeout(()=>{const sel=document.getElementById("scUserSel");if(sel){for(let i=0;i<sel.options.length;i++){try{if(JSON.parse(sel.options[i].value).empId===myId){sel.selectedIndex=i;break;}}catch(e){}}}},80);}
+  setTimeout(()=>scUpdateSelCount(),50);
+}
+function scUpdateSelCount(){
+  const cnt=document.querySelectorAll('#scUserList input[type="checkbox"]:checked').length;
+  const el=document.getElementById("scSelCount");
+  if(el)el.textContent=cnt+'명 선택';
+}
+function scSelectAll(checked){
+  document.querySelectorAll('#scUserList input[type="checkbox"]').forEach(cb=>{cb.checked=checked;});
+  scUpdateSelCount();
 }
 
 async function saveSchedule(){
-  let u=CU;if(!u){const sess=JSON.parse(localStorage.getItem("session")||"{}");u=sess.user||null;}
-  const selEl=document.getElementById("scUserSel");
-  if(selEl&&selEl.value){try{u=JSON.parse(selEl.value);}catch(e){}}
-  if(!u){alert("일반 사용자 계정으로 로그인 후 등록하세요");return;}
   const type=document.getElementById("scType").value;
   const start=document.getElementById("scStart").value;
   const end=document.getElementById("scEnd").value;
   const note=(document.getElementById("scNote").value||"").trim();
   if(!start||!end){alert("날짜를 입력하세요");return;}
   if(start>end){alert("종료일은 시작일 이후여야 합니다");return;}
-  const docId=u.empId+"_"+Date.now().toString(36);
-  await db.collection("schedules").doc(docId).set({empId:u.empId,name:u.name,branch:u.branch,type,startDate:start,endDate:end,note,createdAt:new Date().toISOString()});
+  // 대상자 수집 (다중 선택 or 본인)
+  const checkboxes=document.querySelectorAll('#scUserList input[type="checkbox"]:checked');
+  let targets=[];
+  if(checkboxes.length>0){
+    checkboxes.forEach(cb=>{try{targets.push(JSON.parse(cb.value));}catch(e){}});
+  } else {
+    let u=CU;if(!u){const sess=JSON.parse(localStorage.getItem("session")||"{}");u=sess.user||null;}
+    if(!u){alert("대상자를 선택하거나 로그인 후 등록하세요");return;}
+    targets=[{empId:u.empId,name:u.name,branch:u.branch}];
+  }
+  if(targets.length===0){alert("대상자를 1명 이상 선택하세요");return;}
+  const btn=document.querySelector('#scFormBody button[onclick="saveSchedule()"]');
+  if(btn){btn.disabled=true;btn.textContent='저장 중...';}
+  try{
+    const base=Date.now();
+    await Promise.all(targets.map((u,i)=>{
+      const docId=u.empId+"_"+(base+i).toString(36);
+      return db.collection("schedules").doc(docId).set({empId:u.empId,name:u.name,branch:u.branch,type,startDate:start,endDate:end,note,createdAt:new Date().toISOString()});
+    }));
+  }catch(e){alert("저장 실패: "+e.message);if(btn){btn.disabled=false;btn.textContent='저장';}return;}
   document.getElementById("scFormModal").classList.remove("open");
   if(document.getElementById("scheduleModal").classList.contains("open"))_scLoadAndRender();
   if(admTab==="schedule")loadScTab();
