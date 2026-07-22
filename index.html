@@ -1730,35 +1730,59 @@ async function downloadWkWord(){
     }catch(e2){imgB64[url]=url;}
   }));
   if(btn)btn.textContent='⏳ 문서 생성 중...';
-  function imgTag(url){const src=imgB64[url]||url;return '<img src="'+src+'" width="21" height="21" style="width:16pt;height:16pt;border:1pt solid #ddd;margin:1pt;vertical-align:middle">';}
+  // 사진 3열 그리드 (각 셀 4.8cm)
+  function photoGrid(imgs){
+    if(!imgs||!imgs.length)return'';
+    let rows='';
+    for(let i=0;i<imgs.length;i+=3){
+      rows+='<tr>';
+      for(let j=0;j<3;j++){
+        const m=imgs[i+j];
+        const src=m?(imgB64[m.url]||m.url):'';
+        rows+='<td style="width:4.8cm;padding:2pt;vertical-align:top">'+(src?'<img src="'+src+'" width="136" height="136" style="width:4.8cm;height:4.8cm;border:1pt solid #ddd;display:block">':'')+'</td>';
+      }
+      rows+='</tr>';
+    }
+    return '<table style="border-collapse:collapse;width:14.4cm;table-layout:fixed;margin-top:3pt">'+rows+'</table>';
+  }
   const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e)});
   let body='';
   Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([date,list])=>{
-    body+='<h3 style="background:#1B3A5C;color:#fff;padding:5pt 10pt;font-size:11pt;margin:10pt 0 4pt">'+fds(date)+'</h3>';
+    body+='<div style="width:16cm;background:#1B3A5C;color:#fff;padding:5pt 10pt;font-size:11pt;margin:10pt 0 4pt;box-sizing:border-box">'+fds(date)+'</div>';
     list.forEach(e=>{
-      body+='<div style="border:1pt solid #ccc;border-radius:3pt;margin-bottom:8pt;padding:8pt;page-break-inside:avoid;width:16cm;max-width:16cm;box-sizing:border-box">';
-      body+='<div style="background:#E3F2FD;padding:4pt 8pt;margin:-8pt -8pt 6pt;font-weight:bold;font-size:10pt;border-radius:2pt 2pt 0 0">'+esc(e.branch)+' | '+esc(e.name)+'</div>';
+      // 카드 고정 16cm, overflow:hidden으로 내용 넘침 방지
+      body+='<table style="border-collapse:collapse;width:16cm;margin-bottom:8pt;border:1pt solid #ccc;table-layout:fixed"><tbody>';
+      // 담당자 헤더행
+      body+='<tr><td style="background:#E3F2FD;padding:4pt 8pt;font-weight:bold;font-size:10pt;width:16cm">'+esc(e.branch)+' | '+esc(e.name)+'</td></tr>';
       const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
       if(fc.length){
-        body+='<table style="border-collapse:collapse;width:16cm;max-width:16cm;margin:4pt 0;font-size:8pt;table-layout:fixed"><thead><tr style="background:#E3F2FD"><th style="border:1pt solid #ccc;padding:3pt 4pt">모델</th><th style="border:1pt solid #ccc;padding:3pt 4pt">용량</th><th style="border:1pt solid #ccc;padding:3pt 4pt">기종구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt">구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt">S/N</th><th style="border:1pt solid #ccc;padding:3pt 4pt">증상</th><th style="border:1pt solid #ccc;padding:3pt 4pt">처리</th></tr></thead><tbody>';
+        body+='<tr><td style="padding:6pt 8pt">';
+        // 케이스 표: 15cm (카드 16cm - 양쪽 패딩 0.5cm)
+        body+='<table style="border-collapse:collapse;width:15cm;max-width:15cm;font-size:8pt;table-layout:fixed"><thead><tr style="background:#E3F2FD"><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">모델</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.2cm">용량</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">기종구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.4cm">구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2.2cm">S/N</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">증상</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">처리</th></tr></thead><tbody>';
         fc.forEach(c=>{
-          body+='<tr><td style="border:1pt solid #ccc;padding:2pt 4pt;font-weight:600">'+esc(c.model||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;text-align:center">'+esc(c.capacity||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.openclose||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.category||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.serial||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.symptom||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt">'+esc(c.action||'')+'</td></tr>';
+          body+='<tr><td style="border:1pt solid #ccc;padding:2pt 4pt;font-weight:600;overflow:hidden">'+esc(c.model||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;text-align:center">'+esc(c.capacity||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.openclose||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.category||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.serial||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.symptom||'')+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.action||'')+'</td></tr>';
           if(c.note)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; '+esc(c.note)+'</td></tr>';
           const cImgs=(c.media||[]).filter(m=>m.kind==='image');
-          if(cImgs.length){body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:4pt"><div>';cImgs.forEach(m=>{body+=imgTag(m.url);});body+='</div></td></tr>';}
+          if(cImgs.length)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:4pt">'+photoGrid(cImgs)+'</td></tr>';
         });
-        body+='</tbody></table>';
+        body+='</tbody></table></td></tr>';
       }
-      if(e.field1)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#2980B9;font-size:9pt">&#x25B6; 현장업무</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field1)+'</div></div>';
-      if(e.field2)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#27AE60;font-size:9pt">&#x25B6; 상담&amp;특이사항</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field2)+'</div></div>';
-      if(e.field3)body+='<div style="margin-top:5pt"><span style="font-weight:bold;color:#8E44AD;font-size:9pt">&#x25B6; VOC</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field3)+'</div></div>';
+      if(e.field1||e.field2||e.field3){
+        body+='<tr><td style="padding:4pt 8pt">';
+        if(e.field1)body+='<div style="margin-bottom:4pt"><span style="font-weight:bold;color:#2980B9;font-size:9pt">&#x25B6; 현장업무</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field1)+'</div></div>';
+        if(e.field2)body+='<div style="margin-bottom:4pt"><span style="font-weight:bold;color:#27AE60;font-size:9pt">&#x25B6; 상담&amp;특이사항</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field2)+'</div></div>';
+        if(e.field3)body+='<div><span style="font-weight:bold;color:#8E44AD;font-size:9pt">&#x25B6; VOC</span><div style="white-space:pre-wrap;font-size:8.5pt;margin-top:2pt;padding-left:8pt">'+esc(e.field3)+'</div></div>';
+        body+='</td></tr>';
+      }
       const rImgs=(e.media||[]).filter(m=>m.kind==='image');
-      if(rImgs.length){body+='<div style="margin-top:6pt"><span style="font-weight:bold;font-size:9pt">&#x1F4F7; 첨부사진</span><div style="margin-top:4pt">';rImgs.forEach(m=>{body+=imgTag(m.url);});body+='</div></div>';}
-      body+='</div>';
+      if(rImgs.length){
+        body+='<tr><td style="padding:4pt 8pt"><span style="font-weight:bold;font-size:9pt">&#x1F4F7; 첨부사진</span>'+photoGrid(rImgs)+'</td></tr>';
+      }
+      body+='</tbody></table>';
     });
   });
   const totalCases=entries.reduce((s,e)=>s+(e.cases||[]).filter(c=>c.model||c.symptom).length,0);
-  const html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>CS업무일지 주간보고</title><style>body{font-family:'맑은 고딕',sans-serif;font-size:10pt;margin:2cm}h1{color:#1B3A5C;font-size:14pt;border-bottom:2pt solid #1B3A5C;padding-bottom:4pt;margin-bottom:4pt}h3{font-size:11pt;width:16cm;max-width:16cm}p.sub{color:#555;font-size:9pt;margin:0 0 12pt}table{max-width:16cm!important;width:16cm!important}img{width:16pt!important;height:16pt!important}</style></head><body>"
+  const html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>CS업무일지 주간보고</title><style>body{font-family:'맑은 고딕',sans-serif;font-size:10pt;margin:2cm}h1{color:#1B3A5C;font-size:14pt;border-bottom:2pt solid #1B3A5C;padding-bottom:4pt;margin-bottom:4pt}p.sub{color:#555;font-size:9pt;margin:0 0 12pt}</style></head><body>"
     +"<h1>CS업무일지 주간보고</h1>"
     +"<p class='sub'>&#x1F4C5; "+label+" &nbsp;|&nbsp; 제출 "+entries.length+"건 &nbsp;&middot;&nbsp; 현장지원 "+totalCases+"건</p>"
     +body
