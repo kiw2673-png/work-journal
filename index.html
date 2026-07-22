@@ -3273,7 +3273,7 @@ async function editSchedule(docId){
   document.getElementById("scFormBody").innerHTML=
     '<div style="display:flex;flex-direction:column;gap:10px">'
     +userRow
-    +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel">'+Object.keys(SC_TYPES).map(k=>'<option'+(k===s.type?' selected':'')+'>'+k+'</option>').join('')+'</select></div>'
+    +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel" onchange="document.getElementById(\'scTypeCustom\').style.display=this.value===\'직접입력\'?\'block\':\'none\'">'+Object.keys(SC_TYPES).filter(k=>k!=='기타').map(k=>'<option'+(k===s.type?' selected':'')+'>'+k+'</option>').join('')+'<option value="직접입력"'+((!SC_TYPES[s.type]||s.type==='기타')?' selected':'')+'>직접입력</option></select><input id="scTypeCustom" class="fi-input" placeholder="일정 유형 직접 입력" style="margin-top:4px;display:'+( (!SC_TYPES[s.type]||s.type==='기타')?'block':'none')+'" value="'+((!SC_TYPES[s.type]||s.type==='기타')?esc(s.type==='기타'?'':s.type):'')+'"></div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="fl">시작일</span><input id="scStart" type="date" class="fi-input" value="'+s.startDate+'"></div><div><span class="fl">종료일</span><input id="scEnd" type="date" class="fi-input" value="'+s.endDate+'"></div></div>'
     +'<div><span class="fl">메모 (선택)</span><input id="scNote" class="fi-input" value="'+esc(s.note||'')+'" placeholder="예: 경기 고객사 방문"></div>'
     +'<button onclick="saveEditSchedule(\''+docId+'\')" style="padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--pl));color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">저장</button>'
@@ -3286,7 +3286,8 @@ async function saveEditSchedule(docId){
   let u={empId:_scData.find(x=>x.docId===docId)?.empId,name:_scData.find(x=>x.docId===docId)?.name,branch:_scData.find(x=>x.docId===docId)?.branch};
   const selEl=document.getElementById("scUserSel");
   if(selEl&&selEl.value){try{u=JSON.parse(selEl.value);}catch(e){}}
-  const type=document.getElementById("scType").value;
+  let type=document.getElementById("scType").value;
+  if(type==='직접입력'){type=(document.getElementById("scTypeCustom")?.value||"").trim();if(!type){alert("일정 유형을 입력하세요");return;}}
   const start=document.getElementById("scStart").value;
   const end=document.getElementById("scEnd").value;
   const note=(document.getElementById("scNote").value||"").trim();
@@ -3337,7 +3338,7 @@ async function openAddSchedule(prefill){
   document.getElementById("scFormBody").innerHTML=
     '<div style="display:flex;flex-direction:column;gap:10px">'
     +userRow
-    +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel">'+Object.keys(SC_TYPES).map(k=>'<option>'+k+'</option>').join('')+'</select></div>'
+    +'<div><span class="fl">일정 유형</span><select id="scType" class="fi-sel" onchange="document.getElementById(\'scTypeCustom\').style.display=this.value===\'직접입력\'?\'block\':\'none\'">'+Object.keys(SC_TYPES).filter(k=>k!=='기타').map(k=>'<option>'+k+'</option>').join('')+'<option value="직접입력">직접입력</option></select><input id="scTypeCustom" class="fi-input" placeholder="일정 유형 직접 입력" style="margin-top:4px;display:none"></div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="fl">시작일</span><input id="scStart" type="date" class="fi-input" value="'+today+'"></div><div><span class="fl">종료일</span><input id="scEnd" type="date" class="fi-input" value="'+today+'"></div></div>'
     +'<div><span class="fl">메모 (선택)</span><input id="scNote" class="fi-input" placeholder="예: 경기 고객사 방문"></div>'
     +'<button onclick="saveSchedule()" style="padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,#2CA5E0,#1a85c0);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">저장</button>'
@@ -3356,7 +3357,8 @@ function scSelectAll(checked){
 }
 
 async function saveSchedule(){
-  const type=document.getElementById("scType").value;
+  let type=document.getElementById("scType").value;
+  if(type==='직접입력'){type=(document.getElementById("scTypeCustom")?.value||"").trim();if(!type){alert("일정 유형을 입력하세요");return;}}
   const start=document.getElementById("scStart").value;
   const end=document.getElementById("scEnd").value;
   const note=(document.getElementById("scNote").value||"").trim();
