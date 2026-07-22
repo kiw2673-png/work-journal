@@ -2401,7 +2401,8 @@ async function saveSett(){
 
 /* ══ MAP ══ */
 // SVG coord: x=15+(lon-126)*54.3, y=10+(38.6-lat)*69
-const KO='M51,41 L75,41 L105,30 L138,20 L149,26 L156,38 L173,69 L187,90 L200,121 L198,188 L195,221 L181,252 L185,262 L179,276 L162,278 L140,274 L120,276 L108,274 L79,278 L57,298 L48,279 L31,261 L42,234 L54,181 L46,157 L41,126 L49,117 L51,106 L47,88 L49,77 L42,60 L49,50 Z';
+const KO='M48,43 L52,39 L58,36 L70,36 L80,32 L92,27 L105,23 L118,18 L130,14 L142,11 L150,11 L158,16 L161,26 L163,35 L167,47 L170,58 L172,65 L174,72 L177,80 L180,88 L183,97 L185,106 L188,116 L192,128 L196,140 L199,152 L201,163 L203,173 L203,182 L202,192 L200,201 L198,210 L195,219 L192,228 L189,238 L187,247 L185,254 L182,261 L178,266 L172,271 L165,274 L156,276 L148,278 L140,277 L130,275 L120,273 L112,275 L104,278 L96,282 L85,288 L75,294 L65,300 L57,307 L50,308 L44,304 L38,297 L32,287 L26,276 L22,265 L21,253 L23,242 L26,232 L30,220 L34,208 L38,197 L43,189 L50,184 L53,175 L48,163 L42,152 L36,144 L28,140 L22,136 L20,128 L22,120 L28,114 L35,110 L42,106 L46,100 L44,92 L40,84 L36,78 L38,68 L39,60 L40,54 L46,49 Z';
+const KO_JEJU='M22,372 L30,363 L40,360 L53,360 L64,364 L68,372 L62,381 L44,385 L28,383 L18,377 Z';
 const JISA_DATA=[
   {name:'인천지사',    color:'#3B82F6',d:'M28,41 L56,41 L56,80 L60,80 L60,93 L55,93 L55,110 L26,110 L24,72 Z',                                            lx:43, ly:78, bx:[22,38,62,113]},
   {name:'서울북부지사',color:'#10B981',d:'M56,41 L108,30 L108,84 L65,84 L56,80 Z',                                                                         lx:85, ly:62, bx:[54,27,110,87]},
@@ -2488,7 +2489,7 @@ function extractCity(n){
 }
 function _buildMapSVG(jisaInfo,zoom){
   const isOv=zoom<0;
-  let vb='0 0 220 340';
+  let vb='0 0 220 390';
   if(!isOv){
     const ji0=jisaInfo[zoom];const fb0=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
     let mnX=9999,mnY=9999,mxX=0,mxY=0;
@@ -2496,35 +2497,50 @@ function _buildMapSVG(jisaInfo,zoom){
     const pad=20,rw=Math.max(mxX-mnX,18),rh=Math.max(mxY-mnY,18);
     vb=(mnX-pad)+','+(mnY-pad)+','+(rw+pad*2)+','+(rh+pad*2);
   }
+  const vbP=vb.split(',').map(Number);
+  const PROV_LB=[
+    {n:'경기',x:75,y:106},{n:'강원',x:152,y:90},{n:'충남',x:58,y:155},{n:'충북',x:113,y:148},
+    {n:'전북',x:74,y:214},{n:'전남',x:60,y:280},{n:'경북',x:170,y:186},{n:'경남',x:155,y:252}
+  ];
   let s='<defs>'
-    +'<clipPath id="kclip"><path d="'+KO+'"/></clipPath>'
-    +'<filter id="fRaise" x="-25%" y="-25%" width="150%" height="150%">'
-    +'<feDropShadow dx="1" dy="5" stdDeviation="4.5" flood-color="#000" flood-opacity="0.45"/>'
+    +'<linearGradient id="kGrd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EAF1F8"/><stop offset="100%" stop-color="#D4E5F2"/></linearGradient>'
+    +'<linearGradient id="ocGrd" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#A8CCEC"/><stop offset="100%" stop-color="#8AB8E0"/></linearGradient>'
+    +'<clipPath id="kclip"><path d="'+KO+'"/><path d="'+KO_JEJU+'"/></clipPath>'
+    +'<filter id="fRaise" x="-30%" y="-30%" width="160%" height="160%">'
+    +'<feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0a2a4e" flood-opacity="0.35"/>'
     +'</filter>'
     +'</defs>';
-  s+='<path d="'+KO+'" fill="#C8D8E8" stroke="#8FA8BE" stroke-width="0.8"/>';
+  s+='<rect x="'+vbP[0]+'" y="'+vbP[1]+'" width="'+vbP[2]+'" height="'+vbP[3]+'" fill="url(#ocGrd)"/>';
+  s+='<path d="'+KO+'" fill="#0d2a45" opacity="0.1" transform="translate(1.5,3)"/>';
+  s+='<path d="'+KO+'" fill="url(#kGrd)" stroke="#7AAAC8" stroke-width="0.9" stroke-linejoin="round"/>';
   if(isOv){
+    s+='<path d="'+KO_JEJU+'" fill="#0d2a45" opacity="0.1" transform="translate(1.5,3)"/>';
+    s+='<path d="'+KO_JEJU+'" fill="url(#kGrd)" stroke="#7AAAC8" stroke-width="0.9" stroke-linejoin="round"/>';
+    PROV_LB.forEach(p=>{
+      s+='<text x="'+p.x+'" y="'+p.y+'" text-anchor="middle" font-size="5.8" fill="#5A82A0" font-weight="700" opacity="0.62" style="pointer-events:none;letter-spacing:.4px">'+p.n+'</text>';
+    });
     KWANYUK_DATA.forEach((kw,ci)=>{
-      const isSel=ci===_mapCenter;
-      const isOtherSel=_mapCenter>=0&&!isSel;
+      const isSel=ci===_mapCenter;const isOtherSel=_mapCenter>=0&&!isSel;
       const jIdxs=kw.jisas.map(jname=>JISA_DATA.findIndex(j=>j.name===jname)).filter(x=>x>=0);
-      s+='<g'+(isSel?' filter="url(#fRaise)"':'')+' style="transition:filter .3s,opacity .3s" opacity="'+(isOtherSel?.28:1)+'">';
+      s+='<g'+(isSel?' filter="url(#fRaise)"':'')+' style="transition:filter .3s,opacity .3s" opacity="'+(isOtherSel?.22:1)+'">';
       jIdxs.forEach(i=>{
         const j=JISA_DATA[i];const ji=jisaInfo[i];
         const sn=j.name.replace('지사','');
-        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.94:.75)+'" stroke="#fff" stroke-width="'+(isSel?2:1.2)+'" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
-        s+='<text x="'+j.lx+'" y="'+(j.ly-3)+'" text-anchor="middle" font-size="'+(isSel?7:6.5)+'" font-weight="700" fill="#fff" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.65)">'+esc(sn)+'</text>';
-        if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+5)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.92)" style="pointer-events:none">'+ji.cnt+'개</text>';
+        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.92:.80)+'" stroke="rgba(255,255,255,.72)" stroke-width="'+(isSel?2:1.2)+'" stroke-linejoin="round" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
+        s+='<text x="'+j.lx+'" y="'+(j.ly-2)+'" text-anchor="middle" font-size="'+(isSel?7.5:6.5)+'" font-weight="800" fill="#fff" style="pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:2.5px">'+esc(sn)+'</text>';
+        if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.93)" font-weight="600" style="pointer-events:none">'+ji.cnt+'개</text>';
       });
       if(isSel){
         const avgX=Math.round(jIdxs.reduce((a,i)=>a+JISA_DATA[i].lx,0)/jIdxs.length);
-        const minY=Math.max(8,Math.min(...jIdxs.map(i=>JISA_DATA[i].ly))-16);
-        s+='<rect x="'+(avgX-19)+'" y="'+(minY-7)+'" width="38" height="13" rx="6.5" fill="'+kw.color+'" opacity="0.95" style="pointer-events:none"/>';
-        s+='<text x="'+avgX+'" y="'+(minY+2)+'" text-anchor="middle" font-size="6.5" font-weight="700" fill="#fff" style="pointer-events:none;letter-spacing:.5px">'+esc(kw.name)+'</text>';
+        const minY=Math.max(16,Math.min(...jIdxs.map(i=>JISA_DATA[i].ly))-16);
+        s+='<rect x="'+(avgX-23)+'" y="'+(minY-8)+'" width="46" height="14" rx="7" fill="'+kw.color+'" opacity="0.96" style="pointer-events:none"/>';
+        s+='<text x="'+avgX+'" y="'+(minY+2)+'" text-anchor="middle" font-size="7" font-weight="800" fill="#fff" style="pointer-events:none;letter-spacing:.5px">'+esc(kw.name)+'</text>';
       }
       s+='</g>';
     });
-  } else {
+    s+='<circle cx="44" cy="373" r="3.5" fill="#6AAB2A" fill-opacity="0.85" stroke="rgba(255,255,255,.8)" stroke-width="1" style="pointer-events:none"/>';
+    s+='<text x="44" y="364" text-anchor="middle" font-size="5.2" fill="#3a6a10" font-weight="700" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2.5px">제주</text>';
+  }else{
     const ji=jisaInfo[zoom];
     const spKeys=Object.keys(ji.spSt||{}).filter(k=>k&&k!=='미지정').sort();
     const spCM={};spKeys.forEach((k,idx)=>{spCM[k]=SP_COLORS[idx%SP_COLORS.length];});
@@ -2545,7 +2561,6 @@ function _buildMapSVG(jisaInfo,zoom){
       s+='<text x="'+cx+'" y="'+(cy-r-2)+'" text-anchor="middle" font-size="4.5" font-weight="700" fill="'+dc+'" style="pointer-events:none;paint-order:stroke;stroke:#fff;stroke-width:2px;opacity:'+(isDim?.1:1)+'">'+esc(sn)+'</text>';
     });
     if(spKeys.length>1){
-      const vbP=vb.split(',').map(Number);
       const lgX=vbP[0]+2,lgY=vbP[1]+vbP[3]-2-(spKeys.length*7);
       spKeys.forEach((k,idx)=>{
         const c=spCM[k];const isSelSp=k===_mapConsultant;const dimSp=_mapConsultant&&!isSelSp;
@@ -2554,7 +2569,7 @@ function _buildMapSVG(jisaInfo,zoom){
       });
     }
   }
-  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;'+(isOv?'max-width:300px;':'')+'display:block;margin:0 auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.13))">'+s+'</svg>';
+  return'<svg id="mapSvg" viewBox="'+vb+'" style="width:100%;'+(isOv?'max-width:310px;':'')+'display:block;margin:0 auto;border-radius:10px;filter:drop-shadow(0 4px 16px rgba(0,0,0,.22))">'+s+'</svg>';
 }
 function _buildMapCards(jisaInfo,zoom){
   const isOv=zoom<0;
