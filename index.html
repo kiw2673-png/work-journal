@@ -2474,6 +2474,7 @@ const CITY_XY={
 };
 let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
 let _mapBIMode=false,_mapBIPeriod='month',_mapBIMetric='cases',_mapBIData=null;
+let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSelJisa=null,_lfJisaInfo=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2721,52 +2722,168 @@ function _buildMapCards(jisaInfo,zoom){
 async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
+  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSelJisa=null;}
   const dealers=await loadDealers();
   await _batchGeocodeDealers(dealers);
   const jisaInfo=JISA_DATA.map(j=>{
     const dl=dealers.filter(d=>d.branch===j.name);
-    const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
-    const citySt={};dl.forEach(d=>{const c=extractCity(d.name);if(!citySt[c])citySt[c]=[];citySt[c].push(d);});
     const spSt={};dl.forEach(d=>{const sp=d.consultant||'미지정';if(!spSt[sp])spSt[sp]=[];spSt[sp].push(d);});
     const spList=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').sort();
     const spColors={};spList.forEach((sp,idx)=>{spColors[sp]=SP_COLORS[idx%SP_COLORS.length];});
-    return{...j,dl,cnt:dl.length,csrSt,citySt,spSt,spColors};
+    return{...j,dl,cnt:dl.length,spSt,spColors};
   });
-  _mapData=jisaInfo;_mapZoom=-1;
-  function render(){
-    const z=_mapZoom;
-    document.getElementById('mapSvgWrap').innerHTML=_buildMapSVG(jisaInfo,z);
-    document.getElementById('mapCardsWrap').innerHTML=_buildMapCards(jisaInfo,z);
-    const ttl=document.getElementById('mapTitle');
-    if(ttl)ttl.textContent=z>=0?('🗺️ '+JISA_DATA[z].name):'🗺️ 지사별 담당지역';
-    const bb=document.getElementById('mapBackBtn');
-    if(bb)bb.style.display=z>=0?'inline-block':'none';
-  }
-  window._mapRender=render;
-  el.innerHTML='<div style="padding:14px 12px 40px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
-    +'<h3 id="mapTitle" style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역</h3>'
-    +'<div style="display:flex;gap:6px">'
-    +'<button id="biToggleBtn" onclick="_toggleBIMode()" style="padding:4px 10px;border:1px solid #3498DB;border-radius:6px;background:'+(_mapBIMode?'#3498DB':'transparent')+';color:'+(_mapBIMode?'#fff':'#3498DB')+';font-size:10px;cursor:pointer;font-family:inherit">'+(_mapBIMode?'🗺️ 대리점':'📊 BI')+'</button>'
-    +'<button id="mapBackBtn" onclick="hlRgn(-1)" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
-    +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️</button>':'')
-    +'</div></div>'
-    +'<div id="biPeriodBar" style="display:'+(_mapBIMode?'flex':'none')+';flex-wrap:wrap;gap:4px;margin-bottom:6px">'
-    +'<button id="biPeriod_month" class="atab'+(_mapBIPeriod==='month'?' active':'')+'" onclick="_setBIPeriod(\'month\')" style="padding:4px 10px;font-size:10px">이번달</button>'
-    +'<button id="biPeriod_week" class="atab'+(_mapBIPeriod==='week'?' active':'')+'" onclick="_setBIPeriod(\'week\')" style="padding:4px 10px;font-size:10px">이번주</button>'
-    +'<button id="biPeriod_all" class="atab'+(_mapBIPeriod==='all'?' active':'')+'" onclick="_setBIPeriod(\'all\')" style="padding:4px 10px;font-size:10px">전체</button>'
-    +'</div>'
-    +'<div id="biMetricBar" style="display:'+(_mapBIMode?'flex':'none')+';flex-wrap:wrap;gap:4px;margin-bottom:8px">'
-    +'<button id="biMetric_cases" class="atab'+(_mapBIMetric==='cases'?' active':'')+'" onclick="_setBIMetric(\'cases\')" style="padding:4px 10px;font-size:10px">🔧 현장지원</button>'
-    +'<button id="biMetric_consult" class="atab'+(_mapBIMetric==='consult'?' active':'')+'" onclick="_setBIMetric(\'consult\')" style="padding:4px 10px;font-size:10px">💬 상담건</button>'
-    +'<button id="biMetric_reports" class="atab'+(_mapBIMetric==='reports'?' active':'')+'" onclick="_setBIMetric(\'reports\')" style="padding:4px 10px;font-size:10px">📝 제출건</button>'
-    +'</div>'
-    +'<div id="mapSvgWrap" style="margin-bottom:12px"></div>'
-    +'<div id="mapCardsWrap"></div>'
-    +'<div id="mapBICards"></div>'
+  _lfJisaInfo=jisaInfo;
+  el.innerHTML='<div style="display:flex;height:calc(100vh - 155px);min-height:480px">'
+    +'<div id="lfMapDiv" style="flex:1;min-width:0"></div>'
+    +'<div id="lfSidePanel" style="width:260px;overflow-y:auto;background:var(--card);border-left:1px solid var(--border);flex-shrink:0"></div>'
     +'</div>';
-  render();
-  if(_mapBIMode){if(_mapBIData)_renderBICards();else _loadBIData(()=>{_renderBICards();});}
+  await new Promise((res,rej)=>{
+    if(window.L&&window.L.map){res();return;}
+    if(!document.querySelector('link[href*="leaflet"]')){
+      const css=document.createElement('link');css.rel='stylesheet';
+      css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(css);
+    }
+    const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+    s.onload=res;s.onerror=rej;document.head.appendChild(s);
+  });
+  const KB=[[32.8,124.5],[38.9,130.8]];
+  _lfMap=L.map('lfMapDiv',{zoomControl:true,preferCanvas:true,
+    maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
+  _lfMap.fitBounds(KB);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
+  }).addTo(_lfMap);
+  const LF_SHAPES=['circle','triangle','square','star','diamond'];
+  const spShapeIdx={};let spCnt=0;
+  jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
+  jisaInfo.forEach((ji,idx)=>{
+    const j=JISA_DATA[idx];
+    const poly=L.polygon(_pathToLL(j.d),{color:j.color,weight:2,opacity:0.85,fillColor:j.color,fillOpacity:0.22});
+    poly.bindTooltip(j.name,{sticky:true,direction:'center',className:'dlabel'});
+    poly.on('mouseover',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.42,weight:3});});
+    poly.on('mouseout',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.22,weight:2});});
+    poly.on('click',()=>_lfClickJisa(j.name));
+    poly.addTo(_lfMap);
+    _lfPolyLayer[j.name]=poly;
+    const mg=L.layerGroup().addTo(_lfMap);
+    const placed={};
+    ji.dl.forEach(d=>{
+      let lat,lng;
+      if(d.address&&_dealerGeoCache[d.address]){const ll=_dealerGeoCache[d.address];lat=ll.lat;lng=ll.lng;}
+      else{const city=extractCity(d.name);[lat,lng]=_dealerLL(city,[j.lx,j.ly]);}
+      const rk=Math.round(lat*200)+','+Math.round(lng*200);
+      const n=(placed[rk]=(placed[rk]||0)+1);
+      const offs=[[0,0],[0.009,-0.009],[-0.009,0.009],[0.009,0.009],[-0.009,-0.009],[0,0.013],[0,-0.013]];
+      const[dlat,dlng]=offs[(n-1)%7];
+      const sp=d.consultant||'미지정';
+      const color=ji.spColors[sp]||j.color;
+      const shape=LF_SHAPES[(spShapeIdx[sp]??0)%LF_SHAPES.length];
+      const sn=d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
+      mg.addLayer(_lfMkIcon(lat+dlat,lng+dlng,color,shape,sn,j.name,sp));
+    });
+    _lfMkGroups[j.name]=mg;
+  });
+  _lfRenderPanel();
+}
+function _lfMkIcon(lat,lng,color,shape,name,jisa,csr){
+  let html='';const s='border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)';
+  if(shape==='circle')html='<div style="width:10px;height:10px;border-radius:50%;background:'+color+';'+s+'"></div>';
+  else if(shape==='triangle')html='<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid '+color+';filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))"></div>';
+  else if(shape==='square')html='<div style="width:9px;height:9px;background:'+color+';'+s+'"></div>';
+  else if(shape==='star')html='<div style="color:'+color+';font-size:13px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.4)">★</div>';
+  else if(shape==='diamond')html='<div style="width:8px;height:8px;background:'+color+';'+s+';transform:rotate(45deg)"></div>';
+  const icon=L.divIcon({html:'<div style="display:flex;align-items:center;justify-content:center;width:14px;height:14px">'+html+'</div>',className:'',iconSize:[14,14],iconAnchor:[7,7]});
+  const m=L.marker([lat,lng],{icon});
+  m.bindPopup('<div style="font-family:-apple-system,sans-serif;min-width:150px"><div style="font-size:11px;color:'+color+';font-weight:700;margin-bottom:2px">'+esc(jisa)+'</div><div style="font-size:13px;font-weight:700;margin-bottom:3px">'+esc(name)+'</div><div style="font-size:11px;color:#555">담당: <b style="color:'+color+'">'+esc(csr)+'</b></div></div>',{maxWidth:220});
+  return m;
+}
+function _lfShapeIcon(shape,color){
+  const s='border:1.5px solid #fff;vertical-align:middle;display:inline-block;flex-shrink:0';
+  if(shape==='circle')return'<span style="width:10px;height:10px;border-radius:50%;background:'+color+';'+s+'"></span>';
+  if(shape==='triangle')return'<span style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid '+color+';vertical-align:middle;display:inline-block;flex-shrink:0"></span>';
+  if(shape==='square')return'<span style="width:9px;height:9px;background:'+color+';'+s+'"></span>';
+  if(shape==='star')return'<span style="color:'+color+';font-size:12px;vertical-align:middle;flex-shrink:0">★</span>';
+  if(shape==='diamond')return'<span style="width:8px;height:8px;background:'+color+';transform:rotate(45deg);'+s+'"></span>';
+  return'';
+}
+function _lfClickJisa(name){
+  const idx=JISA_DATA.findIndex(j=>j.name===name);
+  if(idx<0||!_lfJisaInfo)return;
+  const ji=_lfJisaInfo[idx];
+  _lfSelJisa=(_lfSelJisa===name)?null:name;
+  Object.keys(_lfPolyLayer).forEach(jn=>{
+    const isDim=_lfSelJisa&&jn!==_lfSelJisa;
+    const jCol=JISA_DATA.find(j=>j.name===jn)?.color||'#999';
+    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?.04:(jn===_lfSelJisa?.45:.22),weight:isDim?1:2,opacity:isDim?.25:.85,color:isDim?'#bbb':jCol});
+  });
+  if(_lfSelJisa){
+    _lfMap.fitBounds(_lfPolyLayer[name].getBounds(),{padding:[30,30]});
+    _lfRenderPanelDetail(name,ji,idx);
+  }else{
+    _lfMap.fitBounds([[32.8,124.5],[38.9,130.8]]);
+    _lfRenderPanel();
+  }
+}
+function _lfRenderPanel(){
+  const p=document.getElementById('lfSidePanel');if(!p||!_lfJisaInfo)return;
+  const LF_SHAPES=['circle','triangle','square','star','diamond'];
+  const spShapeIdx={};let spCnt=0;
+  _lfJisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
+  let h='<div style="padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--ts)">🗺️ 지사별 현황</div>';
+  KWANYUK_DATA.forEach(kw=>{
+    const kwT=kw.jisas.reduce((s,jn)=>{const ji=_lfJisaInfo.find(j=>j.name===jn);return s+(ji?ji.cnt:0);},0);
+    h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';border-bottom:2px solid '+kw.color+'44;padding:4px 0 3px;margin:8px 0 5px;letter-spacing:.5px">'+esc(kw.name)+' · '+kwT+'개</div>';
+    kw.jisas.forEach(jn=>{
+      const ji=_lfJisaInfo.find(j=>j.name===jn);if(!ji||!ji.cnt)return;
+      const spLine=Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').map(sp=>{
+        const sh=LF_SHAPES[(spShapeIdx[sp]??0)%LF_SHAPES.length];
+        return'<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;background:'+ji.spColors[sp]+'18;border:1px solid '+ji.spColors[sp]+'55;border-radius:4px;padding:1px 5px;color:'+ji.spColors[sp]+'">'+_lfShapeIcon(sh,ji.spColors[sp])+esc(sp)+'</span>';
+      }).join(' ');
+      h+='<div onclick="_lfClickJisa(\''+esc(ji.name)+'\')" style="display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--ibg);border-left:3px solid '+ji.color+';border-radius:6px;margin-bottom:4px;cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--card)\'" onmouseout="this.style.background=\'var(--ibg)\'">'
+        +'<span style="font-size:11px;font-weight:700;color:'+ji.color+';min-width:72px">'+esc(ji.name)+'</span>'
+        +'<span style="font-size:10px;color:'+ji.color+';font-weight:700">'+ji.cnt+'개</span>'
+        +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:2px">'+spLine+'</div>'
+        +'<span style="font-size:10px;color:var(--ts)">▶</span></div>';
+    });
+  });
+  h+='</div>';p.innerHTML=h;
+}
+function _lfRenderPanelDetail(name,ji,idx){
+  const p=document.getElementById('lfSidePanel');if(!p)return;
+  const j=JISA_DATA[idx];
+  const LF_SHAPES=['circle','triangle','square','star','diamond'];
+  const spShapeIdx={};let spCnt=0;
+  (_lfJisaInfo||[]).forEach(jji=>{Object.keys(jji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
+  const spList=Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort();
+  let h='<div style="padding:12px">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    +'<button onclick="_lfClickJisa(\''+esc(name)+'\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
+    +'<div><div style="font-size:13px;font-weight:700;color:'+j.color+'">'+esc(name)+'</div>'
+    +'<div style="font-size:10px;color:var(--ts)">총 '+ji.cnt+'개 대리점</div></div></div>'
+    +'<div style="font-size:10px;color:var(--ts);margin-bottom:10px;padding:4px 8px;background:var(--ibg);border-radius:6px">💡 마커 클릭시 상세정보 확인</div>';
+  spList.forEach((sp,i)=>{
+    const color=ji.spColors[sp]||j.color;
+    const shape=LF_SHAPES[(spShapeIdx[sp]??i)%LF_SHAPES.length];
+    const dls=ji.spSt[sp];
+    h+='<div style="margin-bottom:10px">'
+      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+_lfShapeIcon(shape,color)
+      +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(sp)+'</span>'
+      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'
+      +dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+color+'12;border:1px solid '+color+'45;border-radius:4px;padding:2px 5px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join('')
+      +'</div></div>';
+  });
+  const mijiDls=ji.spSt['미지정']||[];
+  if(mijiDls.length){
+    h+='<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'
+      +'<span style="width:10px;height:10px;border-radius:50%;background:#aaa;border:1.5px solid #fff;display:inline-block;flex-shrink:0"></span>'
+      +'<span style="font-size:12px;font-weight:700;color:var(--ts)">미지정</span>'
+      +'<span style="font-size:10px;color:var(--ts)">('+mijiDls.length+'개)</span></div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'
+      +mijiDls.map(d=>'<span style="font-size:9px;color:var(--ts);background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 5px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join('')
+      +'</div></div>';
+  }
+  h+='</div>';p.innerHTML=h;
 }
 function hlRgn(i){
   _mapZoom=i;_mapConsultant=null;
