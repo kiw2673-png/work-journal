@@ -2473,6 +2473,7 @@ const CITY_XY={
   '부산동구':[180,257],'남해':[125,265],'사천':[140,261],'고성':[148,265]
 };
 let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
+let _mapBIMode=false,_mapBIPeriod='month',_mapBIMetric='cases',_mapBIData=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2487,8 +2488,63 @@ function extractCity(n){
   n=n.replace(/동부$|서부$|남부$|북부$|중부$|제일$|중앙$/,'');
   return n.trim()||'기타';
 }
+function _branchToJisa(br){
+  if(br==='경인지사')return['경기지사','인천지사'];
+  return JISA_DATA.find(j=>j.name===br)?[br]:[];
+}
+async function _loadBIData(cb){
+  if(!window._aU||!window._aAllE){
+    try{const[us,rs]=await Promise.all([db.collection('users').get(),db.collection('reports').get()]);window._aU=us.docs.map(d=>d.data());window._aAllE=rs.docs.map(d=>d.data());}catch(e){if(cb)cb();return;}
+  }
+  const users=window._aU||[];const allEntries=window._aAllE||[];const today=tk();
+  let entries=allEntries;
+  if(_mapBIPeriod==='month'){const s=today.slice(0,7)+'-01';entries=allEntries.filter(e=>e.date&&e.date>=s&&e.date<=today);}
+  else if(_mapBIPeriod==='week'){const wr=getWeekMonFri();const we=wr.e>today?today:wr.e;entries=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=we);}
+  const empJisa={};users.forEach(u=>{if(u.empId&&u.branch)empJisa[u.empId]=_branchToJisa(u.branch);});
+  const biMap={};JISA_DATA.forEach(j=>{biMap[j.name]={reports:0,cases:0,consult:0};});
+  entries.forEach(e=>{(empJisa[e.empId]||[]).forEach(jn=>{if(!biMap[jn])return;biMap[jn].reports++;biMap[jn].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);biMap[jn].consult+=m?m.length:1;}});});
+  _mapBIData=biMap;if(cb)cb();
+}
+function _toggleBIMode(){
+  _mapBIMode=!_mapBIMode;
+  const btn=document.getElementById('biToggleBtn');if(btn)btn.textContent=_mapBIMode?'🗺️ 대리점':'📊 BI';
+  ['biPeriodBar','biMetricBar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=_mapBIMode?'flex':'none';});
+  if(_mapBIMode&&!_mapBIData){_loadBIData(()=>{if(window._mapRender)window._mapRender();_renderBICards();});}
+  else{if(window._mapRender)window._mapRender();_renderBICards();}
+}
+function _setBIPeriod(p){
+  _mapBIPeriod=p;
+  ['month','week','all'].forEach(v=>{const el=document.getElementById('biPeriod_'+v);if(el)el.classList.toggle('active',v===p);});
+  _loadBIData(()=>{if(window._mapRender)window._mapRender();_renderBICards();});
+}
+function _setBIMetric(m){
+  _mapBIMetric=m;
+  ['cases','consult','reports'].forEach(v=>{const el=document.getElementById('biMetric_'+v);if(el)el.classList.toggle('active',v===m);});
+  if(window._mapRender)window._mapRender();_renderBICards();
+}
+function _renderBICards(){
+  const el=document.getElementById('mapBICards');if(!el)return;
+  if(!_mapBIMode||!_mapBIData){el.innerHTML='';return;}
+  const metric=_mapBIMetric;
+  const mLabel={'reports':'보고서 제출','cases':'현장지원','consult':'상담건'}[metric]||metric;
+  const mColor={'reports':'var(--admin)','cases':'#3498DB','consult':'#00B894'}[metric];
+  const sorted=JISA_DATA.map(j=>({name:j.name,color:j.color,val:(_mapBIData[j.name]||{})[metric]||0})).sort((a,b)=>b.val-a.val);
+  const maxV=Math.max(1,...sorted.map(it=>it.val));
+  let h='<div style="margin-top:14px;background:var(--card);border-radius:10px;padding:12px 14px">'
+    +'<div style="font-size:12px;font-weight:700;color:var(--ts);margin-bottom:10px">📊 지사별 '+mLabel+' 랭킹</div>'
+    +'<div style="display:flex;flex-direction:column;gap:6px">';
+  sorted.forEach((it,i)=>{const ratio=it.val/maxV;h+='<div style="display:flex;align-items:center;gap:8px">'
+    +'<span style="font-size:10px;color:var(--ts);min-width:16px;text-align:right">'+(i+1)+'</span>'
+    +'<span style="font-size:11px;font-weight:700;color:'+it.color+';min-width:76px">'+esc(it.name.replace('지사',''))+'</span>'
+    +'<div style="flex:1;height:8px;background:var(--ibg);border-radius:4px"><div style="height:100%;width:'+(ratio*100)+'%;background:'+mColor+';border-radius:4px;transition:width .5s"></div></div>'
+    +'<span style="font-size:13px;font-weight:800;color:'+mColor+';min-width:30px;text-align:right">'+it.val+'</span>'
+    +'</div>';});
+  h+='</div></div>';
+  el.innerHTML=h;
+}
 function _buildMapSVG(jisaInfo,zoom){
   const isOv=zoom<0;
+  const _biMax=(_mapBIMode&&_mapBIData)?Math.max(1,...JISA_DATA.map(j=>(_mapBIData[j.name]||{})[_mapBIMetric]||0)):1;
   let vb='0 0 220 390';
   if(!isOv){
     const ji0=jisaInfo[zoom];const fb0=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
@@ -2526,9 +2582,13 @@ function _buildMapSVG(jisaInfo,zoom){
       jIdxs.forEach(i=>{
         const j=JISA_DATA[i];const ji=jisaInfo[i];
         const sn=j.name.replace('지사','');
-        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.92:.80)+'" stroke="rgba(255,255,255,.72)" stroke-width="'+(isSel?2:1.2)+'" stroke-linejoin="round" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
+        const _biV=(_mapBIMode&&_mapBIData)?((_mapBIData[j.name]||{})[_mapBIMetric]||0):null;
+        const _biRatio=_biV!==null?_biV/_biMax:0;
+        const _biFop=_mapBIMode?(isSel?.96:(0.18+_biRatio*0.76)):(isSel?.92:.80);
+        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+_biFop.toFixed(2)+'" stroke="rgba(255,255,255,.72)" stroke-width="'+(isSel?2:1.2)+'" stroke-linejoin="round" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
         s+='<text x="'+j.lx+'" y="'+(j.ly-2)+'" text-anchor="middle" font-size="'+(isSel?7.5:6.5)+'" font-weight="800" fill="#fff" style="pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:2.5px">'+esc(sn)+'</text>';
-        if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.93)" font-weight="600" style="pointer-events:none">'+ji.cnt+'개</text>';
+        if(_mapBIMode&&_biV!==null){s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,.96)" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7)">'+_biV+'</text>';}
+        else if(ji.cnt){s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.93)" font-weight="600" style="pointer-events:none">'+ji.cnt+'개</text>';}
       });
       if(isSel){
         const avgX=Math.round(jIdxs.reduce((a,i)=>a+JISA_DATA[i].lx,0)/jIdxs.length);
@@ -2684,16 +2744,29 @@ async function loadMap(){
   }
   window._mapRender=render;
   el.innerHTML='<div style="padding:14px 12px 40px">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
     +'<h3 id="mapTitle" style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역</h3>'
     +'<div style="display:flex;gap:6px">'
+    +'<button id="biToggleBtn" onclick="_toggleBIMode()" style="padding:4px 10px;border:1px solid #3498DB;border-radius:6px;background:'+(_mapBIMode?'#3498DB':'transparent')+';color:'+(_mapBIMode?'#fff':'#3498DB')+';font-size:10px;cursor:pointer;font-family:inherit">'+(_mapBIMode?'🗺️ 대리점':'📊 BI')+'</button>'
     +'<button id="mapBackBtn" onclick="hlRgn(-1)" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
     +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️</button>':'')
     +'</div></div>'
+    +'<div id="biPeriodBar" style="display:'+(_mapBIMode?'flex':'none')+';flex-wrap:wrap;gap:4px;margin-bottom:6px">'
+    +'<button id="biPeriod_month" class="atab'+(_mapBIPeriod==='month'?' active':'')+'" onclick="_setBIPeriod(\'month\')" style="padding:4px 10px;font-size:10px">이번달</button>'
+    +'<button id="biPeriod_week" class="atab'+(_mapBIPeriod==='week'?' active':'')+'" onclick="_setBIPeriod(\'week\')" style="padding:4px 10px;font-size:10px">이번주</button>'
+    +'<button id="biPeriod_all" class="atab'+(_mapBIPeriod==='all'?' active':'')+'" onclick="_setBIPeriod(\'all\')" style="padding:4px 10px;font-size:10px">전체</button>'
+    +'</div>'
+    +'<div id="biMetricBar" style="display:'+(_mapBIMode?'flex':'none')+';flex-wrap:wrap;gap:4px;margin-bottom:8px">'
+    +'<button id="biMetric_cases" class="atab'+(_mapBIMetric==='cases'?' active':'')+'" onclick="_setBIMetric(\'cases\')" style="padding:4px 10px;font-size:10px">🔧 현장지원</button>'
+    +'<button id="biMetric_consult" class="atab'+(_mapBIMetric==='consult'?' active':'')+'" onclick="_setBIMetric(\'consult\')" style="padding:4px 10px;font-size:10px">💬 상담건</button>'
+    +'<button id="biMetric_reports" class="atab'+(_mapBIMetric==='reports'?' active':'')+'" onclick="_setBIMetric(\'reports\')" style="padding:4px 10px;font-size:10px">📝 제출건</button>'
+    +'</div>'
     +'<div id="mapSvgWrap" style="margin-bottom:12px"></div>'
     +'<div id="mapCardsWrap"></div>'
+    +'<div id="mapBICards"></div>'
     +'</div>';
   render();
+  if(_mapBIMode){if(_mapBIData)_renderBICards();else _loadBIData(()=>{_renderBICards();});}
 }
 function hlRgn(i){
   _mapZoom=i;_mapConsultant=null;
