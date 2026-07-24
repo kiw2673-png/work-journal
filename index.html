@@ -2751,6 +2751,11 @@ async function loadMap(){
     maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
   _lfMap.fitBounds(KB);
   _lfMap.getContainer().style.background='#A8CCEC';
+  try{
+    const gjR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json');
+    const gjD=await gjR.json();
+    L.geoJSON(gjD,{style:{color:'#5A88A8',weight:1.2,fillColor:'#D4E5F2',fillOpacity:0.55,dashArray:''}}).addTo(_lfMap);
+  }catch(e){}
   const LF_SHAPES=['circle','triangle','square','star','diamond'];
   const spShapeIdx={};let spCnt=0;
   jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
