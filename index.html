@@ -2474,7 +2474,7 @@ const CITY_XY={
 };
 let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
 let _mapBIMode=false,_mapBIPeriod='month',_mapBIMetric='cases',_mapBIData=null;
-let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSelJisa=null,_lfJisaInfo=null;
+let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSpMarkers={},_lfBlinkTimer=null,_lfSelJisa=null,_lfJisaInfo=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2722,7 +2722,8 @@ function _buildMapCards(jisaInfo,zoom){
 async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
-  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSelJisa=null;}
+  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;}
+  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSpMarkers={};_lfSelJisa=null;}
   const dealers=await loadDealers();
   await _batchGeocodeDealers(dealers);
   const jisaInfo=JISA_DATA.map(j=>{
@@ -2754,17 +2755,20 @@ async function loadMap(){
   try{
     const gjR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json');
     const gjD=await gjR.json();
-    L.geoJSON(gjD,{style:{color:'#5A88A8',weight:1.2,fillColor:'#D4E5F2',fillOpacity:0.55,dashArray:''}}).addTo(_lfMap);
+    L.geoJSON(gjD,{style:{color:'#4A78A0',weight:1.6,fillColor:'#D4E5F2',fillOpacity:0.6,dashArray:''}}).addTo(_lfMap);
+    const muniR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-municipalities-2018-geo.json');
+    const muniD=await muniR.json();
+    L.geoJSON(muniD,{style:{color:'#7AAAC8',weight:0.5,fillOpacity:0,dashArray:'3,3'}}).addTo(_lfMap);
   }catch(e){}
   const LF_SHAPES=['circle','triangle','square','star','diamond'];
   const spShapeIdx={};let spCnt=0;
   jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
   jisaInfo.forEach((ji,idx)=>{
     const j=JISA_DATA[idx];
-    const poly=L.polygon(_pathToLL(j.d),{color:j.color,weight:2,opacity:0.85,fillColor:j.color,fillOpacity:0.22});
+    const poly=L.polygon(_pathToLL(j.d),{color:j.color,weight:2,opacity:0.92,fillColor:j.color,fillOpacity:0.85});
     poly.bindTooltip(j.name,{sticky:true,direction:'center',className:'dlabel'});
-    poly.on('mouseover',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.42,weight:3});});
-    poly.on('mouseout',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.22,weight:2});});
+    poly.on('mouseover',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.95,weight:3});});
+    poly.on('mouseout',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.85,weight:2});});
     poly.on('click',()=>_lfClickJisa(j.name));
     poly.addTo(_lfMap);
     _lfPolyLayer[j.name]=poly;
@@ -2782,7 +2786,10 @@ async function loadMap(){
       const color=ji.spColors[sp]||j.color;
       const shape=LF_SHAPES[(spShapeIdx[sp]??0)%LF_SHAPES.length];
       const sn=d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
-      mg.addLayer(_lfMkIcon(lat+dlat,lng+dlng,color,shape,sn,j.name,sp));
+      const mk=_lfMkIcon(lat+dlat,lng+dlng,color,shape,sn,j.name,sp);
+      if(!_lfSpMarkers[sp])_lfSpMarkers[sp]=[];
+      _lfSpMarkers[sp].push(mk);
+      mg.addLayer(mk);
     });
     _lfMkGroups[j.name]=mg;
   });
@@ -2814,10 +2821,16 @@ function _lfClickJisa(name){
   if(idx<0||!_lfJisaInfo)return;
   const ji=_lfJisaInfo[idx];
   _lfSelJisa=(_lfSelJisa===name)?null:name;
+  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
   Object.keys(_lfPolyLayer).forEach(jn=>{
     const isDim=_lfSelJisa&&jn!==_lfSelJisa;
     const jCol=JISA_DATA.find(j=>j.name===jn)?.color||'#999';
-    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?.04:(jn===_lfSelJisa?.45:.22),weight:isDim?1:2,opacity:isDim?.25:.85,color:isDim?'#bbb':jCol});
+    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.85,weight:isDim?0:2,opacity:isDim?0:0.92,color:jCol});
+  });
+  Object.keys(_lfMkGroups).forEach(jn=>{
+    const isDim=_lfSelJisa&&jn!==_lfSelJisa;
+    if(isDim){if(_lfMap.hasLayer(_lfMkGroups[jn]))_lfMap.removeLayer(_lfMkGroups[jn]);}
+    else{if(!_lfMap.hasLayer(_lfMkGroups[jn]))_lfMkGroups[jn].addTo(_lfMap);}
   });
   if(_lfSelJisa){
     _lfMap.fitBounds(_lfPolyLayer[name].getBounds(),{padding:[30,30]});
@@ -2869,9 +2882,12 @@ function _lfRenderPanelDetail(name,ji,idx){
     const shape=LF_SHAPES[(spShapeIdx[sp]??i)%LF_SHAPES.length];
     const dls=ji.spSt[sp];
     h+='<div style="margin-bottom:10px">'
-      +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+_lfShapeIcon(shape,color)
+      +'<div onclick="_lfBlinkConsultant(\''+esc(sp)+'\')" style="display:flex;align-items:center;gap:6px;margin-bottom:5px;cursor:pointer;padding:3px 6px;border-radius:5px;background:'+color+'10;border:1px solid '+color+'30;transition:background .15s" onmouseover="this.style.background=\''+color+'25\'" onmouseout="this.style.background=\''+color+'10\'">'
+      +_lfShapeIcon(shape,color)
       +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(sp)+'</span>'
-      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span></div>'
+      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span>'
+      +'<span style="font-size:9px;color:'+color+';margin-left:auto;opacity:.7">📍깜빡</span>'
+      +'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'
       +dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+color+'12;border:1px solid '+color+'45;border-radius:4px;padding:2px 5px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join('')
       +'</div></div>';
@@ -2887,6 +2903,17 @@ function _lfRenderPanelDetail(name,ji,idx){
       +'</div></div>';
   }
   h+='</div>';p.innerHTML=h;
+}
+function _lfBlinkConsultant(sp){
+  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
+  const mks=_lfSpMarkers[sp];if(!mks||!mks.length)return;
+  let tick=0;
+  _lfBlinkTimer=setInterval(()=>{
+    const vis=tick%2===0?'0':'1';
+    mks.forEach(m=>{const el=m.getElement();if(el)el.style.opacity=vis;});
+    tick++;
+    if(tick>=12){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;mks.forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
+  },500);
 }
 function hlRgn(i){
   _mapZoom=i;_mapConsultant=null;
