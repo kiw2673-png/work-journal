@@ -2474,7 +2474,7 @@ const CITY_XY={
 };
 let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
 let _mapBIMode=false,_mapBIPeriod='month',_mapBIMetric='cases',_mapBIData=null;
-let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSpMarkers={},_lfBlinkTimer=null,_lfSelJisa=null,_lfJisaInfo=null;
+let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSpMarkers={},_lfBlinkTimer=null,_lfSelJisa=null,_lfSelKwanyuk=null,_lfJisaInfo=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2723,7 +2723,7 @@ async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
   if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;}
-  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSpMarkers={};_lfSelJisa=null;}
+  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSpMarkers={};_lfSelJisa=null;_lfSelKwanyuk=null;}
   const dealers=await loadDealers();
   await _batchGeocodeDealers(dealers);
   const jisaInfo=JISA_DATA.map(j=>{
@@ -2750,7 +2750,7 @@ async function loadMap(){
   const KB=[[32.8,124.5],[38.9,130.8]];
   _lfMap=L.map('lfMapDiv',{zoomControl:true,preferCanvas:true,
     maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
-  _lfMap.fitBounds(KB);
+  _lfMap.fitBounds(KB,{maxZoom:8});
   _lfMap.getContainer().style.background='#A8CCEC';
   try{
     const gjR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json');
@@ -2765,10 +2765,10 @@ async function loadMap(){
   jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
   jisaInfo.forEach((ji,idx)=>{
     const j=JISA_DATA[idx];
-    const poly=L.polygon(_pathToLL(j.d),{color:j.color,weight:2,opacity:0.92,fillColor:j.color,fillOpacity:0.85});
+    const poly=L.polygon(_pathToLL(j.d),{color:j.color,weight:2,opacity:0.92,fillColor:j.color,fillOpacity:0.10});
     poly.bindTooltip(j.name,{sticky:true,direction:'center',className:'dlabel'});
-    poly.on('mouseover',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.95,weight:3});});
-    poly.on('mouseout',function(){if(_lfSelJisa!==j.name)this.setStyle({fillOpacity:0.85,weight:2});});
+    poly.on('mouseover',function(){if(_lfSelJisa!==j.name&&!_lfSelKwanyuk)this.setStyle({fillOpacity:0.30,weight:3});});
+    poly.on('mouseout',function(){if(_lfSelJisa!==j.name&&!_lfSelKwanyuk)this.setStyle({fillOpacity:0.10,weight:2});});
     poly.on('click',()=>_lfClickJisa(j.name));
     poly.addTo(_lfMap);
     _lfPolyLayer[j.name]=poly;
@@ -2821,11 +2821,12 @@ function _lfClickJisa(name){
   if(idx<0||!_lfJisaInfo)return;
   const ji=_lfJisaInfo[idx];
   _lfSelJisa=(_lfSelJisa===name)?null:name;
+  _lfSelKwanyuk=null;
   if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
   Object.keys(_lfPolyLayer).forEach(jn=>{
     const isDim=_lfSelJisa&&jn!==_lfSelJisa;
     const jCol=JISA_DATA.find(j=>j.name===jn)?.color||'#999';
-    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.85,weight:isDim?0:2,opacity:isDim?0:0.92,color:jCol});
+    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.10,weight:isDim?0:2,opacity:isDim?0:0.92,color:jCol});
   });
   Object.keys(_lfMkGroups).forEach(jn=>{
     const isDim=_lfSelJisa&&jn!==_lfSelJisa;
@@ -2836,7 +2837,7 @@ function _lfClickJisa(name){
     _lfMap.fitBounds(_lfPolyLayer[name].getBounds(),{padding:[30,30]});
     _lfRenderPanelDetail(name,ji,idx);
   }else{
-    _lfMap.fitBounds([[32.8,124.5],[38.9,130.8]]);
+    _lfMap.fitBounds([[32.8,124.5],[38.9,130.8]],{maxZoom:8});
     _lfRenderPanel();
   }
 }
@@ -2848,7 +2849,7 @@ function _lfRenderPanel(){
   let h='<div style="padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--ts)">🗺️ 지사별 현황</div>';
   KWANYUK_DATA.forEach(kw=>{
     const kwT=kw.jisas.reduce((s,jn)=>{const ji=_lfJisaInfo.find(j=>j.name===jn);return s+(ji?ji.cnt:0);},0);
-    h+='<div style="font-size:11px;font-weight:700;color:'+kw.color+';border-bottom:2px solid '+kw.color+'44;padding:4px 0 3px;margin:8px 0 5px;letter-spacing:.5px">'+esc(kw.name)+' · '+kwT+'개</div>';
+    h+='<div onclick="_lfClickKwanyuk(\''+esc(kw.name)+'\')" style="font-size:11px;font-weight:700;color:'+kw.color+';border-bottom:2px solid '+kw.color+'44;padding:5px 6px 4px;margin:8px 0 5px;letter-spacing:.5px;cursor:pointer;border-radius:5px 5px 0 0;transition:background .15s" onmouseover="this.style.background=\''+kw.color+'15\'" onmouseout="this.style.background=\'transparent\'">🔍 '+esc(kw.name)+' · '+kwT+'개</div>';
     kw.jisas.forEach(jn=>{
       const ji=_lfJisaInfo.find(j=>j.name===jn);if(!ji||!ji.cnt)return;
       const spLine=Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').map(sp=>{
@@ -2903,6 +2904,31 @@ function _lfRenderPanelDetail(name,ji,idx){
       +'</div></div>';
   }
   h+='</div>';p.innerHTML=h;
+}
+function _lfClickKwanyuk(kwName){
+  const kw=KWANYUK_DATA.find(k=>k.name===kwName);if(!kw||!_lfMap)return;
+  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
+  const isSame=_lfSelKwanyuk===kwName;
+  _lfSelKwanyuk=isSame?null:kwName;
+  _lfSelJisa=null;
+  const kwJisas=new Set(_lfSelKwanyuk?kw.jisas:[]);
+  Object.keys(_lfPolyLayer).forEach(jn=>{
+    const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
+    const jCol=JISA_DATA.find(j=>j.name===jn)?.color||'#999';
+    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.10,weight:isDim?0:2,opacity:isDim?0:0.92,color:jCol});
+  });
+  Object.keys(_lfMkGroups).forEach(jn=>{
+    const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
+    if(isDim){if(_lfMap.hasLayer(_lfMkGroups[jn]))_lfMap.removeLayer(_lfMkGroups[jn]);}
+    else{if(!_lfMap.hasLayer(_lfMkGroups[jn]))_lfMkGroups[jn].addTo(_lfMap);}
+  });
+  if(_lfSelKwanyuk){
+    const boundsArr=kw.jisas.filter(jn=>_lfPolyLayer[jn]).map(jn=>_lfPolyLayer[jn].getBounds());
+    if(boundsArr.length){let b=boundsArr[0];boundsArr.forEach(bb=>b=b.extend(bb));_lfMap.fitBounds(b,{padding:[30,30]});}
+  }else{
+    _lfMap.fitBounds([[32.8,124.5],[38.9,130.8]],{maxZoom:8});
+  }
+  _lfRenderPanel();
 }
 function _lfBlinkConsultant(sp){
   if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
