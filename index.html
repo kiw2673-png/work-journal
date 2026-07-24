@@ -2750,9 +2750,7 @@ async function loadMap(){
   _lfMap=L.map('lfMapDiv',{zoomControl:true,preferCanvas:true,
     maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
   _lfMap.fitBounds(KB);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:18
-  }).addTo(_lfMap);
+  _lfMap.getContainer().style.background='#A8CCEC';
   const LF_SHAPES=['circle','triangle','square','star','diamond'];
   const spShapeIdx={};let spCnt=0;
   jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
