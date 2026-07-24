@@ -2752,7 +2752,7 @@ async function loadMap(){
   const KB=[[32.8,124.5],[38.9,130.8]];
   _lfMap=L.map('lfMapDiv',{zoomControl:true,preferCanvas:true,
     maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
-  _lfMap.fitBounds(KB,{padding:[2,2]});
+  _lfMap.setView([36.5,127.5],7);
   _lfMap.getContainer().style.background='#A8CCEC';
   try{
     const gjR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json');
@@ -2903,7 +2903,7 @@ function _lfClickKwanyuk(kwName){
     const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
     const jiInfo=_lfJisaInfo?_lfJisaInfo.find(j=>j.name===jn):null;
     const kwC=jiInfo?.kwColor||JISA_DATA.find(j=>j.name===jn)?.color||'#999';
-    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.10,weight:isDim?0:1.5,opacity:isDim?0.08:0.9,color:kwC});
+    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.10,weight:isDim?0:1.5,opacity:isDim?0:0.9,color:kwC});
   });
   Object.keys(_lfMkGroups).forEach(jn=>{
     const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
@@ -2914,7 +2914,7 @@ function _lfClickKwanyuk(kwName){
     const boundsArr=kw.jisas.filter(jn=>_lfPolyLayer[jn]).map(jn=>_lfPolyLayer[jn].getBounds());
     if(boundsArr.length){let b=boundsArr[0];boundsArr.forEach(bb=>b=b.extend(bb));_lfMap.fitBounds(b,{padding:[5,5]});}
   }else{
-    _lfMap.fitBounds([[32.8,124.5],[38.9,130.8]],{padding:[2,2]});
+    _lfMap.setView([36.5,127.5],7);
   }
   _lfRenderPanel();
 }
