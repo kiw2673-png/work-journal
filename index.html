@@ -762,7 +762,7 @@ function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wra
   // Always restore from saved case data (overwrite with saved if exists)
   if(cases){cases.forEach((c,n)=>{if(c&&c.media&&c.media.length)window._caseMedia[n]=c.media;else if(!window._caseMedia[n])window._caseMedia[n]=[];})}
   let html="";
-  for(let n=0;n<caseCount;n++){const c=cases?cases[n]:null;const mv=c?.model||"",cv=c?.capacity||"",ctv=c?.category||"",sv=c?.serial||"",mdv=c?.mfgDate||"",idv=c?.instDate||"",syv=c?.symptom||"",av=c?.action||"",nv=c?.note||"",ov=c?.openclose||"";
+  for(let n=0;n<caseCount;n++){const c=cases?cases[n]:null;const mv=c?.model||"",cv=c?.capacity||"",ctv=c?.category||"",sv=c?.serial||"",mdv=c?.mfgDate||"",idv=c?.instDate||"",syv=c?.symptom||"",av=c?.action||"",nv=c?.note||"",ov=c?.openclose||"",pav=c?.prevAs||"",crv=c?.custResp||"",dgv=c?.diag||"";
     const mc=mv&&!models.find(m=>m.n===mv),syc=syv&&!syms.includes(syv),ac=av&&!acts.includes(av);
     const caps=models.find(m=>m.n===mv)?.c||[];
     html+='<div class="cg" id="cg'+n+'"><div class="cl" style="display:flex;justify-content:space-between;align-items:center"><span>🏗️ 현장지원 '+(n+1)+' <span id="cgMediaCount'+n+'" style="font-size:9px;color:var(--accent);font-weight:600"></span></span>'+(n>=1?'<button class="xb" onclick="rmCase('+n+')" style="font-size:14px;padding:2px 6px">✕</button>':'')+'</div>'
@@ -781,17 +781,20 @@ function buildCG(cases){const wrap=document.getElementById("caseGroups");if(!wra
     html+='</select></div><div><input id="cg'+n+'s" placeholder="제조번호" value="'+esc(sv)+'"></div>'
       +'<div><input id="cg'+n+'md" type="text" placeholder="제조일자" onfocus="this.type=\'date\'" onblur="if(!this.value)this.type=\'text\'" '+(mdv?'type="date" value="'+esc(mdv)+'"':'')+'></div>'
       +'<div><input id="cg'+n+'id" type="text" placeholder="설치일자" onfocus="this.type=\'date\'" onblur="if(!this.value)this.type=\'text\'" '+(idv?'type="date" value="'+esc(idv)+'"':'')+'></div>'
-      +'<div><select id="cg'+n+'sy" onchange="cgC(this,\'cg'+n+'syX\')"><option value="">증상</option>';
+      +'<div class="full"><div class="fl">1. 최초 접수내용</div><select id="cg'+n+'sy" onchange="cgC(this,\'cg'+n+'syX\')"><option value="">선택 또는 아래 태그 클릭</option>';
     syms.forEach(s=>{html+='<option'+(syv===s?' selected':'')+'>'+s+'</option>'});
-    html+='<option value="__o"'+(syc?' selected':'')+'>직접입력</option></select><input id="cg'+n+'syX" placeholder="증상" style="margin-top:2px;display:'+(syc?'block':'none')+'" value="'+(syc?esc(syv):'')+'"></div>'
+    html+='<option value="__o"'+(syc?' selected':'')+'>직접입력</option></select><input id="cg'+n+'syX" placeholder="최초 접수내용 직접입력" style="margin-top:2px;display:'+(syc?'block':'none')+'" value="'+(syc?esc(syv):'')+'"></div>'
       +'<div class="full qtag-row">'+syms.map(s=>'<button class="qtag'+(syv===s?' sel':'')+'" type="button" onclick="cgTagSy('+n+',this)">'+esc(s)+'</button>').join('')+'</div>'
-      +'<div><select id="cg'+n+'a" onchange="cgC(this,\'cg'+n+'aX\')"><option value="">처리결과</option>';
-    acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
-    html+='<option value="__o"'+(ac?' selected':'')+'>직접입력</option></select><input id="cg'+n+'aX" placeholder="결과" style="margin-top:2px;display:'+(ac?'block':'none')+'" value="'+(ac?esc(av):'')+'"></div>'
-      +'<div class="full qtag-row">'+acts.map(a=>'<button class="qtag'+(av===a?' sel':'')+'" type="button" onclick="cgTagAct('+n+',this)">'+esc(a)+'</button>').join('')+'</div>'
+      +'<div class="full"><div class="fl">2. 이전 방문자 AS처리내용</div><textarea id="cg'+n+'pa" placeholder="예) 스파크플러그, 화염감지기, 자동점화기, 가스밸브 교체." rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(pav)+'</textarea></div>'
+      +'<div class="full"><div class="fl">3. 현장 고객반응</div><textarea id="cg'+n+'cr" placeholder="예) 고객이 간헐적으로 소음난다고 함." rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(crv)+'</textarea></div>'
+      +'<div class="full"><div class="fl">4. 방문자 초기진단</div><textarea id="cg'+n+'dg" placeholder="예) 보일러 가동을 시켜 점화시도 중 부릉부릉소음 발생, 가동시 간헐적 소음이 발생됨." rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(dgv)+'</textarea></div>'
       +'<div><button type="button" onclick="cgPickMedia('+n+')" style="width:100%;height:100%;min-height:30px;padding:6px 4px;border:1.5px dashed var(--accent);border-radius:6px;background:rgba(232,168,56,.06);color:var(--accent);font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:3px">📷 사진/영상</button></div>'
-      +'<div class="full"><textarea id="cg'+n+'n" placeholder="조치내용" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(nv)+'</textarea></div>'
+      +'<div class="full"><div class="fl">5. 방문자 처리내용</div><textarea id="cg'+n+'n" placeholder="예) 연소실 스파크플러그 세트를 전동드라이버로 분리하고 내부 내시경카메라로 확인시 버너의 실오라기를 확인하여 일자드라이버로 버너 주변 그어주고 스파크플러그 상향으로 각도 조정후 조립하여 개선완료." rows="3" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.5;box-sizing:border-box">'+esc(nv)+'</textarea></div>'
       +((_settings?.noteTags||[]).length?'<div class="full qtag-row">'+(_settings.noteTags).map(t=>'<button class="qtag" type="button" onclick="cgTagNote('+n+',this)">'+esc(t)+'</button>').join('')+'</div>':'')
+      +'<div class="full"><div class="fl">6. 처리결과</div><select id="cg'+n+'a" onchange="cgC(this,\'cg'+n+'aX\')"><option value="">선택 또는 아래 태그 클릭</option>';
+    acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
+    html+='<option value="__o"'+(ac?' selected':'')+'>직접입력</option></select><input id="cg'+n+'aX" placeholder="처리결과 직접입력" style="margin-top:2px;display:'+(ac?'block':'none')+'" value="'+(ac?esc(av):'')+'"></div>'
+      +'<div class="full qtag-row">'+acts.map(a=>'<button class="qtag'+(av===a?' sel':'')+'" type="button" onclick="cgTagAct('+n+',this)">'+esc(a)+'</button>').join('')+'</div>'
       +'<div class="full" id="cgMediaList'+n+'" style="margin-top:4px"></div>'
       +'</div>';}
   wrap.innerHTML=html;
@@ -836,7 +839,7 @@ function cgC(sel,id){const inp=document.getElementById(id);if(sel.value==="__o")
 function addCase(){const saved=getCasesData();saved.push({});caseCount=saved.length;buildCG(saved);setTimeout(()=>{const el=document.getElementById("cg"+(caseCount-1));if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},100)}
 function rmCase(n){const saved=getCasesData();saved.splice(n,1);caseCount=Math.max(saved.length,1);buildCG(saved)}
 function getCasesData(){const c=[];for(let n=0;n<caseCount;n++){const mEl=document.getElementById("cg"+n+"m");if(!mEl)continue;
-  c.push({model:mEl.value==="__o"?document.getElementById("cg"+n+"mX").value:mEl.value,capacity:document.getElementById("cg"+n+"cap")?.value||"",openclose:document.getElementById("cg"+n+"oc")?.value||"",category:document.getElementById("cg"+n+"cat")?.value||"",serial:document.getElementById("cg"+n+"s")?.value||"",mfgDate:document.getElementById("cg"+n+"md")?.value||"",instDate:document.getElementById("cg"+n+"id")?.value||"",symptom:(()=>{const s=document.getElementById("cg"+n+"sy");return s?.value==="__o"?document.getElementById("cg"+n+"syX")?.value||"":s?.value||""})(),action:(()=>{const a=document.getElementById("cg"+n+"a");return a?.value==="__o"?document.getElementById("cg"+n+"aX")?.value||"":a?.value||""})(),note:document.getElementById("cg"+n+"n")?.value||"",media:(window._caseMedia&&window._caseMedia[n])||[]})}return c}
+  c.push({model:mEl.value==="__o"?document.getElementById("cg"+n+"mX").value:mEl.value,capacity:document.getElementById("cg"+n+"cap")?.value||"",openclose:document.getElementById("cg"+n+"oc")?.value||"",category:document.getElementById("cg"+n+"cat")?.value||"",serial:document.getElementById("cg"+n+"s")?.value||"",mfgDate:document.getElementById("cg"+n+"md")?.value||"",instDate:document.getElementById("cg"+n+"id")?.value||"",symptom:(()=>{const s=document.getElementById("cg"+n+"sy");return s?.value==="__o"?document.getElementById("cg"+n+"syX")?.value||"":s?.value||""})(),prevAs:document.getElementById("cg"+n+"pa")?.value||"",custResp:document.getElementById("cg"+n+"cr")?.value||"",diag:document.getElementById("cg"+n+"dg")?.value||"",action:(()=>{const a=document.getElementById("cg"+n+"a");return a?.value==="__o"?document.getElementById("cg"+n+"aX")?.value||"":a?.value||""})(),note:document.getElementById("cg"+n+"n")?.value||"",media:(window._caseMedia&&window._caseMedia[n])||[]})}return c}
 
 /* ══ 현장지원별 사진/동영상 ══ */
 function cgPickMedia(n){document.getElementById("cgMediaFile"+n)?.click()}
@@ -964,6 +967,16 @@ async function initJ(){document.getElementById("jBr").textContent=CU.branch;docu
   startDraftTimer();loadH();renderAudioList();renderMediaList();renderVocAudioList();renderF1Tags();renderF2Tags();}
 
 
+function getMissingCaseFields(cases){
+  const req=[["symptom","1.최초 접수내용"],["prevAs","2.이전 방문자 AS처리내용"],["custResp","3.현장 고객반응"],["diag","4.방문자 초기진단"],["note","5.방문자 처리내용"],["action","6.처리결과"]];
+  const missing=[];
+  (cases||[]).forEach((c,i)=>{
+    const started=c.model||c.serial||c.symptom||c.action||c.note||c.prevAs||c.custResp||c.diag;
+    if(!started)return;
+    req.forEach(([key,label])=>{if(!String(c[key]||"").trim())missing.push("현장지원"+(i+1)+" - "+label)});
+  });
+  return missing;
+}
 async function doSave(){
   if(window._audioUploadInProgress||window._mediaUploadInProgress||window._vocAudioUploadInProgress){
     alert("⚠️ 파일 업로드가 진행 중입니다.\n\n업로드 완료 후 제출해주세요.\n(또는 ⏹ 업로드 취소 후 제출 가능)");
@@ -979,6 +992,10 @@ async function doSave(){
   if(!f1&&!f2&&!f3&&!hasCases&&!hasAudio&&!hasMedia){
     alert("⚠️ 작성되지 않았습니다.\n\n현장지원, 상담&특이사항, 첨부 중\n최소 하나 이상 입력해주세요.");
     return;
+  }
+  const missing=getMissingCaseFields(cases);
+  if(missing.length){
+    alert("⚠️ 다음 항목이 비어있습니다 (필수 입력):\n\n"+missing.join("\n")+"\n\n※ 입력한 내용은 그대로 저장되며, 위 항목은 추후 보완이 필요합니다.");
   }
   const t=getSelectedDate(),e={empId:CU.empId,name:CU.name,branch:CU.branch,date:t,dateLabel:fdsKor(t),field1:f1,field2:f2,field3:f3,cases,audios:window._currentAudios||[],vocAudios:window._currentVocAudios||[],media:window._currentMedia||[],savedAt:new Date().toISOString()};
   const b=document.getElementById("saveBtn");b.disabled=true;b.textContent="제출 중...";
@@ -996,15 +1013,18 @@ function buildReportText(e){
   txt+="📅 "+(e.dateLabel||e.date)+"\n";
   txt+="🏢 "+(e.branch||"")+"\n";
   txt+="👤 "+(e.name||"")+" ("+(e.empId||"")+")\n\n";
-  const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+  const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);
   if(fc.length>0){
     txt+="━━━ 🏗️ 현장지원 ("+fc.length+"건) ━━━\n";
     fc.forEach((c,i)=>{
       txt+="\n["+(i+1)+"] "+(c.model||"")+(c.capacity?" "+c.capacity:"")+(c.openclose?" ("+c.openclose+")":"")+(c.category?" / "+c.category:"")+"\n";
       if(c.serial)txt+="  S/N: "+c.serial+"\n";
-      if(c.symptom)txt+="  증상: "+c.symptom+"\n";
-      if(c.action)txt+="  처리: "+c.action+"\n";
-      if(c.note)txt+="  조치: "+c.note+"\n";
+      if(c.symptom)txt+="  1.최초 접수내용: "+c.symptom+"\n";
+      if(c.prevAs)txt+="  2.이전 방문자 AS처리내용: "+c.prevAs+"\n";
+      if(c.custResp)txt+="  3.현장 고객반응: "+c.custResp+"\n";
+      if(c.diag)txt+="  4.방문자 초기진단: "+c.diag+"\n";
+      if(c.note)txt+="  5.방문자 처리내용: "+c.note+"\n";
+      if(c.action)txt+="  6.처리결과: "+c.action+"\n";
     });
     txt+="\n";
   }
@@ -2473,8 +2493,6 @@ const CITY_XY={
   '부산동구':[180,257],'남해':[125,265],'사천':[140,261],'고성':[148,265]
 };
 let _mapZoom=-1,_mapData=null,_mapCenter=-1,_mapConsultant=null;
-let _mapBIMode=false,_mapBIPeriod='month',_mapBIMetric='cases',_mapBIData=null;
-let _lfMap=null,_lfPolyLayer={},_lfMkGroups={},_lfSpMarkers={},_lfBlinkTimer=null,_lfSelJisa=null,_lfSelKwanyuk=null,_lfJisaInfo=null;
 function _cityXY(name,fallback){
   if(CITY_XY[name])return CITY_XY[name];
   // prefix fallback (e.g. "청주오창" → "청주")
@@ -2489,63 +2507,8 @@ function extractCity(n){
   n=n.replace(/동부$|서부$|남부$|북부$|중부$|제일$|중앙$/,'');
   return n.trim()||'기타';
 }
-function _branchToJisa(br){
-  if(br==='경인지사')return['경기지사','인천지사'];
-  return JISA_DATA.find(j=>j.name===br)?[br]:[];
-}
-async function _loadBIData(cb){
-  if(!window._aU||!window._aAllE){
-    try{const[us,rs]=await Promise.all([db.collection('users').get(),db.collection('reports').get()]);window._aU=us.docs.map(d=>d.data());window._aAllE=rs.docs.map(d=>d.data());}catch(e){if(cb)cb();return;}
-  }
-  const users=window._aU||[];const allEntries=window._aAllE||[];const today=tk();
-  let entries=allEntries;
-  if(_mapBIPeriod==='month'){const s=today.slice(0,7)+'-01';entries=allEntries.filter(e=>e.date&&e.date>=s&&e.date<=today);}
-  else if(_mapBIPeriod==='week'){const wr=getWeekMonFri();const we=wr.e>today?today:wr.e;entries=allEntries.filter(e=>e.date&&e.date>=wr.s&&e.date<=we);}
-  const empJisa={};users.forEach(u=>{if(u.empId&&u.branch)empJisa[u.empId]=_branchToJisa(u.branch);});
-  const biMap={};JISA_DATA.forEach(j=>{biMap[j.name]={reports:0,cases:0,consult:0};});
-  entries.forEach(e=>{(empJisa[e.empId]||[]).forEach(jn=>{if(!biMap[jn])return;biMap[jn].reports++;biMap[jn].cases+=(e.cases?e.cases.filter(c=>c.model).length:0);if(e.field2&&e.field2.trim()){const m=e.field2.match(/^(\d+\.|\[)/gm);biMap[jn].consult+=m?m.length:1;}});});
-  _mapBIData=biMap;if(cb)cb();
-}
-function _toggleBIMode(){
-  _mapBIMode=!_mapBIMode;
-  const btn=document.getElementById('biToggleBtn');if(btn)btn.textContent=_mapBIMode?'🗺️ 대리점':'📊 BI';
-  ['biPeriodBar','biMetricBar'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=_mapBIMode?'flex':'none';});
-  if(_mapBIMode&&!_mapBIData){_loadBIData(()=>{if(window._mapRender)window._mapRender();_renderBICards();});}
-  else{if(window._mapRender)window._mapRender();_renderBICards();}
-}
-function _setBIPeriod(p){
-  _mapBIPeriod=p;
-  ['month','week','all'].forEach(v=>{const el=document.getElementById('biPeriod_'+v);if(el)el.classList.toggle('active',v===p);});
-  _loadBIData(()=>{if(window._mapRender)window._mapRender();_renderBICards();});
-}
-function _setBIMetric(m){
-  _mapBIMetric=m;
-  ['cases','consult','reports'].forEach(v=>{const el=document.getElementById('biMetric_'+v);if(el)el.classList.toggle('active',v===m);});
-  if(window._mapRender)window._mapRender();_renderBICards();
-}
-function _renderBICards(){
-  const el=document.getElementById('mapBICards');if(!el)return;
-  if(!_mapBIMode||!_mapBIData){el.innerHTML='';return;}
-  const metric=_mapBIMetric;
-  const mLabel={'reports':'보고서 제출','cases':'현장지원','consult':'상담건'}[metric]||metric;
-  const mColor={'reports':'var(--admin)','cases':'#3498DB','consult':'#00B894'}[metric];
-  const sorted=JISA_DATA.map(j=>({name:j.name,color:j.color,val:(_mapBIData[j.name]||{})[metric]||0})).sort((a,b)=>b.val-a.val);
-  const maxV=Math.max(1,...sorted.map(it=>it.val));
-  let h='<div style="margin-top:14px;background:var(--card);border-radius:10px;padding:12px 14px">'
-    +'<div style="font-size:12px;font-weight:700;color:var(--ts);margin-bottom:10px">📊 지사별 '+mLabel+' 랭킹</div>'
-    +'<div style="display:flex;flex-direction:column;gap:6px">';
-  sorted.forEach((it,i)=>{const ratio=it.val/maxV;h+='<div style="display:flex;align-items:center;gap:8px">'
-    +'<span style="font-size:10px;color:var(--ts);min-width:16px;text-align:right">'+(i+1)+'</span>'
-    +'<span style="font-size:11px;font-weight:700;color:'+it.color+';min-width:76px">'+esc(it.name.replace('지사',''))+'</span>'
-    +'<div style="flex:1;height:8px;background:var(--ibg);border-radius:4px"><div style="height:100%;width:'+(ratio*100)+'%;background:'+mColor+';border-radius:4px;transition:width .5s"></div></div>'
-    +'<span style="font-size:13px;font-weight:800;color:'+mColor+';min-width:30px;text-align:right">'+it.val+'</span>'
-    +'</div>';});
-  h+='</div></div>';
-  el.innerHTML=h;
-}
 function _buildMapSVG(jisaInfo,zoom){
   const isOv=zoom<0;
-  const _biMax=(_mapBIMode&&_mapBIData)?Math.max(1,...JISA_DATA.map(j=>(_mapBIData[j.name]||{})[_mapBIMetric]||0)):1;
   let vb='0 0 220 390';
   if(!isOv){
     const ji0=jisaInfo[zoom];const fb0=[JISA_DATA[zoom].lx,JISA_DATA[zoom].ly];
@@ -2583,13 +2546,9 @@ function _buildMapSVG(jisaInfo,zoom){
       jIdxs.forEach(i=>{
         const j=JISA_DATA[i];const ji=jisaInfo[i];
         const sn=j.name.replace('지사','');
-        const _biV=(_mapBIMode&&_mapBIData)?((_mapBIData[j.name]||{})[_mapBIMetric]||0):null;
-        const _biRatio=_biV!==null?_biV/_biMax:0;
-        const _biFop=_mapBIMode?(isSel?.96:(0.18+_biRatio*0.76)):(isSel?.92:.80);
-        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+_biFop.toFixed(2)+'" stroke="rgba(255,255,255,.72)" stroke-width="'+(isSel?2:1.2)+'" stroke-linejoin="round" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
+        s+='<path clip-path="url(#kclip)" d="'+j.d+'" fill="'+j.color+'" fill-opacity="'+(isSel?.92:.80)+'" stroke="rgba(255,255,255,.72)" stroke-width="'+(isSel?2:1.2)+'" stroke-linejoin="round" onclick="hlCenter('+ci+')" style="cursor:pointer;transition:all .3s"/>';
         s+='<text x="'+j.lx+'" y="'+(j.ly-2)+'" text-anchor="middle" font-size="'+(isSel?7.5:6.5)+'" font-weight="800" fill="#fff" style="pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:2.5px">'+esc(sn)+'</text>';
-        if(_mapBIMode&&_biV!==null){s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="7" font-weight="800" fill="rgba(255,255,255,.96)" style="pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7)">'+_biV+'</text>';}
-        else if(ji.cnt){s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.93)" font-weight="600" style="pointer-events:none">'+ji.cnt+'개</text>';}
+        if(ji.cnt)s+='<text x="'+j.lx+'" y="'+(j.ly+6)+'" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.93)" font-weight="600" style="pointer-events:none">'+ji.cnt+'개</text>';
       });
       if(isSel){
         const avgX=Math.round(jIdxs.reduce((a,i)=>a+JISA_DATA[i].lx,0)/jIdxs.length);
@@ -2722,212 +2681,39 @@ function _buildMapCards(jisaInfo,zoom){
 async function loadMap(){
   const el=document.getElementById('tabMap');if(!el)return;
   el.innerHTML='<div style="padding:20px;text-align:center;color:var(--ts)">불러오는 중...</div>';
-  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;}
-  if(_lfMap){try{_lfMap.remove();}catch(e){}; _lfMap=null;_lfPolyLayer={};_lfMkGroups={};_lfSpMarkers={};_lfSelJisa=null;_lfSelKwanyuk=null;}
   const dealers=await loadDealers();
   await _batchGeocodeDealers(dealers);
-  const _jisaKwColor={};KWANYUK_DATA.forEach(kw=>{kw.jisas.forEach(jn=>{_jisaKwColor[jn]=kw.color;});});
   const jisaInfo=JISA_DATA.map(j=>{
     const dl=dealers.filter(d=>d.branch===j.name);
+    const csrSt={};dl.forEach(d=>{const c=d.consultant||'미지정';csrSt[c]=(csrSt[c]||0)+1;});
+    const citySt={};dl.forEach(d=>{const c=extractCity(d.name);if(!citySt[c])citySt[c]=[];citySt[c].push(d);});
     const spSt={};dl.forEach(d=>{const sp=d.consultant||'미지정';if(!spSt[sp])spSt[sp]=[];spSt[sp].push(d);});
     const spList=Object.keys(spSt).filter(sp=>sp&&sp!=='미지정').sort();
     const spColors={};spList.forEach((sp,idx)=>{spColors[sp]=SP_COLORS[idx%SP_COLORS.length];});
-    const kwColor=_jisaKwColor[j.name]||j.color;
-    return{...j,dl,cnt:dl.length,spSt,spColors,kwColor};
+    return{...j,dl,cnt:dl.length,csrSt,citySt,spSt,spColors};
   });
-  _lfJisaInfo=jisaInfo;
-  el.innerHTML='<div style="display:flex;height:calc(100vh - 108px);min-height:480px">'
-    +'<div id="lfMapDiv" style="flex:1;min-width:0"></div>'
-    +'<div id="lfSidePanel" style="width:260px;overflow-y:auto;background:var(--card);border-left:1px solid var(--border);flex-shrink:0"></div>'
+  _mapData=jisaInfo;_mapZoom=-1;
+  function render(){
+    const z=_mapZoom;
+    document.getElementById('mapSvgWrap').innerHTML=_buildMapSVG(jisaInfo,z);
+    document.getElementById('mapCardsWrap').innerHTML=_buildMapCards(jisaInfo,z);
+    const ttl=document.getElementById('mapTitle');
+    if(ttl)ttl.textContent=z>=0?('🗺️ '+JISA_DATA[z].name):'🗺️ 지사별 담당지역';
+    const bb=document.getElementById('mapBackBtn');
+    if(bb)bb.style.display=z>=0?'inline-block':'none';
+  }
+  window._mapRender=render;
+  el.innerHTML='<div style="padding:14px 12px 40px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+    +'<h3 id="mapTitle" style="font-size:13px;font-weight:700">🗺️ 지사별 담당지역</h3>'
+    +'<div style="display:flex;gap:6px">'
+    +'<button id="mapBackBtn" onclick="hlRgn(-1)" style="display:none;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
+    +(canChangeSettings()?'<button onclick="switchAT(\'settings\')" style="padding:4px 10px;border:1px solid var(--admin);border-radius:6px;background:transparent;color:var(--admin);font-size:10px;cursor:pointer;font-family:inherit">⚙️</button>':'')
+    +'</div></div>'
+    +'<div id="mapSvgWrap" style="margin-bottom:12px"></div>'
+    +'<div id="mapCardsWrap"></div>'
     +'</div>';
-  await new Promise((res,rej)=>{
-    if(window.L&&window.L.map){res();return;}
-    if(!document.querySelector('link[href*="leaflet"]')){
-      const css=document.createElement('link');css.rel='stylesheet';
-      css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(css);
-    }
-    const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    s.onload=res;s.onerror=rej;document.head.appendChild(s);
-  });
-  const KB=[[32.8,124.5],[38.9,130.8]];
-  _lfMap=L.map('lfMapDiv',{zoomControl:true,preferCanvas:true,
-    maxBounds:[[32,123],[40,132]],maxBoundsViscosity:1,minZoom:6,maxZoom:16});
-  _lfMap.setView([36.5,127.5],7);
-  _lfMap.getContainer().style.background='#A8CCEC';
-  try{
-    const gjR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json');
-    const gjD=await gjR.json();
-    L.geoJSON(gjD,{style:{color:'#4A78A0',weight:1.6,fillColor:'#D4E5F2',fillOpacity:0.6,dashArray:''}}).addTo(_lfMap);
-    const muniR=await fetch('https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-municipalities-2018-geo.json');
-    const muniD=await muniR.json();
-    L.geoJSON(muniD,{style:{color:'#7AAAC8',weight:0.5,fillOpacity:0,dashArray:'3,3'}}).addTo(_lfMap);
-  }catch(e){}
-  const LF_SHAPES=['circle','triangle','square','star','diamond'];
-  const spShapeIdx={};let spCnt=0;
-  jisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
-  jisaInfo.forEach((ji,idx)=>{
-    const j=JISA_DATA[idx];
-    const kwC=ji.kwColor||j.color;
-    const poly=L.polygon(_pathToLL(j.d),{color:kwC,weight:1.5,opacity:0.9,fillColor:kwC,fillOpacity:0.10});
-    poly.bindTooltip(j.name,{sticky:true,direction:'center',className:'dlabel'});
-    poly.on('mouseover',function(){if(!_lfSelKwanyuk)this.setStyle({fillOpacity:0.28,weight:2.5});});
-    poly.on('mouseout',function(){if(!_lfSelKwanyuk)this.setStyle({fillOpacity:0.10,weight:1.5});});
-    poly.on('click',()=>_lfClickJisa(j.name));
-    poly.addTo(_lfMap);
-    _lfPolyLayer[j.name]=poly;
-    const mg=L.layerGroup().addTo(_lfMap);
-    const placed={};
-    ji.dl.forEach(d=>{
-      let lat,lng;
-      if(d.address&&_dealerGeoCache[d.address]){const ll=_dealerGeoCache[d.address];lat=ll.lat;lng=ll.lng;}
-      else{const city=extractCity(d.name);[lat,lng]=_dealerLL(city,[j.lx,j.ly]);}
-      const rk=Math.round(lat*200)+','+Math.round(lng*200);
-      const n=(placed[rk]=(placed[rk]||0)+1);
-      const offs=[[0,0],[0.009,-0.009],[-0.009,0.009],[0.009,0.009],[-0.009,-0.009],[0,0.013],[0,-0.013]];
-      const[dlat,dlng]=offs[(n-1)%7];
-      const sp=d.consultant||'미지정';
-      const color=ji.spColors[sp]||j.color;
-      const shape=LF_SHAPES[(spShapeIdx[sp]??0)%LF_SHAPES.length];
-      const sn=d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,'');
-      const mk=_lfMkIcon(lat+dlat,lng+dlng,color,shape,sn,j.name,sp);
-      if(!_lfSpMarkers[sp])_lfSpMarkers[sp]=[];
-      _lfSpMarkers[sp].push(mk);
-      mg.addLayer(mk);
-    });
-    _lfMkGroups[j.name]=mg;
-  });
-  _lfRenderPanel();
-}
-function _lfMkIcon(lat,lng,color,shape,name,jisa,csr){
-  let html='';const s='border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)';
-  if(shape==='circle')html='<div style="width:10px;height:10px;border-radius:50%;background:'+color+';'+s+'"></div>';
-  else if(shape==='triangle')html='<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:11px solid '+color+';filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))"></div>';
-  else if(shape==='square')html='<div style="width:9px;height:9px;background:'+color+';'+s+'"></div>';
-  else if(shape==='star')html='<div style="color:'+color+';font-size:13px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.4)">★</div>';
-  else if(shape==='diamond')html='<div style="width:8px;height:8px;background:'+color+';'+s+';transform:rotate(45deg)"></div>';
-  const icon=L.divIcon({html:'<div style="display:flex;align-items:center;justify-content:center;width:14px;height:14px">'+html+'</div>',className:'',iconSize:[14,14],iconAnchor:[7,7]});
-  const m=L.marker([lat,lng],{icon});
-  m.bindPopup('<div style="font-family:-apple-system,sans-serif;min-width:150px"><div style="font-size:11px;color:'+color+';font-weight:700;margin-bottom:2px">'+esc(jisa)+'</div><div style="font-size:13px;font-weight:700;margin-bottom:3px">'+esc(name)+'</div><div style="font-size:11px;color:#555">담당: <b style="color:'+color+'">'+esc(csr)+'</b></div></div>',{maxWidth:220});
-  return m;
-}
-function _lfShapeIcon(shape,color){
-  const s='border:1.5px solid #fff;vertical-align:middle;display:inline-block;flex-shrink:0';
-  if(shape==='circle')return'<span style="width:10px;height:10px;border-radius:50%;background:'+color+';'+s+'"></span>';
-  if(shape==='triangle')return'<span style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid '+color+';vertical-align:middle;display:inline-block;flex-shrink:0"></span>';
-  if(shape==='square')return'<span style="width:9px;height:9px;background:'+color+';'+s+'"></span>';
-  if(shape==='star')return'<span style="color:'+color+';font-size:12px;vertical-align:middle;flex-shrink:0">★</span>';
-  if(shape==='diamond')return'<span style="width:8px;height:8px;background:'+color+';transform:rotate(45deg);'+s+'"></span>';
-  return'';
-}
-function _lfClickJisa(name){
-  const idx=JISA_DATA.findIndex(j=>j.name===name);
-  if(idx<0||!_lfJisaInfo)return;
-  const ji=_lfJisaInfo[idx];
-  _lfSelJisa=(_lfSelJisa===name)?null:name;
-  if(_lfSelJisa){_lfRenderPanelDetail(name,ji,idx);}
-  else{_lfRenderPanel();}
-}
-function _lfRenderPanel(){
-  const p=document.getElementById('lfSidePanel');if(!p||!_lfJisaInfo)return;
-  const LF_SHAPES=['circle','triangle','square','star','diamond'];
-  const spShapeIdx={};let spCnt=0;
-  _lfJisaInfo.forEach(ji=>{Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
-  let h='<div style="padding:12px"><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--ts)">🗺️ 지사별 현황</div>';
-  KWANYUK_DATA.forEach(kw=>{
-    const kwT=kw.jisas.reduce((s,jn)=>{const ji=_lfJisaInfo.find(j=>j.name===jn);return s+(ji?ji.cnt:0);},0);
-    h+='<div onclick="_lfClickKwanyuk(\''+esc(kw.name)+'\')" style="font-size:11px;font-weight:700;color:'+kw.color+';border-bottom:2px solid '+kw.color+'44;padding:5px 6px 4px;margin:8px 0 5px;letter-spacing:.5px;cursor:pointer;border-radius:5px 5px 0 0;transition:background .15s" onmouseover="this.style.background=\''+kw.color+'15\'" onmouseout="this.style.background=\'transparent\'">🔍 '+esc(kw.name)+' · '+kwT+'개</div>';
-    kw.jisas.forEach(jn=>{
-      const ji=_lfJisaInfo.find(j=>j.name===jn);if(!ji||!ji.cnt)return;
-      const spLine=Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').map(sp=>{
-        const sh=LF_SHAPES[(spShapeIdx[sp]??0)%LF_SHAPES.length];
-        const sc=ji.spColors[sp];
-        return'<span onclick="event.stopPropagation();_lfBlinkConsultant(\''+esc(sp)+'\')" title="클릭=담당 대리점 깜빡임" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;background:'+sc+'18;border:1px solid '+sc+'55;border-radius:4px;padding:1px 5px;color:'+sc+';cursor:pointer">'+_lfShapeIcon(sh,sc)+esc(sp)+'</span>';
-      }).join(' ');
-      h+='<div onclick="_lfClickJisa(\''+esc(ji.name)+'\')" style="display:flex;align-items:center;gap:8px;padding:7px 9px;background:var(--ibg);border-left:3px solid '+ji.color+';border-radius:6px;margin-bottom:4px;cursor:pointer;transition:background .15s" onmouseover="this.style.background=\'var(--card)\'" onmouseout="this.style.background=\'var(--ibg)\'">'
-        +'<span style="font-size:11px;font-weight:700;color:'+ji.color+';min-width:72px">'+esc(ji.name)+'</span>'
-        +'<span style="font-size:10px;color:'+ji.color+';font-weight:700">'+ji.cnt+'개</span>'
-        +'<div style="flex:1;display:flex;flex-wrap:wrap;gap:2px">'+spLine+'</div>'
-        +'<span style="font-size:10px;color:var(--ts)">▶</span></div>';
-    });
-  });
-  h+='</div>';p.innerHTML=h;
-}
-function _lfRenderPanelDetail(name,ji,idx){
-  const p=document.getElementById('lfSidePanel');if(!p)return;
-  const j=JISA_DATA[idx];
-  const LF_SHAPES=['circle','triangle','square','star','diamond'];
-  const spShapeIdx={};let spCnt=0;
-  (_lfJisaInfo||[]).forEach(jji=>{Object.keys(jji.spSt).filter(sp=>sp&&sp!=='미지정').sort().forEach(sp=>{if(spShapeIdx[sp]===undefined)spShapeIdx[sp]=spCnt++;});});
-  const spList=Object.keys(ji.spSt).filter(sp=>sp&&sp!=='미지정').sort();
-  let h='<div style="padding:12px">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-    +'<button onclick="_lfClickJisa(\''+esc(name)+'\')" style="padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:10px;cursor:pointer;font-family:inherit">← 전체</button>'
-    +'<div><div style="font-size:13px;font-weight:700;color:'+j.color+'">'+esc(name)+'</div>'
-    +'<div style="font-size:10px;color:var(--ts)">총 '+ji.cnt+'개 대리점</div></div></div>'
-    +'<div style="font-size:10px;color:var(--ts);margin-bottom:10px;padding:4px 8px;background:var(--ibg);border-radius:6px">💡 마커 클릭시 상세정보 확인</div>';
-  spList.forEach((sp,i)=>{
-    const color=ji.spColors[sp]||j.color;
-    const shape=LF_SHAPES[(spShapeIdx[sp]??i)%LF_SHAPES.length];
-    const dls=ji.spSt[sp];
-    h+='<div style="margin-bottom:10px">'
-      +'<div onclick="_lfBlinkConsultant(\''+esc(sp)+'\')" style="display:flex;align-items:center;gap:6px;margin-bottom:5px;cursor:pointer;padding:3px 6px;border-radius:5px;background:'+color+'10;border:1px solid '+color+'30;transition:background .15s" onmouseover="this.style.background=\''+color+'25\'" onmouseout="this.style.background=\''+color+'10\'">'
-      +_lfShapeIcon(shape,color)
-      +'<span style="font-size:12px;font-weight:700;color:'+color+'">'+esc(sp)+'</span>'
-      +'<span style="font-size:10px;color:var(--ts)">('+dls.length+'개)</span>'
-      +'<span style="font-size:9px;color:'+color+';margin-left:auto;opacity:.7">📍깜빡</span>'
-      +'</div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'
-      +dls.map(d=>'<span style="font-size:9px;color:var(--fg);background:'+color+'12;border:1px solid '+color+'45;border-radius:4px;padding:2px 5px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join('')
-      +'</div></div>';
-  });
-  const mijiDls=ji.spSt['미지정']||[];
-  if(mijiDls.length){
-    h+='<div style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'
-      +'<span style="width:10px;height:10px;border-radius:50%;background:#aaa;border:1.5px solid #fff;display:inline-block;flex-shrink:0"></span>'
-      +'<span style="font-size:12px;font-weight:700;color:var(--ts)">미지정</span>'
-      +'<span style="font-size:10px;color:var(--ts)">('+mijiDls.length+'개)</span></div>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:3px;padding-left:16px">'
-      +mijiDls.map(d=>'<span style="font-size:9px;color:var(--ts);background:var(--ibg);border:1px solid var(--border);border-radius:4px;padding:2px 5px">'+esc(d.name.replace(/\(.*?\)/g,'').replace(/대리점$|특약점$|지점$|판매점$/,''))+'</span>').join('')
-      +'</div></div>';
-  }
-  h+='</div>';p.innerHTML=h;
-}
-function _lfClickKwanyuk(kwName){
-  const kw=KWANYUK_DATA.find(k=>k.name===kwName);if(!kw||!_lfMap)return;
-  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
-  const isSame=_lfSelKwanyuk===kwName;
-  _lfSelKwanyuk=isSame?null:kwName;
-  _lfSelJisa=null;
-  const kwJisas=new Set(_lfSelKwanyuk?kw.jisas:[]);
-  Object.keys(_lfPolyLayer).forEach(jn=>{
-    const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
-    const jiInfo=_lfJisaInfo?_lfJisaInfo.find(j=>j.name===jn):null;
-    const kwC=jiInfo?.kwColor||JISA_DATA.find(j=>j.name===jn)?.color||'#999';
-    _lfPolyLayer[jn].setStyle({fillOpacity:isDim?0:0.10,weight:isDim?0:1.5,opacity:isDim?0:0.9,color:kwC});
-  });
-  Object.keys(_lfMkGroups).forEach(jn=>{
-    const isDim=_lfSelKwanyuk&&!kwJisas.has(jn);
-    if(isDim){if(_lfMap.hasLayer(_lfMkGroups[jn]))_lfMap.removeLayer(_lfMkGroups[jn]);}
-    else{if(!_lfMap.hasLayer(_lfMkGroups[jn]))_lfMkGroups[jn].addTo(_lfMap);}
-  });
-  if(_lfSelKwanyuk){
-    const boundsArr=kw.jisas.filter(jn=>_lfPolyLayer[jn]).map(jn=>_lfPolyLayer[jn].getBounds());
-    if(boundsArr.length){let b=boundsArr[0];boundsArr.forEach(bb=>b=b.extend(bb));_lfMap.fitBounds(b,{padding:[5,5]});}
-  }else{
-    _lfMap.setView([36.5,127.5],7);
-  }
-  _lfRenderPanel();
-}
-function _lfBlinkConsultant(sp){
-  if(_lfBlinkTimer){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;Object.values(_lfSpMarkers).flat().forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
-  const mks=_lfSpMarkers[sp];if(!mks||!mks.length)return;
-  let tick=0;
-  _lfBlinkTimer=setInterval(()=>{
-    const vis=tick%2===0?'0':'1';
-    mks.forEach(m=>{const el=m.getElement();if(el)el.style.opacity=vis;});
-    tick++;
-    if(tick>=12){clearInterval(_lfBlinkTimer);_lfBlinkTimer=null;mks.forEach(m=>{const el=m.getElement();if(el)el.style.opacity='1';});}
-  },500);
+  render();
 }
 function hlRgn(i){
   _mapZoom=i;_mapConsultant=null;
@@ -3769,18 +3555,21 @@ async function buildDailyText(dateStr){
   const wd=["일","월","화","수","목","금","토"][dObj.getDay()];
   const dtLabel=dObj.getFullYear()+"년 "+String(dObj.getMonth()+1).padStart(2,"0")+"월 "+String(dObj.getDate()).padStart(2,"0")+"일 ("+wd+")";
   const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
-  let totalCases=0;entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
+  let totalCases=0;entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag).length});
   let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
   txt+="📊 제출 "+entries.length+"명 · 미제출 "+notSubmitted.length+"명"+(onLeave.length?" · 휴가 "+onLeave.length+"명":"")+" · 현장지원 "+totalCases+"건\n";
   Object.entries(grouped).forEach(([branch,list])=>{
-    const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
+    const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag).length),0);
     txt+="\n━━━ 🏢 "+branch+" ("+list.length+"명, "+brCases+"건) ━━━\n";
     list.forEach(e=>{
-      const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+      const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);
       txt+="👤 "+e.name+"\n";
       fc.forEach(c=>{
         const parts=[c.model,c.capacity,c.category].filter(Boolean).join(" ");
         txt+="  • "+(parts||"현장지원")+(c.symptom?" / "+c.symptom:"")+(c.action?" → "+c.action:"")+"\n";
+        if(c.prevAs)txt+="    [이전AS] "+c.prevAs.trim().split("\n").join(" ")+"\n";
+        if(c.custResp)txt+="    [고객반응] "+c.custResp.trim().split("\n").join(" ")+"\n";
+        if(c.diag)txt+="    [초기진단] "+c.diag.trim().split("\n").join(" ")+"\n";
         if(c.note)txt+=c.note.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
       });
       if(e.field2&&e.field2.trim())txt+="  💬 "+e.field2.trim().slice(0,120)+"\n";
@@ -5829,7 +5618,7 @@ async function saveUserEdit(oldDocId,oldEntry){
     const f1=document.getElementById("aeF1")?.value||oldEntry.field1||"";
     const f2=document.getElementById("aeF2").value;
     const f3=document.getElementById("aeF3")?.value||"";
-    const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial);
+    const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial||c.prevAs||c.custResp||c.diag);
     const audioElems=document.querySelectorAll("#aeAudios > div");
     const remainingAudios=[];
     audioElems.forEach(el=>{const idx=+el.dataset.idx;if(oldEntry.audios&&oldEntry.audios[idx])remainingAudios.push(oldEntry.audios[idx])});
@@ -6104,7 +5893,7 @@ function buildAECases(cases){
   if(!cases.length)cases=[{}];
   let html="";
   cases.forEach((c,n)=>{
-    const mv=c.model||"",cv=c.capacity||"",ctv=c.category||"",sv=c.serial||"",mdv=c.mfgDate||"",idv=c.instDate||"",syv=c.symptom||"",av=c.action||"",nv=c.note||"";
+    const mv=c.model||"",cv=c.capacity||"",ctv=c.category||"",sv=c.serial||"",mdv=c.mfgDate||"",idv=c.instDate||"",syv=c.symptom||"",av=c.action||"",nv=c.note||"",pav=c.prevAs||"",crv=c.custResp||"",dgv=c.diag||"";
     html+='<div class="cg" id="aeCG'+n+'" style="margin-bottom:5px">'
       +'<div class="cl">현장지원 '+(n+1)+' <button class="xb" onclick="removeAECase('+n+')" type="button">✕</button></div>'
       +'<div><select id="aeCG'+n+'m"><option value="">모델</option>';
@@ -6117,13 +5906,16 @@ function buildAECases(cases){
       +'<div><input id="aeCG'+n+'s" placeholder="제조번호" value="'+esc(sv)+'"></div>'
       +'<div><input id="aeCG'+n+'md" type="date" value="'+esc(mdv)+'"></div>'
       +'<div><input id="aeCG'+n+'id" type="date" value="'+esc(idv)+'"></div>'
-      +'<div><select id="aeCG'+n+'sy"><option value="">증상</option>';
+      +'<div class="full"><label class="fl">1. 최초 접수내용</label><select id="aeCG'+n+'sy"><option value="">선택</option>';
     syms.forEach(s=>{html+='<option'+(syv===s?' selected':'')+'>'+s+'</option>'});
     html+='</select></div>'
-      +'<div><select id="aeCG'+n+'a"><option value="">처리</option>';
+      +'<div class="full"><label class="fl">2. 이전 방문자 AS처리내용</label><textarea id="aeCG'+n+'pa" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;box-sizing:border-box">'+esc(pav)+'</textarea></div>'
+      +'<div class="full"><label class="fl">3. 현장 고객반응</label><textarea id="aeCG'+n+'cr" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;box-sizing:border-box">'+esc(crv)+'</textarea></div>'
+      +'<div class="full"><label class="fl">4. 방문자 초기진단</label><textarea id="aeCG'+n+'dg" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;box-sizing:border-box">'+esc(dgv)+'</textarea></div>'
+      +'<div class="full"><label class="fl">5. 방문자 처리내용</label><textarea id="aeCG'+n+'n" rows="3" style="width:100%;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:inherit;resize:vertical;box-sizing:border-box">'+esc(nv)+'</textarea></div>'
+      +'<div class="full"><label class="fl">6. 처리결과</label><select id="aeCG'+n+'a"><option value="">선택</option>';
     acts.forEach(a=>{html+='<option'+(av===a?' selected':'')+'>'+a+'</option>'});
     html+='</select></div>'
-      +'<div class="full"><input id="aeCG'+n+'n" placeholder="조치내용" value="'+esc(nv)+'"></div>'
       +'</div>';
   });
   html+='<button type="button" onclick="addAECase()" style="padding:5px 14px;border:1.5px dashed var(--border);border-radius:6px;background:transparent;font-size:10px;cursor:pointer;font-family:inherit;color:var(--ts);margin-top:4px">+ 현장지원 추가</button>';
@@ -6133,7 +5925,7 @@ function getAECases(){
   const wrap=document.getElementById("aeCases");if(!wrap)return[];
   const cases=[];const cgs=wrap.querySelectorAll('.cg');
   cgs.forEach(cg=>{const id=cg.id.replace("aeCG","");const n=id;
-    cases.push({model:document.getElementById("aeCG"+n+"m")?.value||"",capacity:document.getElementById("aeCG"+n+"cap")?.value||"",category:document.getElementById("aeCG"+n+"cat")?.value||"",serial:document.getElementById("aeCG"+n+"s")?.value||"",mfgDate:document.getElementById("aeCG"+n+"md")?.value||"",instDate:document.getElementById("aeCG"+n+"id")?.value||"",symptom:document.getElementById("aeCG"+n+"sy")?.value||"",action:document.getElementById("aeCG"+n+"a")?.value||"",note:document.getElementById("aeCG"+n+"n")?.value||""})});
+    cases.push({model:document.getElementById("aeCG"+n+"m")?.value||"",capacity:document.getElementById("aeCG"+n+"cap")?.value||"",category:document.getElementById("aeCG"+n+"cat")?.value||"",serial:document.getElementById("aeCG"+n+"s")?.value||"",mfgDate:document.getElementById("aeCG"+n+"md")?.value||"",instDate:document.getElementById("aeCG"+n+"id")?.value||"",symptom:document.getElementById("aeCG"+n+"sy")?.value||"",action:document.getElementById("aeCG"+n+"a")?.value||"",note:document.getElementById("aeCG"+n+"n")?.value||"",prevAs:document.getElementById("aeCG"+n+"pa")?.value||"",custResp:document.getElementById("aeCG"+n+"cr")?.value||"",diag:document.getElementById("aeCG"+n+"dg")?.value||""})});
   return cases;
 }
 function addAECase(){const cur=getAECases();cur.push({});buildAECases(cur)}
@@ -6144,7 +5936,7 @@ async function saveAdminEdit(oldDocId,oldEntry){
     const newDate=document.getElementById("aeDate").value;
     const f1=document.getElementById("aeF1").value;
     const f2=document.getElementById("aeF2").value;
-    const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial);
+    const cases=getAECases().filter(c=>c.model||c.symptom||c.note||c.serial||c.prevAs||c.custResp||c.diag);
     // Get remaining audios (those not removed in modal)
     const audioElems=document.querySelectorAll("#aeAudios > div");
     const remainingAudios=[];
