@@ -5684,20 +5684,23 @@ async function shareDailyReport(){
     const dtLabel=dObj.getFullYear()+"년 "+String(dObj.getMonth()+1).padStart(2,"0")+"월 "+String(dObj.getDate()).padStart(2,"0")+"일 ("+wd+")";
     const grouped={};entries.forEach(e=>{if(!grouped[e.branch])grouped[e.branch]=[];grouped[e.branch].push(e)});
     let totalCases=0;
-    entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note).length});
+    entries.forEach(e=>{totalCases+=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag).length});
     let txt="━━━━━━━━━━━━━━━━━━\n📋 CS업무일지 일일보고\n📅 "+dtLabel+"\n━━━━━━━━━━━━━━━━━━\n";
     txt+="📊 제출 "+entries.length+"명 · 현장지원 "+totalCases+"건\n";
     Object.entries(grouped).forEach(([branch,list])=>{
-      const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note).length),0);
+      const brCases=list.reduce((s,e)=>s+((e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag).length),0);
       txt+="\n━━━ 🏢 "+branch+" ("+list.length+"명, "+brCases+"건) ━━━";
       list.forEach(e=>{
-        const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+        const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);
         txt+="\n👤 "+e.name+"\n";
         if(fc.length>0){
           fc.forEach(c=>{
             const parts=[c.model,c.capacity,c.category].filter(Boolean).join(" ");
             const line="  • "+(parts||"현장지원")+(c.symptom?" / "+c.symptom:"")+(c.action?" → "+c.action:"");
             txt+=line+"\n";
+            if(c.prevAs){txt+="    [이전AS] "+c.prevAs.trim().split("\n").join(" ")+"\n";}
+            if(c.custResp){txt+="    [고객반응] "+c.custResp.trim().split("\n").join(" ")+"\n";}
+            if(c.diag){txt+="    [초기진단] "+c.diag.trim().split("\n").join(" ")+"\n";}
             // Full note, indent each line
             if(c.note){txt+=c.note.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";}
           });
@@ -5711,6 +5714,11 @@ async function shareDailyReport(){
         if(e.field2&&e.field2.trim()){
           txt+="  💬 상담&특이사항\n";
           txt+=e.field2.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
+        }
+        // Full field3 (VOC)
+        if(e.field3&&e.field3.trim()){
+          txt+="  📢 대리점 건의사항(VOC)\n";
+          txt+=e.field3.trim().split("\n").map(l=>"    "+l).join("\n")+"\n";
         }
         if(e.audios&&e.audios.length)txt+="  🎵 음성 "+e.audios.length+"개 첨부\n";
         if(e.media&&e.media.length){
