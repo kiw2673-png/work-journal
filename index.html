@@ -1383,7 +1383,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
   for(const[branch,list]of Object.entries(grouped)){
     html+='<div style="margin-bottom:16px"><div style="background:var(--pg);padding:8px 14px;border-bottom:2px solid var(--primary);border-radius:8px 8px 0 0;font-weight:700;color:var(--primary);font-size:12px">🏢 '+esc(branch)+' ('+list.length+')</div>';
     list.forEach(e=>{
-      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=e.date+"_"+e.empId;
       html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">'
@@ -1396,7 +1396,10 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
       if(fc.length){
         html+='<table style="width:100%;border-collapse:collapse;font-size:9px;margin-bottom:4px"><thead><tr style="background:var(--ibg)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">기종구분</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">제조일</th><th style="padding:3px 4px">설치일</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
         fc.forEach((c,i)=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.mfgDate||"")+'</td><td style="padding:2px 4px">'+esc(c.instDate||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="8" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.prevAs)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
+          if(c.custResp)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
+          if(c.diag)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
+          if(c.note)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table>';
       }
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
@@ -1672,7 +1675,7 @@ async function renderWk(){
   let html=summaryHtml;
   if(!entries.length){html+='<div style="text-align:center;padding:30px;color:var(--ts)">없음</div>';document.getElementById("wkBody").innerHTML=html;return}
   entries.forEach(e=>{
-    const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+    const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
     const docId=e.date+"_"+e.empId;
     html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">';
     html+='<div style="padding:6px 10px;background:var(--ibg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">'
@@ -1687,7 +1690,10 @@ async function renderWk(){
       html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:400px">'
         +'<thead><tr style="background:rgba(27,58,92,.06)"><th style="padding:3px 4px;text-align:left">모델</th><th style="padding:3px 4px">용량</th><th style="padding:3px 4px">기종구분</th><th style="padding:3px 4px">구분</th><th style="padding:3px 4px">S/N</th><th style="padding:3px 4px">증상</th><th style="padding:3px 4px">처리</th></tr></thead><tbody>';
       fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-        if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+        if(c.prevAs)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
+        if(c.custResp)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
+        if(c.diag)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
+        if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
       html+='</tbody></table></div>';
     }
     html+='<div style="padding:6px 10px">';
@@ -3950,7 +3956,7 @@ function renderDetEntries(){
   h+=filtered.map(({id,data:e})=>{
     const fields=[{f:e.field1,l:"현장업무",c:"#2980B9"},{f:e.field2,l:"상담&특이",c:"#00B894"},{f:e.field3,l:"VOC",c:"#9B59B6"}].filter(x=>x.f);
     const audioH=(e.audios&&e.audios.length?renderAudioLinks(e.audios):"")+(e.media&&e.media.length?renderMediaLinks(e.media):"");
-    let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.action?'<br>처리:'+esc(c.action):"")+(c.note?'<br>조치:'+esc(c.note):"")+"</div>"});ch+="</div>";}}
+    let ch="";if(e.cases){const fl=e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);if(fl.length){ch='<div style="margin:3px 0 6px">';fl.forEach((c,ci)=>{ch+='<div style="padding:4px 7px;background:var(--ibg);border-radius:5px;margin-bottom:2px;font-size:9px;line-height:1.6;border-left:2px solid #3498DB"><b style="color:#3498DB">지원'+(ci+1)+'</b> '+[c.model,c.capacity?c.capacity+"L":"",c.category].filter(Boolean).map(esc).join(" · ")+(c.symptom?'<br>증상:'+esc(c.symptom):"")+(c.prevAs?'<br>이전AS:'+esc(c.prevAs):"")+(c.custResp?'<br>고객반응:'+esc(c.custResp):"")+(c.diag?'<br>초기진단:'+esc(c.diag):"")+(c.note?'<br>조치:'+esc(c.note):"")+(c.action?'<br>처리:'+esc(c.action):"")+"</div>"});ch+="</div>";}}
     return'<div class="de"><div class="deh"><span style="font-weight:600;color:var(--admin)">'+esc(e.dateLabel||e.date)+'</span><button onclick="cfDE(\''+id+'\',\''+esc(e.dateLabel||e.date)+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">삭제</button></div><div class="deb">'+fields.map((x,fi)=>'<div style="margin-bottom:5px"><span style="font-weight:700;color:'+x.c+';font-size:10px">'+x.l+'</span><div style="white-space:pre-wrap">'+esc(x.f)+"</div>"+(fi===0?ch:"")+"</div>").join("")+(!fields.length?ch||'<span style="color:var(--ts)">없음</span>':"")+audioH+"</div></div>";
   }).join("");
   document.getElementById("detList").innerHTML=h;
@@ -4560,7 +4566,7 @@ async function renderMonthly(){
   if(filteredEntries.length&&view==="branch"&&selBranch!=="전체"){
     html+='<h4 style="font-size:12px;font-weight:700;margin-bottom:8px">📋 상세 내역</h4>';
     filteredEntries.forEach(e=>{
-      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=e.date+"_"+e.empId;
       html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">'
         +'<div style="padding:6px 10px;background:var(--ibg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">'
@@ -4571,9 +4577,12 @@ async function renderMonthly(){
         +'<div style="display:flex;gap:3px"><button onclick="adminEditReport(\''+docId+'\')" style="padding:2px 6px;border:1px solid var(--admin);border-radius:4px;background:transparent;color:var(--admin);font-size:9px;cursor:pointer;font-family:inherit">✏️</button>'
         +'<button onclick="adminDeleteReport(\''+docId+'\',\''+esc(e.name)+'\',\''+e.date+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">🗑️</button></div>'
         +'</div>';
-      if(fc.length){html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:360px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th></tr></thead><tbody>';
+      if(fc.length){html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:9px;min-width:360px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>기종구분</th><th>구분</th><th>S/N</th><th>증상</th><th>처리</th></tr></thead><tbody>';
         fc.forEach(c=>{html+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+esc(c.model||"")+'</td><td style="padding:2px 4px;text-align:center">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+esc(c.serial||"")+'</td><td style="padding:2px 4px">'+esc(c.symptom||"")+'</td><td style="padding:2px 4px">'+esc(c.action||"")+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.prevAs)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
+          if(c.custResp)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
+          if(c.diag)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
+          if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
@@ -4750,7 +4759,7 @@ async function doSearch(){
     if(!scored.length){document.getElementById("srchBody").innerHTML='<div style="text-align:center;padding:40px;color:var(--ts)">검색 결과가 없습니다<br><span style="font-size:10px">다른 검색어를 입력해보세요</span></div>';return}
     let h='<div style="font-size:11px;color:var(--ts);margin-bottom:10px">총 <b style="color:var(--primary)">'+scored.length+'</b>건 검색됨 · "<b>'+esc(q)+'</b>"</div>';
     scored.forEach(({entry:e,matched})=>{
-      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note):[];
+      const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=(e.id||(e.date+"_"+e.empId));
       const hlText=(t)=>{let r=esc(t);keywords.forEach(kw=>{r=r.replace(new RegExp(esc(kw),'gi'),m=>'<mark style="background:#FFF176;border-radius:2px">'+m+'</mark>')});return r};
       h+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden">'
@@ -4764,9 +4773,12 @@ async function doSearch(){
         +'<button onclick="adminDeleteReport(\''+docId+'\',\''+esc(e.name||"")+'\',\''+esc(e.date||"")+'\')" style="padding:2px 6px;border:1px solid var(--danger);border-radius:4px;background:transparent;color:var(--danger);font-size:9px;cursor:pointer;font-family:inherit">🗑️</button>'
         +'</div></div>'
         +'<div style="padding:8px 12px">';
-      if(fc.length){h+='<div style="margin-bottom:6px"><table style="width:100%;border-collapse:collapse;font-size:9px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>구분</th><th>증상</th><th>처리</th></tr></thead><tbody>';
+      if(fc.length){h+='<div style="margin-bottom:6px"><table style="width:100%;border-collapse:collapse;font-size:9px"><thead><tr style="background:rgba(27,58,92,.04)"><th style="padding:2px 4px;text-align:left">모델</th><th>용량</th><th>기종구분</th><th>구분</th><th>증상</th><th>처리</th></tr></thead><tbody>';
         fc.forEach(c=>{h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:2px 4px;font-weight:600">'+hlText(c.model||"")+'</td><td style="padding:2px 4px">'+esc(c.capacity||"")+'</td><td style="padding:2px 4px">'+esc(c.openclose||"")+'</td><td style="padding:2px 4px">'+esc(c.category||"")+'</td><td style="padding:2px 4px">'+hlText(c.symptom||"")+'</td><td style="padding:2px 4px">'+hlText(c.action||"")+'</td></tr>';
-          if(c.note)h+='<tr><td colspan="5" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="5" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.prevAs)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+hlText(c.prevAs)+'</td></tr>';
+          if(c.custResp)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+hlText(c.custResp)+'</td></tr>';
+          if(c.diag)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+hlText(c.diag)+'</td></tr>';
+          if(c.note)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
       if(e.field2)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
