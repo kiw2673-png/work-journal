@@ -25,6 +25,13 @@
 부수적으로 월간(`renderMonthly`)/검색(`doSearch`) 화면의 테이블 헤더 컬럼 수가 실제 데이터 컬럼 수(기종구분 누락)와
 맞지 않아 데이터가 한 칸씩 밀려 표시되던 문제도 함께 수정.
 
+### 추가 수정 (일괄 텔레그램 버튼)
+일일보고 화면의 "✈️ 일괄 텔레그램" 버튼은 `buildDailyText()`가 아니라 별도로 만들어진
+`shareDailyReport()` 함수를 사용하고 있었음 — 이 함수는 위 수정 대상에서 빠져 있어서
+이전AS/고객반응/초기진단은 물론 VOC(field3)까지 누락된 채 전송되고 있었음.
+`shareDailyReport()`도 동일하게 수정: 케이스 필터에 `prevAs||custResp||diag` 추가,
+텍스트에 `[이전AS]`/`[고객반응]`/`[초기진단]` 라인과 VOC(대리점 건의사항) 섹션 추가.
+
 ### 배포
 - 저장소: `kiw2673-png/work-journal` (GitHub REST API PUT으로 업로드)
 - 배포 URL: `https://kiw2673-png.github.io/work-journal/index.html`
