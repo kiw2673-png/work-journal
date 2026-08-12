@@ -124,13 +124,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.4</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.5</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.4</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.5</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -176,7 +176,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.4</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.5</span></div></div><button class="blo" onclick="doLO()">로그아웃</button></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -1745,28 +1745,62 @@ function downloadWkExcel(){
   const entries=window._wkEntries||[];
   if(!entries.length){alert("다운로드할 데이터가 없습니다.");return;}
   const label=window._wkLabel||"주간";
-  // 시트1: 보고서 요약
-  const rptRows=[["날짜","지사","이름","현장지원(건)","현장업무","상담&특이사항","VOC"]];
-  entries.forEach(e=>{
-    const caseCount=(e.cases||[]).filter(c=>c.model||c.symptom).length;
-    rptRows.push([e.date||"",e.branch||"",e.name||"",caseCount,(e.field1||"").trim(),(e.field2||"").trim(),(e.field3||"").trim()]);
-  });
-  // 시트2: 현장지원 케이스
-  const caseRows=[["날짜","지사","이름","모델","용량","기종구분","구분","S/N","증상","처리결과","조치내용"]];
-  entries.forEach(e=>{
-    (e.cases||[]).filter(c=>c.model||c.symptom).forEach(c=>{
-      caseRows.push([e.date||"",e.branch||"",e.name||"",c.model||"",c.capacity||"",c.openclose||"",c.category||"",c.serial||"",c.symptom||"",c.action||"",c.note||""]);
+  const totalCases=entries.reduce((s,e)=>s+(e.cases||[]).filter(c=>c.model||c.symptom).length,0);
+  const NCOL=7;
+  const rows=[];const merges=[];const styleRows=[];
+  function addMergedRow(text,type){
+    rows.push([text]);
+    const r=rows.length-1;
+    merges.push({s:{r,c:0},e:{r,c:NCOL-1}});
+    if(type)styleRows.push({r,type,merged:true});
+    return r;
+  }
+  addMergedRow("CS업무일지 주간보고","title");
+  addMergedRow("📅 "+label+"  |  제출 "+entries.length+"건 · 현장지원 "+totalCases+"건","sub");
+  rows.push([]);
+  const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e)});
+  Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([date,list])=>{
+    addMergedRow("📅 "+fds(date),"date");
+    list.forEach(e=>{
+      addMergedRow((e.branch||"")+" | "+(e.name||""),"emp");
+      const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note);
+      if(fc.length){
+        rows.push(["모델","용량","기종구분","구분","S/N","증상","처리"]);
+        styleRows.push({r:rows.length-1,type:"hdr",merged:false});
+        fc.forEach(c=>{
+          rows.push([c.model||"",c.capacity||"",c.openclose||"",c.category||"",c.serial||"",c.symptom||"",c.action||""]);
+          if(c.note)addMergedRow("↳ "+c.note,"note");
+        });
+      }
+      if(e.field1&&e.field1.trim()){addMergedRow("▶ 현장업무","label");addMergedRow(e.field1.trim(),"text")}
+      if(e.field2&&e.field2.trim()){addMergedRow("▶ 상담&특이사항","label");addMergedRow(e.field2.trim(),"text")}
+      if(e.field3&&e.field3.trim()){addMergedRow("▶ VOC","label");addMergedRow(e.field3.trim(),"text")}
+      rows.push([]);
     });
   });
-  const wsR=XLSX.utils.aoa_to_sheet(rptRows);
-  wsR["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:8},{wch:30},{wch:30},{wch:30}];
-  ["A1","B1","C1","D1","E1","F1","G1"].forEach(c=>{if(wsR[c])wsR[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
-  const wsC=XLSX.utils.aoa_to_sheet(caseRows);
-  wsC["!cols"]=[{wch:12},{wch:14},{wch:10},{wch:10},{wch:6},{wch:8},{wch:8},{wch:14},{wch:20},{wch:20},{wch:20}];
-  ["A1","B1","C1","D1","E1","F1","G1","H1","I1","J1","K1"].forEach(c=>{if(wsC[c])wsC[c].s={font:{bold:true},fill:{fgColor:{rgb:"E3F2FD"}}};});
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:14},{wch:8},{wch:12},{wch:10},{wch:16},{wch:28},{wch:28}];
+  ws["!merges"]=merges;
+  const STY={
+    title:{font:{bold:true,sz:14,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}}},
+    sub:{font:{sz:9,color:{rgb:"555555"}}},
+    date:{font:{bold:true,sz:11,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}}},
+    emp:{font:{bold:true,sz:10},fill:{fgColor:{rgb:"E3F2FD"}}},
+    hdr:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"E3F2FD"}}},
+    note:{font:{sz:8,color:{rgb:"555555"}}},
+    label:{font:{bold:true,sz:9,color:{rgb:"2980B9"}}},
+    text:{font:{sz:9},alignment:{wrapText:true}}
+  };
+  styleRows.forEach(({r,type,merged})=>{
+    if(merged){
+      const addr=XLSX.utils.encode_cell({r,c:0});
+      if(ws[addr])ws[addr].s=STY[type];
+    }else{
+      for(let c=0;c<NCOL;c++){const addr=XLSX.utils.encode_cell({r,c});if(ws[addr])ws[addr].s=STY[type];}
+    }
+  });
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,wsR,"보고서요약");
-  if(caseRows.length>1)XLSX.utils.book_append_sheet(wb,wsC,"현장지원");
+  XLSX.utils.book_append_sheet(wb,ws,"주간보고");
   const fname="주간보고_"+label.replace(/\s/g,"_").replace(/~/g,"-")+"_"+new Date().toISOString().slice(0,10)+".xlsx";
   XLSX.writeFile(wb,fname);
 }
