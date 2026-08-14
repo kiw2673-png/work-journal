@@ -31,6 +31,17 @@ async function getSettings() {
   return parseFields(data.fields);
 }
 
+// 마지막 자동전송 날짜 기록 (같은 날 중복 전송 방지)
+async function markSent(dateStr) {
+  const url = `${BASE}/settings/config?updateMask.fieldPaths=lastAutoSendDate&key=${API_KEY}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields: { lastAutoSendDate: { stringValue: dateStr } } })
+  });
+  if (!res.ok) console.error('lastAutoSendDate 기록 실패:', res.status);
+}
+
 // Firestore 컬렉션 전체 조회
 async function listDocs(collection) {
   const url = `${BASE}/${collection}?key=${API_KEY}&pageSize=500`;
@@ -171,24 +182,32 @@ async function main() {
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const kstH = kst.getUTCHours();
   const kstM = kst.getUTCMinutes();
+  const dateStr = kst.toISOString().slice(0, 10);
 
-  // 수동 실행(workflow_dispatch)이 아닐 때만 시간 체크
+  // GitHub Actions cron은 정확한 분 단위로 실행되지 않으므로 목표시각 이후 2시간 윈도우로 체크,
+  // 중복 전송은 lastAutoSendDate로 방지
   const isManual = process.env.MANUAL_RUN === 'true';
   if (!isManual) {
+    if (settings.lastAutoSendDate === dateStr) {
+      console.log(`오늘(${dateStr}) 이미 자동전송 완료됨, 스킵`);
+      return;
+    }
     const [targetH, targetM] = autoTime.split(':').map(Number);
-    if (kstH !== targetH || kstM !== targetM) {
-      console.log(`현재 KST ${String(kstH).padStart(2,'0')}:${String(kstM).padStart(2,'0')} — 전송 시간 ${autoTime} 아님, 스킵`);
+    const nowMin = kstH * 60 + kstM;
+    const targetMin = targetH * 60 + targetM;
+    if (nowMin < targetMin || nowMin >= targetMin + 120) {
+      console.log(`현재 KST ${String(kstH).padStart(2,'0')}:${String(kstM).padStart(2,'0')} — 전송 시간(${autoTime}) 대상 구간 아님, 스킵`);
       return;
     }
   }
 
-  const dateStr = kst.toISOString().slice(0, 10);
   console.log(`전송 시작 — 날짜: ${dateStr}, 설정 시간: ${autoTime}`);
 
   const txt = await buildDailyText(dateStr);
   if (!txt) { console.log('오늘 제출된 보고서 없음'); return; }
 
   await sendTg(token, chatId, txt);
+  if (!isManual) await markSent(dateStr);
   console.log('전송 완료!');
 }
 
