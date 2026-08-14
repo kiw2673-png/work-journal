@@ -1124,24 +1124,24 @@ async function downloadReportWord(){
       for(let j=0;j<3;j++){
         const m=imgs[i+j];
         const src=m?(imgB64[m.url]||m.url):"";
-        rows+='<td style="width:4.8cm;padding:2pt;vertical-align:top">'+(src?'<img src="'+src+'" width="136" height="136" style="width:4.8cm;height:4.8cm;border:1pt solid #ddd;display:block">':"")+"</td>";
+        rows+='<td style="width:4cm;padding:2pt;vertical-align:top">'+(src?'<img src="'+src+'" width="189" height="189" style="width:4cm;height:4cm;border:1pt solid #ddd;display:block">':"")+"</td>";
       }
       rows+="</tr>";
     }
-    return '<table style="border-collapse:collapse;width:14.4cm;table-layout:fixed;margin-top:3pt">'+rows+"</table>";
+    return '<table align="left" style="border-collapse:collapse;width:12cm;table-layout:fixed;margin:3pt 0 0 0">'+rows+"</table>";
   }
   const fc=(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);
-  let body='<table style="border-collapse:collapse;width:16cm;margin-bottom:8pt;border:1pt solid #ccc;table-layout:fixed"><tbody>';
+  let body='<table align="left" style="border-collapse:collapse;width:16cm;margin:0 0 8pt 0;border:1pt solid #ccc;table-layout:fixed"><tbody>';
   body+='<tr><td style="background:#E3F2FD;padding:4pt 8pt;font-weight:bold;font-size:10pt;width:16cm">'+esc(e.branch)+" | "+esc(e.name)+" | "+esc(e.dateLabel||e.date||"")+"</td></tr>";
   if(fc.length){
     body+='<tr><td style="padding:6pt 8pt">';
-    body+='<table style="border-collapse:collapse;width:15cm;max-width:15cm;font-size:8pt;table-layout:fixed"><thead><tr style="background:#E3F2FD"><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">모델</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.2cm">용량</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">기종구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.4cm">구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2.2cm">S/N</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">최초 접수내용</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">처리결과</th></tr></thead><tbody>';
+    body+='<table align="left" style="border-collapse:collapse;width:15cm;max-width:15cm;font-size:12pt;table-layout:fixed;margin-left:0"><thead><tr style="background:#E3F2FD"><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">모델</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.2cm">용량</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2cm">기종구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:1.4cm">구분</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:2.2cm">S/N</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">최초 접수내용</th><th style="border:1pt solid #ccc;padding:3pt 4pt;width:3.1cm">처리결과</th></tr></thead><tbody>';
     fc.forEach(c=>{
       body+='<tr><td style="border:1pt solid #ccc;padding:2pt 4pt;font-weight:600;overflow:hidden">'+esc(c.model||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;text-align:center">'+esc(c.capacity||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.openclose||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.category||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.serial||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.symptom||"")+'</td><td style="border:1pt solid #ccc;padding:2pt 4pt;overflow:hidden">'+esc(c.action||"")+"</td></tr>";
-      if(c.prevAs)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; 이전AS: '+esc(c.prevAs)+"</td></tr>";
-      if(c.custResp)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; 고객반응: '+esc(c.custResp)+"</td></tr>";
-      if(c.diag)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; 초기진단: '+esc(c.diag)+"</td></tr>";
-      if(c.note)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555;font-size:7.5pt">&#x21B3; 조치: '+esc(c.note)+"</td></tr>";
+      if(c.prevAs)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555">&#x21B3; 이전AS: '+esc(c.prevAs)+"</td></tr>";
+      if(c.custResp)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555">&#x21B3; 고객반응: '+esc(c.custResp)+"</td></tr>";
+      if(c.diag)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555">&#x21B3; 초기진단: '+esc(c.diag)+"</td></tr>";
+      if(c.note)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:2pt 4pt 3pt 10pt;color:#555">&#x21B3; 조치: '+esc(c.note)+"</td></tr>";
       const cImgs=(c.media||[]).filter(m=>m.kind==="image");
       if(cImgs.length)body+='<tr><td colspan="7" style="border:1pt solid #ccc;padding:4pt">'+photoGrid(cImgs)+"</td></tr>";
     });
@@ -1157,8 +1157,8 @@ async function downloadReportWord(){
   const rImgs=(e.media||[]).filter(m=>m.kind==="image");
   if(rImgs.length)body+='<tr><td style="padding:4pt 8pt"><span style="font-weight:bold;font-size:9pt">&#x1F4F7; 첨부사진</span>'+photoGrid(rImgs)+"</td></tr>";
   body+="</tbody></table>";
-  const html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>CS업무일지</title><style>body{font-family:'맑은 고딕',sans-serif;font-size:10pt;margin:2cm}h1{color:#1B3A5C;font-size:14pt;border-bottom:2pt solid #1B3A5C;padding-bottom:4pt;margin-bottom:12pt}</style></head><body>"
-    +"<h1>CS업무일지</h1>"
+  const html="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>CS업무일지</title><style>body{font-family:'맑은 고딕',sans-serif;font-size:10pt;margin:1.2cm}</style></head><body>"
+    +"<div style='text-align:left;margin:0 0 8pt 0;padding-bottom:4pt;border-bottom:2pt solid #1B3A5C;color:#1B3A5C;font-size:14pt;font-weight:bold'>CS업무일지</div>"
     +body
     +"<p style='color:#999;font-size:8pt;margin-top:20pt;border-top:1pt solid #ddd;padding-top:6pt'>대성쎌틱에너시스(주) CS업무일지</p></body></html>";
   const blob=new Blob(["﻿"+html],{type:"application/msword"});
@@ -1870,11 +1870,11 @@ async function downloadWkWord(){
       for(let j=0;j<3;j++){
         const m=imgs[i+j];
         const src=m?(imgB64[m.url]||m.url):'';
-        rows+='<td style="width:4.8cm;padding:2pt;vertical-align:top">'+(src?'<img src="'+src+'" width="136" height="136" style="width:4.8cm;height:4.8cm;border:1pt solid #ddd;display:block">':'')+'</td>';
+        rows+='<td style="width:4cm;padding:2pt;vertical-align:top">'+(src?'<img src="'+src+'" width="189" height="189" style="width:4cm;height:4cm;border:1pt solid #ddd;display:block">':'')+'</td>';
       }
       rows+='</tr>';
     }
-    return '<table style="border-collapse:collapse;width:14.4cm;table-layout:fixed;margin-top:3pt">'+rows+'</table>';
+    return '<table align="left" style="border-collapse:collapse;width:12cm;table-layout:fixed;margin:3pt 0 0 0">'+rows+'</table>';
   }
   const byDate={};entries.forEach(e=>{if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e)});
   let body='';
