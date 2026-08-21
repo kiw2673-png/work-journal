@@ -2092,7 +2092,7 @@ async function renderAn(){
       sortedSyms.forEach((sym,si)=>{const rowTotal=symTotals[sym];const barPct=Math.round(rowTotal/maxTotal*100);
         html+='<tr style="border-bottom:1px solid var(--border)'+(si%2===0?';background:rgba(0,0,0,.01)':'')+'"><td style="padding:4px 8px;font-size:9px;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(sym)+'">'+esc(sym)+'</td>';
         sliceModels.forEach(m=>{const v=(rows[m]||{})[sym]||0;html+='<td style="padding:4px 6px;text-align:center;'+(v?'cursor:pointer;font-weight:700;color:var(--primary)':'')+'" '+(v?'onclick="showAnDetail(\''+esc(m)+'\',\''+esc(sym)+'\')" onmouseover="this.style.background=\'#D6EAF8\'" onmouseout="this.style.background=\'\'"':'')+'>'+(v||'<span style="color:#ddd">·</span>')+'</td>'});
-        html+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:var(--admin);cursor:pointer" onclick="showAnDetail(\'전체\',\''+esc(sym)+'\')">'+rowTotal+'</td>'
+        html+='<td style="padding:4px 6px;text-align:center;font-weight:800;color:var(--admin);cursor:pointer" onclick="showAnDetail(\'__SLICE__\',\''+esc(sym)+'\')">'+rowTotal+'</td>'
           +'<td style="padding:4px 8px"><div style="background:var(--border);border-radius:3px;height:8px;overflow:hidden"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--pl));width:'+barPct+'%"></div></div></td></tr>'});
       html+='<tr style="background:var(--ibg);font-weight:700;border-top:2px solid var(--border)"><td style="padding:5px 8px">합계</td>';
       sliceModels.forEach(m=>{const mv=Object.values(rows[m]||{}).reduce((s,v)=>s+v,0);html+='<td style="padding:5px 6px;text-align:center;cursor:pointer;color:var(--admin)" onclick="showAnDetail(\''+esc(m)+'\',\'전체\')">'+mv+'</td>'});
@@ -2121,8 +2121,9 @@ async function renderAn(){
       +'<div style="width:180px;height:180px;flex-shrink:0"><canvas id="anPie"></canvas></div>'
       +'<div style="flex:1;min-width:140px"><table style="width:100%;font-size:10px;border-collapse:collapse">';
     const total=pieVals.reduce((a,b)=>a+b,0);
+    const pieModelArg=mdF==="전체"?(sliceModels.length>0?"__SLICE__":"전체"):mdF;
     pieLabels.forEach((l,i)=>{const pct=total?Math.round(pieVals[i]/total*100):0;
-      html+='<tr style="cursor:pointer" onclick="showAnDetail(\''+esc(mdF==="전체"?"전체":mdF)+'\',\''+esc(l)+'\')" onmouseover="this.style.background=\'rgba(52,152,219,.06)\'" onmouseout="this.style.background=\'\'">'
+      html+='<tr style="cursor:pointer" onclick="showAnDetail(\''+esc(pieModelArg)+'\',\''+esc(l)+'\')" onmouseover="this.style.background=\'rgba(52,152,219,.06)\'" onmouseout="this.style.background=\'\'">'
         +'<td style="padding:2px 4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+COLORS[i%COLORS.length]+'"></span></td>'
         +'<td style="padding:2px 4px;font-size:9px">'+esc(l)+'</td>'
         +'<td style="padding:2px 4px;font-weight:700;color:var(--primary)">'+pieVals[i]+'</td>'
@@ -2150,7 +2151,7 @@ async function renderAn(){
     const ctx=document.getElementById("anPie");
     if(ctx&&typeof Chart!=="undefined"){
       const _dlPlugin=typeof ChartDataLabels!=="undefined"?[ChartDataLabels]:[];
-      _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?"전체":mdF,pieLabels[idx2]);}}}});
+      _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?(sliceModels.length>0?"__SLICE__":"전체"):mdF,pieLabels[idx2]);}}}});
     }
   }
 }
@@ -2393,6 +2394,7 @@ function showAnDetail(model,symptom){
   const entries=window._anEntries||[];
   const range=window._anDateRange||{};
   const brF=document.getElementById("anBr")?.value||"전체";
+  const sliceModels=window._anSliceModels||[];
   // Filter matching entries
   const matched=[];
   entries.forEach(e=>{
@@ -2400,13 +2402,13 @@ function showAnDetail(model,symptom){
     if(!e.cases)return;
     e.cases.forEach(c=>{
       const nm=normModel(c.model||"");
-      const modelMatch=model==="전체"||nm===model;
+      const modelMatch=model==="전체"||(model==="__SLICE__"?sliceModels.includes(nm):nm===model);
       const symMatch=symptom==="전체"||(c.symptom||"기타")===symptom;
       if(modelMatch&&symMatch)matched.push({entry:e,case:c,normModel:nm});
     });
   });
   // Build modal
-  const title=(model==="전체"?"전체모델":model)+" / "+(symptom==="전체"?"전체증상":symptom);
+  const title=(model==="전체"?"전체모델":model==="__SLICE__"?"선택모델("+sliceModels.join(", ")+")":model)+" / "+(symptom==="전체"?"전체증상":symptom);
   let body='<div style="font-size:11px;color:var(--ts);margin-bottom:12px">'+esc(range.lblText||"")+" · "+matched.length+"건</div>";
   if(!matched.length){body+='<div style="text-align:center;padding:20px;color:var(--ts)">해당하는 데이터가 없습니다.</div>';}
   else{
