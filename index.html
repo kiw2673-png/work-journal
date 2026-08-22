@@ -247,6 +247,7 @@
 
 <!-- Modals -->
 <div class="mo" id="editModal" onclick="clEM()"><div class="mc" onclick="event.stopPropagation()"><h3 style="font-size:15px;margin-bottom:14px">✏️ 수정</h3><div id="editErr" class="err" style="display:none"></div><div style="background:var(--ibg);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px">사번: <strong id="edEmpId"></strong></div><label class="fl">이름</label><input id="edName" class="fi-input" style="margin-bottom:10px"><label class="fl">지사</label><select id="edBranch" class="fi-sel"></select><label class="fl" style="margin-top:10px">권한</label><select id="edRole" class="fi-sel"><option value="user">👤 사용자 (자신의 보고서만)</option><option value="viewer">👁 조회자 (관리자 화면 조회만)</option><option value="editor">✏️ 편집자 (조회+수정, 사용자관리 X)</option><option value="admin">🛡 관리자 (전체 권한)</option></select><div style="font-size:9px;color:var(--ts);margin-top:4px;line-height:1.5" id="edRoleHelp"></div><div style="display:flex;gap:6px;margin-top:16px"><button onclick="clEM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button onclick="svEdit()" class="btn ba" style="flex:2;font-size:12px">저장</button></div></div></div>
+<div class="mo" id="videoModal" onclick="clVideoModal()"><div class="mc" onclick="event.stopPropagation()" style="max-width:90vw;width:auto;padding:12px;background:#111;border-radius:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="color:#fff;font-size:12px;font-weight:700">🎬 동영상 재생</span><button onclick="clVideoModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#fff;padding:0;line-height:1">✕</button></div><video id="videoModalPlayer" controls style="max-width:min(80vw,600px);max-height:70vh;display:block;border-radius:8px;background:#000"></video></div></div>
 <div class="mo" id="delModal" onclick="clDM()"><div class="mc" onclick="event.stopPropagation()" id="delModalInner" style="max-width:480px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><h3 id="delTitle" style="font-size:15px;font-weight:700"></h3><button onclick="clDM()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ts);padding:0;line-height:1">✕</button></div><div id="delIcon" style="font-size:40px;text-align:center;margin-bottom:8px"></div><div id="delMsg" style="font-size:12px;color:var(--ts);margin-bottom:16px;max-height:55vh;overflow-y:auto"></div><div style="display:flex;gap:6px" id="delBtns"><button id="delCancelBtn" onclick="clDM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button id="delBtn" class="btn" style="flex:1;font-size:12px;background:var(--danger);color:#fff">삭제</button></div></div></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDomain:"work-journal-99e5a.firebaseapp.com",projectId:"work-journal-99e5a",storageBucket:"work-journal-99e5a.firebasestorage.app",messagingSenderId:"298252811540",appId:"1:298252811540:web:3a7e896a943bfa44ff5601"});
@@ -562,7 +563,7 @@ function renderCaseMediaLinks(media){
   let h='<div style="display:flex;gap:4px;flex-wrap:wrap;padding:3px 0 2px">';
   media.forEach(m=>{
     if(m.kind==="image"){h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:52px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none;flex-shrink:0"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt="사진" loading="lazy"></a>';}
-    else{h+='<div style="width:72px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0"><video src="'+esc(m.url)+'" style="width:100%;height:52px;object-fit:cover" controls preload="metadata"></video></div>';}
+    else{h+='<div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:relative;width:72px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0;cursor:pointer"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)"><span style="font-size:20px;color:#fff;line-height:1">▶</span></div></div>';}
   });
   h+='</div>';return h;
 }
@@ -921,7 +922,7 @@ function renderCaseMediaList(n){
     if(m.kind==="image"){
       h+='<div style="position:relative;width:54px;height:54px;border-radius:5px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
     }else{
-      h+='<div style="position:relative;width:70px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:54px;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')" controls preload="metadata"></video><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
+      h+='<div style="position:relative;width:70px;height:54px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);cursor:pointer"><span style="font-size:20px;color:#fff;line-height:1">▶</span></div><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1;z-index:1">✕</button></div>';
     }
   });
   h+='</div>';
@@ -4103,6 +4104,8 @@ function cfDE(docId,dl){
   document.getElementById("delBtn").onclick=async function(){try{await db.collection("reports").doc(docId).delete();clDM();if(dEmp)showDet(dEmp)}catch(e){alert("오류: "+e.message)}};
   document.getElementById("delModal").classList.add("open")}
 function clDM(){document.getElementById("delModal").classList.remove("open")}
+function openVideoModal(url){const m=document.getElementById("videoModal");const p=document.getElementById("videoModalPlayer");p.src=url;p.load();m.classList.add("open")}
+function clVideoModal(){const m=document.getElementById("videoModal");const p=document.getElementById("videoModalPlayer");p.pause();p.src="";m.classList.remove("open")}
 function backAdm(){showS("adminScreen");loadStats()}
 
 /* ══ AUDIO UPLOAD ══ */
@@ -5951,7 +5954,7 @@ function renderMediaList(){
     if(m.kind==="image"){
       h+='<div style="position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
     }else{
-      h+='<div style="position:relative;width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:64px;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')" controls preload="metadata"></video><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
+      h+='<div style="position:relative;width:80px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);cursor:pointer"><span style="font-size:22px;color:#fff;line-height:1">▶</span></div><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0;z-index:1">✕</button></div>';
     }
   });
   h+='</div></div>';
@@ -5973,7 +5976,7 @@ function renderMediaLinks(media){
     if(m.kind==="image"){
       h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:60px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt=""></a>';
     }else{
-      h+='<div style="width:80px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:60px;object-fit:cover" controls preload="metadata"></video></div>';
+      h+='<div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:relative;width:80px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;cursor:pointer"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)"><span style="font-size:22px;color:#fff;line-height:1">▶</span></div></div>';
     }
   });
   h+='</div></div>';return h;
