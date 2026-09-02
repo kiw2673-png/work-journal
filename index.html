@@ -124,13 +124,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.6</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.6.7</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.6</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.6.7</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -247,7 +247,6 @@
 
 <!-- Modals -->
 <div class="mo" id="editModal" onclick="clEM()"><div class="mc" onclick="event.stopPropagation()"><h3 style="font-size:15px;margin-bottom:14px">✏️ 수정</h3><div id="editErr" class="err" style="display:none"></div><div style="background:var(--ibg);border-radius:6px;padding:6px 10px;margin-bottom:12px;font-size:11px">사번: <strong id="edEmpId"></strong></div><label class="fl">이름</label><input id="edName" class="fi-input" style="margin-bottom:10px"><label class="fl">지사</label><select id="edBranch" class="fi-sel"></select><label class="fl" style="margin-top:10px">권한</label><select id="edRole" class="fi-sel"><option value="user">👤 사용자 (자신의 보고서만)</option><option value="viewer">👁 조회자 (관리자 화면 조회만)</option><option value="editor">✏️ 편집자 (조회+수정, 사용자관리 X)</option><option value="admin">🛡 관리자 (전체 권한)</option></select><div style="font-size:9px;color:var(--ts);margin-top:4px;line-height:1.5" id="edRoleHelp"></div><div style="display:flex;gap:6px;margin-top:16px"><button onclick="clEM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button onclick="svEdit()" class="btn ba" style="flex:2;font-size:12px">저장</button></div></div></div>
-<div class="mo" id="videoModal" onclick="clVideoModal()"><div class="mc" onclick="event.stopPropagation()" style="max-width:90vw;width:auto;padding:12px;background:#111;border-radius:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="color:#fff;font-size:12px;font-weight:700">🎬 동영상 재생</span><button onclick="clVideoModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#fff;padding:0;line-height:1">✕</button></div><video id="videoModalPlayer" controls style="max-width:min(80vw,600px);max-height:70vh;display:block;border-radius:8px;background:#000"></video></div></div>
 <div class="mo" id="delModal" onclick="clDM()"><div class="mc" onclick="event.stopPropagation()" id="delModalInner" style="max-width:480px"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><h3 id="delTitle" style="font-size:15px;font-weight:700"></h3><button onclick="clDM()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--ts);padding:0;line-height:1">✕</button></div><div id="delIcon" style="font-size:40px;text-align:center;margin-bottom:8px"></div><div id="delMsg" style="font-size:12px;color:var(--ts);margin-bottom:16px;max-height:55vh;overflow-y:auto"></div><div style="display:flex;gap:6px" id="delBtns"><button id="delCancelBtn" onclick="clDM()" class="btn bo" style="flex:1;font-size:12px">취소</button><button id="delBtn" class="btn" style="flex:1;font-size:12px;background:var(--danger);color:#fff">삭제</button></div></div></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc",authDomain:"work-journal-99e5a.firebaseapp.com",projectId:"work-journal-99e5a",storageBucket:"work-journal-99e5a.firebasestorage.app",messagingSenderId:"298252811540",appId:"1:298252811540:web:3a7e896a943bfa44ff5601"});
@@ -563,7 +562,7 @@ function renderCaseMediaLinks(media){
   let h='<div style="display:flex;gap:4px;flex-wrap:wrap;padding:3px 0 2px">';
   media.forEach(m=>{
     if(m.kind==="image"){h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:52px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none;flex-shrink:0"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt="사진" loading="lazy"></a>';}
-    else{h+='<div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:relative;width:72px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0;cursor:pointer"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)"><span style="font-size:20px;color:#fff;line-height:1">▶</span></div></div>';}
+    else{h+='<div style="width:72px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0"><video src="'+esc(m.url)+'" style="width:100%;height:52px;object-fit:cover" controls preload="metadata"></video></div>';}
   });
   h+='</div>';return h;
 }
@@ -922,7 +921,7 @@ function renderCaseMediaList(n){
     if(m.kind==="image"){
       h+='<div style="position:relative;width:54px;height:54px;border-radius:5px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
     }else{
-      h+='<div style="position:relative;width:70px;height:54px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);cursor:pointer"><span style="font-size:20px;color:#fff;line-height:1">▶</span></div><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1;z-index:1">✕</button></div>';
+      h+='<div style="position:relative;width:70px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:54px;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')" controls preload="metadata"></video><button onclick="removeCaseMedia('+n+','+idx+')" style="position:absolute;top:0;right:0;width:16px;height:16px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
     }
   });
   h+='</div>';
@@ -2145,6 +2144,12 @@ async function renderAn(){
   html+='<tr style="background:var(--ibg);font-weight:700"><td onclick="showAnDetail(\'전체\',\'전체\')" style="cursor:pointer">합계</td>';
   cols.forEach(c=>{html+='<td onclick="showAnDetail(\'전체\',\''+esc(c)+'\')" style="cursor:pointer">'+(ct[c]||0)+'</td>'});
   html+='<td>'+gt+'</td></tr></tbody></table></div>';
+  html+='<div class="chart-wrap" style="margin-top:14px">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">'
+    +'<h4 style="font-size:12px;font-weight:700">🤖 AI 종합보고서</h4>'
+    +'<button onclick="generateAnReport()" style="padding:6px 14px;border:none;border-radius:7px;background:var(--admin);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">🤖 종합보고서 생성</button>'
+    +'</div><div id="anReportBox" style="font-size:12px;color:var(--ts)">선택 모델·기간 기준으로 불량유형(증상)이 왜 많이 발생했는지, 지사별/처리방법 패턴을 근거로 AI가 종합 분석합니다. 위 버튼을 눌러 생성하세요.</div>'
+    +'</div>';
   document.getElementById("anBody").innerHTML=html;
   // Draw the doughnut chart
   if(pieLabels.length>0){
@@ -2155,6 +2160,97 @@ async function renderAn(){
       _anChart=new Chart(ctx,{plugins:_dlPlugin,type:'doughnut',data:{labels:pieLabels,datasets:[{data:pieVals,backgroundColor:COLORS.slice(0,pieLabels.length),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},datalabels:{display:(c)=>c.dataIndex<5,color:'#fff',font:{size:9,weight:'700'},textAlign:'center',formatter:(val,c)=>{const tot=c.dataset.data.reduce((a,b)=>a+b,0);const pct=Math.round(val/tot*100);const lbl=c.chart.data.labels[c.dataIndex];return(lbl.length>5?lbl.slice(0,5)+'…':lbl)+'\n'+pct+'%'}}},onClick:(evt,el)=>{if(el.length>0){const idx2=el[0].index;showAnDetail(mdF==="전체"?(sliceModels.length>0?"__SLICE__":"전체"):mdF,pieLabels[idx2]);}}}});
     }
   }
+}
+
+async function generateAnReport(){
+  const box=document.getElementById("anReportBox");
+  if(!box)return;
+  const rows=window._anRows,entries=window._anEntries,range=window._anDateRange;
+  if(!rows||!entries){box.innerHTML='<div style="color:var(--ts);font-size:12px">먼저 분석 화면을 열어주세요.</div>';return}
+  const brF=document.getElementById("anBr")?.value||"전체";
+  const mdF=document.getElementById("anModel")?.value||"전체";
+  const sliceModels=window._anSliceModels||[];
+  const modelsToShow=mdF!=="전체"?[mdF]:(sliceModels.length>0?sliceModels:Object.keys(rows).sort());
+  if(!modelsToShow.length){box.innerHTML='<div style="color:var(--danger);font-size:12px">모델을 먼저 선택해주세요.</div>';return}
+  box.innerHTML='<div class="loading" style="padding:8px">🔍 데이터 집계 중...</div>';
+  try{
+    const settings=await loadSettings();
+    const apiKey=settings.whisperKey||"";
+    if(!apiKey||!apiKey.startsWith("sk-")){
+      box.innerHTML='<div style="font-size:12px;color:var(--ts);text-align:center;padding:10px">⚙️ AI 종합보고서를 사용하려면 <b>설정 탭</b>에서 OpenAI API Key를 등록하세요</div>';
+      return;
+    }
+    const allCases=[];
+    entries.forEach(e=>{if(brF!=="전체"&&e.branch!==brF)return;(e.cases||[]).forEach(c=>{if(!(c.model||c.symptom))return;const nm=normModel(c.model);if(!modelsToShow.includes(nm))return;allCases.push({...c,model:nm,date:e.date,branch:e.branch})})});
+    if(!allCases.length){box.innerHTML='<div style="color:var(--ts);font-size:12px">선택 기간/모델에 해당하는 데이터가 없습니다.</div>';return}
+    const symTotals={};allCases.forEach(c=>{const s=c.symptom||"기타";symTotals[s]=(symTotals[s]||0)+1});
+    const sortedSyms=Object.entries(symTotals).sort((a,b)=>b[1]-a[1]);
+    const total=allCases.length;
+    const top5=sortedSyms.slice(0,5).map(([s])=>s);
+    const branchBySym={},actionBySym={},noteSamples={};
+    top5.forEach(s=>{branchBySym[s]={};actionBySym[s]={}});
+    allCases.forEach(c=>{
+      const s=c.symptom||"기타";if(!top5.includes(s))return;
+      const b=c.branch||"미상";branchBySym[s][b]=(branchBySym[s][b]||0)+1;
+      const a=c.action||"미기록";actionBySym[s][a]=(actionBySym[s][a]||0)+1;
+    });
+    top5.forEach(s=>{noteSamples[s]=allCases.filter(c=>(c.symptom||"기타")===s&&c.note).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,4)});
+    let dataTxt="분석 기간: "+(range.lblText||"")+(brF!=="전체"?" / 지사: "+brF:" / 전체 지사")+"\n";
+    dataTxt+="선택 모델: "+modelsToShow.join(", ")+"\n";
+    dataTxt+="총 케이스: "+total+"건\n\n증상유형별 발생 건수 (상위):\n";
+    sortedSyms.slice(0,10).forEach(([s,n])=>{dataTxt+="- "+s+": "+n+"건 ("+Math.round(n/total*100)+"%)\n"});
+    dataTxt+="\n[상위 증상유형 상세]\n";
+    top5.forEach(s=>{
+      dataTxt+="\n■ "+s+" ("+symTotals[s]+"건)\n";
+      dataTxt+="  지사별: "+Object.entries(branchBySym[s]).sort((a,b)=>b[1]-a[1]).map(([b,n])=>b+" "+n+"건").join(", ")+"\n";
+      dataTxt+="  처리방법: "+Object.entries(actionBySym[s]).sort((a,b)=>b[1]-a[1]).map(([a,n])=>a+" "+n+"건").join(", ")+"\n";
+      if(noteSamples[s].length){
+        dataTxt+="  현장 기록 샘플:\n";
+        noteSamples[s].forEach((c,i)=>{dataTxt+="   "+(i+1)+". ["+c.date+"/"+c.branch+"] "+c.note.trim().slice(0,150)+"\n"});
+      }
+    });
+    const userPrompt="다음은 대성쎌틱에너시스(주) 보일러 CS 현장 데이터 집계입니다.\n\n"+dataTxt
+      +"\n\n위 데이터를 바탕으로 종합보고서를 작성해주세요. 다음 항목을 포함하세요:\n"
+      +"1. 전체 현황 요약\n"
+      +"2. 불량유형(증상)이 많이 발생한 원인 분석 — 지사별/처리방법 패턴과 현장 기록을 근거로 추정\n"
+      +"3. 모델별 특이사항 (선택된 모델 간 비교)\n"
+      +"4. 개선 제안 (재발 방지, 부품/설계 개선, 현장 대응 교육 등)\n\n"
+      +"실무 보고서 톤으로, 간결하고 근거 기반으로 작성해주세요. 확실하지 않은 추정은 '추정됨'이라고 표시해주세요.";
+    box.innerHTML='<div class="loading" style="padding:8px">🤖 GPT가 종합보고서를 작성 중입니다...</div>';
+    const resp=await fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+      body:JSON.stringify({
+        model:"gpt-4o-mini",
+        messages:[
+          {role:"system",content:"당신은 대성쎌틱에너시스(주) CS 데이터 분석 전문가입니다. 현장 CS 데이터를 통계적으로 분석하여 경영진과 현장에 도움이 되는 종합보고서를 작성합니다."},
+          {role:"user",content:userPrompt}
+        ],
+        max_tokens:1400,
+        temperature:0.3
+      })
+    });
+    if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||"API 오류 "+resp.status)}
+    const data=await resp.json();
+    const text=data.choices?.[0]?.message?.content||"";
+    if(!text)throw new Error("GPT 응답이 비어 있습니다");
+    box.dataset.reportText=text;
+    const aiHtml=text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>");
+    box.innerHTML='<div style="font-size:12px;line-height:1.9;color:var(--text);background:linear-gradient(135deg,rgba(41,128,185,.08),rgba(52,152,219,.04));border:1px solid rgba(52,152,219,.3);border-radius:10px;padding:14px">'+aiHtml+'</div>'
+      +'<div style="margin-top:8px;text-align:right"><button onclick="copyAnReport()" style="padding:6px 12px;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--ts);font-size:11px;cursor:pointer;font-family:inherit">📋 복사</button></div>';
+  }catch(e){
+    box.innerHTML='<div style="color:var(--danger);font-size:12px">⚠️ 오류: '+esc(e.message)+'</div>';
+    console.error("generateAnReport:",e);
+  }
+}
+function copyAnReport(){
+  const box=document.getElementById("anReportBox");
+  const text=box?.dataset.reportText||"";
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.querySelector('[onclick="copyAnReport()"]');
+    if(btn){const orig=btn.textContent;btn.textContent="✅ 복사됨!";setTimeout(()=>{btn.textContent=orig;},1800);}
+  }).catch(()=>alert("클립보드 복사 실패. 브라우저 권한을 확인하세요."));
 }
 
 async function downloadAnPPT(){
@@ -4104,8 +4200,6 @@ function cfDE(docId,dl){
   document.getElementById("delBtn").onclick=async function(){try{await db.collection("reports").doc(docId).delete();clDM();if(dEmp)showDet(dEmp)}catch(e){alert("오류: "+e.message)}};
   document.getElementById("delModal").classList.add("open")}
 function clDM(){document.getElementById("delModal").classList.remove("open")}
-function openVideoModal(url){const m=document.getElementById("videoModal");const p=document.getElementById("videoModalPlayer");p.src=url;p.load();m.classList.add("open")}
-function clVideoModal(){const m=document.getElementById("videoModal");const p=document.getElementById("videoModalPlayer");p.pause();p.src="";m.classList.remove("open")}
 function backAdm(){showS("adminScreen");loadStats()}
 
 /* ══ AUDIO UPLOAD ══ */
@@ -5954,7 +6048,7 @@ function renderMediaList(){
     if(m.kind==="image"){
       h+='<div style="position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
     }else{
-      h+='<div style="position:relative;width:80px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);cursor:pointer"><span style="font-size:22px;color:#fff;line-height:1">▶</span></div><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0;z-index:1">✕</button></div>';
+      h+='<div style="position:relative;width:80px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:64px;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')" controls preload="metadata"></video><button onclick="removeAttachedMedia('+idx+')" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
     }
   });
   h+='</div></div>';
@@ -5976,7 +6070,7 @@ function renderMediaLinks(media){
     if(m.kind==="image"){
       h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:60px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt=""></a>';
     }else{
-      h+='<div onclick="openVideoModal(\''+esc(m.url)+'\')" style="position:relative;width:80px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;cursor:pointer"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:contain" preload="metadata"></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35)"><span style="font-size:22px;color:#fff;line-height:1">▶</span></div></div>';
+      h+='<div style="width:80px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:60px;object-fit:cover" controls preload="metadata"></video></div>';
     }
   });
   h+='</div></div>';return h;
