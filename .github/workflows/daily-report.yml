@@ -2,8 +2,9 @@ name: CS업무일지 일일보고 텔레그램 전송
 
 on:
   schedule:
-    # 평일 21:00 KST (= 12:00 UTC)
-    - cron: '0 12 * * 1-5'
+    # 평일 15분마다 실행 — 스크립트가 Firestore의 tgAutoTime(19:00)과 비교 후 전송
+    # (GitHub Actions의 schedule 트리거는 지연이 심할 수 있어, 지연 폭을 줄이기 위해 자주 체크함)
+    - cron: '*/15 * * * 1-5'
   workflow_dispatch:  # 수동 테스트용
 
 jobs:
@@ -19,3 +20,4 @@ jobs:
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          MANUAL_RUN: ${{ github.event_name == 'workflow_dispatch' && 'true' || 'false' }}
