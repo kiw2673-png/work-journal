@@ -2,9 +2,11 @@ name: CS업무일지 일일보고 텔레그램 전송
 
 on:
   schedule:
-    # 평일 15분마다 실행 — 스크립트가 Firestore의 tgAutoTime(19:00)과 비교 후 전송
-    # (GitHub Actions의 schedule 트리거는 지연이 심할 수 있어, 지연 폭을 줄이기 위해 자주 체크함)
-    - cron: '*/15 * * * 1-5'
+    # 목표: 평일 21:01 KST (= 12:01 UTC) 정시 전송. 스크립트가 Firestore의 tgAutoTime(21:01)과 비교 후 전송.
+    # GitHub Actions schedule은 지연될 수 있으므로 목표시각 직후 1시간은 3분 간격으로 집중 체크하고,
+    # 그 이후는 30분 간격 폴백으로 당일(또는 자정 넘김 시 전날분) 미전송을 캐치업함.
+    - cron: '1-59/3 12 * * 1-5'
+    - cron: '*/30 13-23 * * 1-5'
   workflow_dispatch:  # 수동 테스트용
 
 jobs:
