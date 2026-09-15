@@ -203,6 +203,10 @@ async function main() {
       console.log(`대상일(${dateStr})이 주말, 스킵`);
       return;
     }
+    if ((settings.holidays || []).includes(dateStr)) {
+      console.log(`대상일(${dateStr})이 설정된 공휴일, 스킵`);
+      return;
+    }
     if (settings.lastAutoSendDate === dateStr) {
       console.log(`대상일(${dateStr}) 이미 전송 완료됨, 스킵`);
       return;
