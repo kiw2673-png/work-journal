@@ -1,7 +1,9 @@
 // GitHub Actions용 CS업무일지 텔레그램 자동 전송 스크립트
 // Node.js 18+ (native fetch) — npm 패키지 불필요
-// 매일 1회(cron) 실행되며, GitHub Actions의 schedule 트리거가 몇 시간까지 지연될 수 있으므로
-// "실행된 시각"이 아니라 "가장 최근에 마감된 목표일(전송 대상 날짜)"을 기준으로 전송 여부를 판단함.
+// [다음날 아침 전송 방식] 보고일 D의 마감 = 다음날(D+1) 아침 tgAutoTime(기본 08:30).
+// 매일 아침 마감시각 이후 첫 실행이 "어제" 보고서를 전송함 — 밤늦게/다음날 아침에 소급 작성한
+// 보고서까지 포함시키기 위한 설계(2026-09-17 변경). GitHub Actions 지연이 커도
+// "가장 최근에 마감된 보고일 + lastAutoSendDate 중복방지"로만 판단하므로 정확히 1회 전송됨.
 const PROJECT_ID = 'work-journal-99e5a';
 const API_KEY = 'AIzaSyCETRrYLTEw-EqBfTm0cD6Sh5nc7kP6_oc';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
@@ -187,12 +189,12 @@ async function main() {
   const [targetH, targetM] = autoTime.split(':').map(Number);
   const targetMin = targetH * 60 + targetM;
 
-  // GitHub Actions의 schedule 트리거는 실행이 몇 시간(경우에 따라 자정을 넘겨서까지) 지연될 수 있음.
-  // "지금이 목표시각 이전이면" → 오늘자 목표는 아직 마감 전이므로, 전송 대상일은 "어제"가 됨
-  // (자정을 넘겨 지연 실행된 경우 이 분기로 들어와 정확한 전날 보고서를 대상으로 잡음).
-  // "지금이 목표시각 이후면" → 전송 대상일은 오늘.
-  // 실행 시각이 아니라 이렇게 계산한 대상일 + lastAutoSendDate 로만 판단하므로 지연 폭에 관계없이 항상 정확히 1회 전송됨.
+  // 대상일 계산: 보고일 D는 다음날(D+1) 아침 tgAutoTime에 마감됨.
+  // 지금이 오늘 아침 마감시각 이후면 → 어제분이 방금 마감됨 → 대상일 = 어제.
+  // 아직 마감 전(자정~아침)이면 → 마지막으로 마감된 것은 그저께분 → 대상일 = 그저께
+  // (그저께분은 보통 어제 이미 전송되어 lastAutoSendDate로 걸러짐 — 어제 하루 전체가 누락된 경우의 캐치업).
   const reportDate = new Date(kst);
+  reportDate.setUTCDate(reportDate.getUTCDate() - 1);
   if (nowMin < targetMin) reportDate.setUTCDate(reportDate.getUTCDate() - 1);
   const dateStr = reportDate.toISOString().slice(0, 10);
   const dow = reportDate.getUTCDay(); // 0=일, 6=토 (kst를 UTC getter로 다루는 트릭이므로 KST 기준 요일)
