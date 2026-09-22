@@ -117,6 +117,7 @@
 .sc-day{min-height:52px;border-radius:6px;padding:2px;background:var(--ibg);border:1px solid var(--border);cursor:pointer;transition:border .15s;box-sizing:border-box}
 .sc-day:hover{border-color:var(--primary)}.sc-day.today{border-color:var(--primary);background:rgba(27,58,92,.07)}
 .sc-day.other{opacity:.3;pointer-events:none}.sc-day.sun .dn{color:var(--danger)}.sc-day.sat .dn{color:#2CA5E0}
+.sc-day.holiday{background:rgba(255,105,180,.16);border-color:rgba(255,105,180,.4)}.sc-day.holiday .dn{color:#d6336c}
 .dn{font-size:9px;font-weight:700;text-align:right;padding:1px 3px 2px}
 .sc-badge{font-size:8px;font-weight:600;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.5}
 .sc-more{font-size:8px;color:var(--ts);padding:0 3px;line-height:1.5}
@@ -3661,13 +3662,14 @@ function _renderScCal(targetId,year,month,data,minH){
   const firstDay=new Date(year,month,1).getDay();
   const daysInMonth=new Date(year,month+1,0).getDate();
   const today=new Date().toISOString().slice(0,10);
+  const holidays=getHolidays();
   let h='<div class="sc-cal"><div class="ch">일</div><div class="ch">월</div><div class="ch">화</div><div class="ch">수</div><div class="ch">목</div><div class="ch">금</div><div class="ch">토</div>';
   for(let i=0;i<firstDay;i++)h+='<div class="sc-day other" style="min-height:'+minH+'px"></div>';
   for(let d=1;d<=daysInMonth;d++){
     const ds=ym+"-"+String(d).padStart(2,"0");
     const dow=(firstDay+d-1)%7;
     const dayS=data.filter(s=>s.startDate<=ds&&s.endDate>=ds);
-    h+='<div class="sc-day'+(ds===today?' today':'')+(dow===0?' sun':dow===6?' sat':'')+'" style="min-height:'+minH+'px" onclick="onScDayClick(\''+ds+'\')">';
+    h+='<div class="sc-day'+(ds===today?' today':'')+(dow===0?' sun':dow===6?' sat':'')+(holidays.includes(ds)?' holiday':'')+'" style="min-height:'+minH+'px" onclick="onScDayClick(\''+ds+'\')">';
     h+='<div class="dn">'+d+'</div>';
     if(dayS.length){h+='<div style="display:flex;flex-wrap:wrap;gap:1px">';dayS.forEach(s=>{const t=SC_TYPES[s.type]||SC_TYPES['기타'];h+='<div class="sc-badge" style="background:'+t.bg+';color:'+t.color+';flex:0 1 calc(50% - 0.5px);min-width:0" onclick="event.stopPropagation();viewSchedule(\''+s.docId+'\')">'+esc(s.name)+'</div>';});h+='</div>';}
     h+='</div>';
