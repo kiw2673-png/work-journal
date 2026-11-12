@@ -125,13 +125,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.8.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.8.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.8.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.8.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -177,7 +177,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.8.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.8.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -534,6 +534,14 @@ const DEF_SYM=["A-물보충","A1-통신/온도센서","A2-급기팬","A3-펌프/
 const DEF_ACT=["사용법 안내","정상 작동 확인","전화 상담 해결","설치 환경 개선","프로그램 수정","EEP데이터 수정","부품 교체","제품 교체","보상 판매","환불","재방문 예정","설비 및 타업체 이관","고객 취소/부재"];
 const DEF_MODEL_CATS=[{name:"보일러",models:["DEC","DNB","DNB_H","DiB","DNC","DNC1","DQC","DOC","DPC"]},{name:"가스온수기",models:["HW","DSW"]},{name:"전기온수기",models:["RZB","RZL","DSF"]},{name:"캐스케이드",models:["DRB","DRS","DRP"]},{name:"기름보일러",models:["DSO"]},{name:"기타",models:[]}];
 function getModelCats(){return _settings?.modelCategories||DEF_MODEL_CATS}
+/* 설정에 아직 등록되지 않았지만 실제 보고서에 쓰이는 구형/비정규 모델 (드롭다운 보존용) */
+const EXTRA_MODELS=["DRW","RZS","SSP","EV"];
+/* 설정(models) + 분석 카테고리(modelCategories)에 등록된 모든 모델명 — 분석/해결법 탭 드롭다운·칩의 단일 소스 */
+function getAllModelNames(){const out=[],seen=new Set();
+  const push=m=>{if(!m)return;const v=String(m).trim();if(!v||seen.has(v))return;seen.add(v);out.push(v)};
+  try{(getModels()||[]).forEach(m=>push(typeof m==="string"?m:m&&m.n))}catch(e){}
+  try{(getModelCats()||[]).forEach(c=>(c.models||[]).forEach(push))}catch(e){}
+  return out}
 
 let CU=null,AF="전체",caseCount=1,admTab="stats";
 let statPeriod={type:'all',value:''};let detPeriod={type:'all',value:''};let statMode='normal';
@@ -650,7 +658,7 @@ function openSolModal(){
   modal.style.display="flex";
   const sel=document.getElementById("uSolModel");
   if(sel&&!sel.options.length){
-    const MODEL_LIST=["DNB","DNB_H","DiB","DNC","DNC1","DOC","DPC","DQC","DRS","DRB","DRC","기타"];
+    const MODEL_LIST=[...new Set([...getAllModelNames(),"기타"])];
     MODEL_LIST.forEach((m,i)=>{const o=document.createElement("option");o.value=m;o.textContent=m;if(i===0)o.selected=true;sel.appendChild(o)});
   }
   renderUserSolutions();
@@ -2027,7 +2035,7 @@ function copyWkText(){
 
 /* ══ ANALYSIS ══ */
 function loadAnal(){const today=new Date();const dow=today.getDay();const mon=new Date(today);mon.setDate(today.getDate()-(dow===0?6:dow-1));
-  const MODEL_LIST=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DSF","DSW","RZS","SSP","EV","기타"];
+  const MODEL_LIST=[...new Set([...getAllModelNames(),...EXTRA_MODELS,"기타"])];
   let h='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
     +'<div style="display:flex;background:var(--ibg);border-radius:8px;padding:2px;gap:2px">'
     +'<button id="anPW" class="atab active" style="padding:5px 10px;font-size:11px" onclick="setAnPeriod(\'week\')">주간</button>'
@@ -2063,8 +2071,14 @@ function mvAn(dir){
 }
 
 const MODEL_PREFIXES=["DNB_H","DNC1","DNB","DiB","DNC","DOC","DPC","DQC","DRS","DRW","DRB","DRC","DSF","DSW","RZS","SSP","EV"];
-function normModel(s){if(!s||s.trim()==="")return"기타";const up=s.trim();
-  for(const m of MODEL_PREFIXES){const mu=m.toUpperCase();const su=up.toUpperCase();
+/* 설정에 등록된 모델명까지 포함한 접두사 목록 (긴 것 우선 — DNB_H가 DNB보다, DS3가 DS보다 먼저 매칭) */
+let _mpCache=null,_mpSrc=null;
+function getModelPrefixes(){
+  if(_mpCache&&_mpSrc===_settings)return _mpCache;
+  const s=new Set([...MODEL_PREFIXES,...getAllModelNames()]);s.delete("기타");
+  _mpCache=[...s].sort((a,b)=>b.length-a.length);_mpSrc=_settings;return _mpCache}
+function normModel(s){if(!s||s.trim()==="")return"기타";const up=s.trim();const su=up.toUpperCase();
+  for(const m of getModelPrefixes()){const mu=m.toUpperCase();
     if(su===mu||su.startsWith(mu+" ")||su.startsWith(mu+"-")||su.startsWith(mu+"_"))return m;}
   const first=up.split(/[\s\-_]/)[0];return first||"기타";}
 
@@ -2136,8 +2150,11 @@ async function renderAn(){
   const sliceModels=window._anSliceModels;
   const modelCatDefs=getModelCats();
   const allCatModels=[].concat(...modelCatDefs.map(c=>c.models||[]));
-  const availableModels=[...new Set([...allCatModels,...Object.keys(rows)])].sort();
+  /* 카테고리 미등록이어도 설정(models)에 있는 모델은 항상 칩으로 노출 — DS3/DS5 등 신규 모델 누락 방지 */
+  const availableModels=[...new Set([...allCatModels,...getAllModelNames(),...Object.keys(rows)])].sort();
   const assignedModels=new Set(allCatModels);
+  const modelCnt=m=>Object.values(rows[m]||{}).reduce((s,v)=>s+v,0);
+  const cntBadge=m=>{const n=modelCnt(m);return n?' <span style="opacity:.75;font-weight:500">'+n+'</span>':''};
 
   html+='<div class="chart-wrap" style="margin-bottom:14px">'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">'
@@ -2146,8 +2163,8 @@ async function renderAn(){
     +'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">';
   modelCatDefs.forEach(cat=>{const cm=cat.models||[];const allSel=cm.length>0&&cm.every(m=>sliceModels.includes(m));const someSel=cm.some(m=>sliceModels.includes(m));html+='<button onclick="selectSliceCat(\''+esc(cat.name)+'\')" style="padding:4px 12px;border-radius:6px;border:1.5px solid '+(allSel?'var(--admin)':someSel?'var(--primary)':'var(--border)')+';background:'+(allSel?'var(--admin)':someSel?'rgba(52,152,219,.12)':'transparent')+';color:'+(allSel?'#fff':someSel?'var(--primary)':'var(--ts)')+';font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(cat.name)+'</button>'});
   html+='</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px" id="sliceChips">';
-  modelCatDefs.forEach(cat=>{(cat.models||[]).filter(m=>availableModels.includes(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>'})});
-  availableModels.filter(m=>!assignedModels.has(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px dashed '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+'</button>'});
+  modelCatDefs.forEach(cat=>{(cat.models||[]).filter(m=>availableModels.includes(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px solid '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+cntBadge(m)+'</button>'})});
+  availableModels.filter(m=>!assignedModels.has(m)).forEach(m=>{const active=sliceModels.includes(m);html+='<button onclick="toggleSliceModel(\''+esc(m)+'\')" style="padding:3px 8px;border-radius:20px;border:1.5px dashed '+(active?'var(--primary)':'var(--border)')+';background:'+(active?'var(--primary)':'transparent')+';color:'+(active?'#fff':'var(--ts)')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s">'+esc(m)+cntBadge(m)+'</button>'});
   html+='</div>';
 
   if(sliceModels.length===0){html+='<div style="text-align:center;padding:16px;color:var(--ts);font-size:11px">모델을 선택해주세요</div>';}
@@ -5176,7 +5193,7 @@ async function doSearch(){
 /* ══ 모델별 증상 해결법 라이브러리 ══ */
 function loadSolutions(){
   try{
-  const MODEL_LIST=["DNB","DNB_H","DiB","DNC","DNC1","DOC","DPC","DQC","DRS","DRB","DRC","기타"];
+  const MODEL_LIST=[...new Set([...getAllModelNames(),"기타"])];
   let h='<div style="margin-bottom:12px">'
     +'<h3 style="font-size:14px;font-weight:700;margin-bottom:4px">🤖 AI 진단 & 해결법</h3>'
     +'<p style="font-size:11px;color:var(--ts);line-height:1.6;margin-bottom:10px">누적 보고서 데이터 + 등록된 표준 해결법 기반. 모델을 선택하면 증상별 완료 내용이 표시됩니다.</p></div>'
@@ -6668,5 +6685,6 @@ function _dm_bulkApply(){
 </script>
 </body>
 </html>
+
 
 
