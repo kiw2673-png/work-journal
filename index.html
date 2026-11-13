@@ -125,13 +125,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.10.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.10.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.10.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.10.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -177,7 +177,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.10.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.10.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -580,13 +580,83 @@ function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'
 function fd(d){d=d||new Date();const w=["일","월","화","수","목","금","토"];return d.getFullYear()+"년 "+String(d.getMonth()+1).padStart(2,"0")+"월 "+String(d.getDate()).padStart(2,"0")+"일 ("+w[d.getDay()]+")"}
 function fds(s){const p=s.split("-");return fd(new Date(+p[0],+p[1]-1,+p[2]))}
 function esc(s){return s?s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"):""}
-function renderCaseMediaLinks(media){
+/* ══ 미디어 뷰어 (캐스케이드 조사 cascade-admin.html과 동일 방식) ══
+   썸네일 클릭 → 라이트박스로 열리고, 닫지 않은 채 ‹ › 로 다음 사진/동영상으로 이동.
+   onclick 속성에는 URL을 직접 박지 않고 (그룹ID, 인덱스)만 넘긴다 — 전역 목록에서 조회. */
+var _wjVLists=[],_wjVList=[],_wjVIdx=0;
+function wjNewVGroup(){_wjVLists.push([]);return _wjVLists.length-1}
+function wjAddToVGroup(gid,items){const g=_wjVLists[gid];if(!g)return 0;const base=g.length;items.forEach(m=>g.push(m));return base}
+function wjIsImg(m){return m&&(m.kind==="image"||(m.mimeType||"").indexOf("image/")===0)}
+function wjOpenViewer(gid,idx){
+  const list=_wjVLists[gid];
+  if(!list||!list.length)return;
+  _wjVList=list;_wjVIdx=((idx%list.length)+list.length)%list.length;
+  wjRenderViewer();
+}
+function wjRenderViewer(){
+  const m=_wjVList[_wjVIdx];if(!m)return;
+  const vc=document.getElementById("wjViewerContent");if(!vc)return;
+  // 페이지에 떠 있는 다른 video(썸네일 등)는 정지시켜 재생 충돌 방지
+  document.querySelectorAll("video").forEach(v=>{if(!vc.contains(v))try{v.pause()}catch(e){}});
+  vc.innerHTML="";
+  if(wjIsImg(m)){
+    const img=document.createElement("img");
+    img.src=m.url;
+    img.style.cssText="max-width:92vw;max-height:86vh;object-fit:contain;border-radius:6px;display:block";
+    vc.appendChild(img);
+  }else{
+    const wrap=document.createElement("div");
+    wrap.style.cssText="display:flex;flex-direction:column;align-items:center;max-width:92vw";
+    const vid=document.createElement("video");
+    vid.src=m.url;vid.controls=true;vid.autoplay=true;vid.setAttribute("playsinline","");
+    vid.style.cssText="max-width:92vw;max-height:80vh;min-width:280px;min-height:160px;border-radius:6px;outline:none;display:block;background:#000";
+    const err=document.createElement("div");
+    err.className="wj-viewer-err";
+    err.innerHTML='⚠ 이 브라우저에서 동영상 코덱을 지원하지 않습니다 (H.265/HEVC 등).<br>음성만 재생될 수 있습니다. <a href="'+esc(m.url)+'" target="_blank">파일 다운로드</a>';
+    vid.addEventListener("loadedmetadata",()=>{if(vid.videoWidth===0)err.style.display="block"});
+    vid.addEventListener("error",()=>{err.innerHTML='⚠ 동영상을 불러올 수 없습니다. <a href="'+esc(m.url)+'" target="_blank">파일 다운로드</a>';err.style.display="block"});
+    wrap.appendChild(vid);wrap.appendChild(err);vc.appendChild(wrap);
+  }
+  const multi=_wjVList.length>1;
+  const pv=document.getElementById("wjViewerPrev"),nx=document.getElementById("wjViewerNext"),ct=document.getElementById("wjViewerCounter");
+  if(pv)pv.style.display=multi?"flex":"none";
+  if(nx)nx.style.display=multi?"flex":"none";
+  if(ct){ct.style.display=multi?"block":"none";ct.textContent=multi?(_wjVIdx+1)+" / "+_wjVList.length:""}
+  const dl=document.getElementById("wjViewerDl");if(dl)dl.href=m.url;
+  const cap=document.getElementById("wjViewerCap");if(cap)cap.textContent=m.fileName||"";
+  document.getElementById("wjViewer").classList.add("open");
+}
+function wjViewerGo(step){
+  if(!_wjVList.length)return;
+  _wjVIdx=((_wjVIdx+step)%_wjVList.length+_wjVList.length)%_wjVList.length;
+  wjRenderViewer();
+}
+function wjCloseViewer(){
+  const vc=document.getElementById("wjViewerContent");
+  if(vc){vc.querySelectorAll("video").forEach(v=>{try{v.pause();v.removeAttribute("src");v.load()}catch(e){}});vc.innerHTML=""}
+  const vw=document.getElementById("wjViewer");if(vw)vw.classList.remove("open");
+}
+document.addEventListener("keydown",function(e){
+  const vw=document.getElementById("wjViewer");
+  if(!vw||!vw.classList.contains("open"))return;
+  if(e.key==="ArrowLeft")wjViewerGo(-1);
+  else if(e.key==="ArrowRight")wjViewerGo(1);
+  else if(e.key==="Escape")wjCloseViewer();
+});
+/* 썸네일 1개 HTML (gid/idx만 onclick에 전달) */
+function wjThumbHtml(m,gid,idx,w,h){
+  const oc='onclick="wjOpenViewer('+gid+','+idx+')"';
+  if(wjIsImg(m)){
+    return '<div '+oc+' title="'+esc(m.fileName||"사진")+'" style="width:'+w+'px;height:'+h+'px;border-radius:5px;overflow:hidden;border:1px solid var(--border);flex-shrink:0;cursor:zoom-in"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt="사진" loading="lazy"></div>';
+  }
+  return '<div '+oc+' title="'+esc(m.fileName||"동영상")+'" style="position:relative;width:'+Math.round(w*1.35)+'px;height:'+h+'px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0;cursor:zoom-in"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;pointer-events:none" preload="metadata" muted></video><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;text-shadow:0 1px 4px rgba(0,0,0,.9)">▶</div></div>';
+}
+function renderCaseMediaLinks(media,gid){
   if(!media||!media.length)return'';
+  if(typeof gid!=="number")gid=wjNewVGroup();
+  const base=wjAddToVGroup(gid,media);
   let h='<div style="display:flex;gap:4px;flex-wrap:wrap;padding:3px 0 2px">';
-  media.forEach(m=>{
-    if(m.kind==="image"){h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:52px;height:52px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none;flex-shrink:0"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt="사진" loading="lazy"></a>';}
-    else{h+='<div style="width:72px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000;flex-shrink:0"><video src="'+esc(m.url)+'" style="width:100%;height:52px;object-fit:cover" controls preload="metadata"></video></div>';}
-  });
+  media.forEach((m,i)=>{h+=wjThumbHtml(m,gid,base+i,52,52)});
   h+='</div>';return h;
 }
 function renderAudioLinks(audios){
@@ -1541,6 +1611,7 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
     list.forEach(e=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=e.date+"_"+e.empId;
+      const vg=wjNewVGroup();
       html+='<div style="border:1px solid var(--border);border-top:none;padding:8px 10px;background:#fff">';
       html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px">'
         +'<span style="font-weight:700;font-size:11px;color:var(--primary)">👤 '+esc(e.name)+'</span>'
@@ -1555,14 +1626,14 @@ async function renderRpt(){const dv=document.getElementById("rptDate").value;if(
           if(c.prevAs)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
           if(c.custResp)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
           if(c.diag)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.note)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="9" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media,vg)+'</td></tr>';});
         html+='</tbody></table>';
       }
       if(e.field1)html+='<div style="margin-top:3px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
       if(e.field3)html+='<div style="margin-top:4px;font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
-      if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
+      if(e.media&&e.media.length)html+=renderMediaLinks(e.media,vg);
       html+='</div>';
     });
     html+='</div>';
@@ -1849,6 +1920,7 @@ async function renderWk(){
   entries.forEach(e=>{
     const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
     const docId=e.date+"_"+e.empId;
+    const vg=wjNewVGroup();
     html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">';
     html+='<div style="padding:6px 10px;background:var(--ibg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
@@ -1865,7 +1937,7 @@ async function renderWk(){
         if(c.prevAs)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
         if(c.custResp)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
         if(c.diag)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
-        if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+        if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 조치: '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media,vg)+'</td></tr>';});
       html+='</tbody></table></div>';
     }
     html+='<div style="padding:6px 10px">';
@@ -1873,7 +1945,7 @@ async function renderWk(){
     if(e.field2)html+='<div style="margin-bottom:4px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field2)+'</div></div>';
     if(e.field3)html+='<div style="font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+esc(e.field3)+'</div></div>';
     if(e.audios&&e.audios.length)html+=renderAudioLinks(e.audios);
-      if(e.media&&e.media.length)html+=renderMediaLinks(e.media);
+      if(e.media&&e.media.length)html+=renderMediaLinks(e.media,vg);
     html+='</div></div>';
   });
   document.getElementById("wkBody").innerHTML=html}
@@ -5017,6 +5089,7 @@ async function renderMonthly(){
     filteredEntries.forEach(e=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=e.date+"_"+e.empId;
+      const vg=wjNewVGroup();
       html+='<div style="background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden">'
         +'<div style="padding:6px 10px;background:var(--ibg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">'
         +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
@@ -5031,13 +5104,13 @@ async function renderMonthly(){
           if(c.prevAs)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+esc(c.prevAs)+'</td></tr>';
           if(c.custResp)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+esc(c.custResp)+'</td></tr>';
           if(c.diag)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+esc(c.diag)+'</td></tr>';
-          if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.note)html+='<tr><td colspan="7" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+esc(c.note)+'</td></tr>';if(c.media&&c.media.length)html+='<tr><td colspan="7" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media,vg)+'</td></tr>';});
         html+='</tbody></table></div>';}
       if(e.field1)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field1)+'</div></div>';
       if(e.field2)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field2)+'</div></div>';
       if(e.field3)html+='<div style="padding:4px 10px;font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5">'+esc(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)html+='<div style="padding:0 10px 8px">'+renderAudioLinks(e.audios)+'</div>';
-      if(e.media&&e.media.length)html+='<div style="padding:0 10px 8px">'+renderMediaLinks(e.media)+'</div>';
+      if(e.media&&e.media.length)html+='<div style="padding:0 10px 8px">'+renderMediaLinks(e.media,vg)+'</div>';
       html+='</div>';
     });
   }
@@ -5220,6 +5293,7 @@ async function doSearch(){
     scored.forEach(({entry:e,matched})=>{
       const fc=e.cases?e.cases.filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag):[];
       const docId=(e.id||(e.date+"_"+e.empId));
+      const vg=wjNewVGroup();
       const hlText=(t)=>{let r=esc(t);keywords.forEach(kw=>{r=r.replace(new RegExp(esc(kw),'gi'),m=>'<mark style="background:#FFF176;border-radius:2px">'+m+'</mark>')});return r};
       h+='<div style="background:var(--card);border-radius:10px;border:1px solid var(--border);margin-bottom:8px;overflow:hidden">'
         +'<div style="padding:8px 12px;background:var(--ibg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">'
@@ -5237,13 +5311,13 @@ async function doSearch(){
           if(c.prevAs)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 이전AS: '+hlText(c.prevAs)+'</td></tr>';
           if(c.custResp)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 고객반응: '+hlText(c.custResp)+'</td></tr>';
           if(c.diag)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ 초기진단: '+hlText(c.diag)+'</td></tr>';
-          if(c.note)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media)+'</td></tr>';});
+          if(c.note)h+='<tr><td colspan="6" style="padding:1px 4px 3px 10px;font-size:9px;color:#555">↳ '+hlText(c.note)+'</td></tr>';if(c.media&&c.media.length)h+='<tr><td colspan="6" style="padding:2px 4px 4px 10px">'+renderCaseMediaLinks(c.media,vg)+'</td></tr>';});
         h+='</tbody></table></div>';}
       if(e.field1)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#2980B9">현장업무</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field1)+'</div></div>';
       if(e.field2)h+='<div style="font-size:10px;margin-bottom:4px"><span style="font-weight:700;color:#00B894">상담&특이</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field2)+'</div></div>';
       if(e.field3)h+='<div style="font-size:10px"><span style="font-weight:700;color:#9B59B6">VOC</span><div style="white-space:pre-wrap;line-height:1.5;margin-top:1px">'+hlText(e.field3)+'</div></div>';
       if(e.audios&&e.audios.length)h+=renderAudioLinks(e.audios);
-      if(e.media&&e.media.length)h+=renderMediaLinks(e.media);
+      if(e.media&&e.media.length)h+=renderMediaLinks(e.media,vg);
       h+='</div></div>';
     });
     document.getElementById("srchBody").innerHTML=h;
@@ -6330,18 +6404,21 @@ async function handleAEMediaUpload(event){
   await mediaUploadCore(files,{list:window._aeMedia,render:renderAEMediaList,submitBtnId:"delBtn",owner:window._aeOwner,
     ids:{file:"aeMediaFile",status:"aeMediaStatus",prog:"aeMediaProg",fill:"aeMediaProgFill",cancel:"aeMediaCancelBtn"}});
 }
-function aeThumbHtml(m,onRemove){
-  if(m.kind==="image"||(m.mimeType||"").startsWith("image/")){
-    return '<div style="position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="window.open(\''+esc(m.url)+'\')"><button type="button" onclick="'+onRemove+'" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
+function aeThumbHtml(m,onRemove,gid,idx){
+  const del='<button type="button" onclick="event.stopPropagation();'+onRemove+'" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0;z-index:2">✕</button>';
+  const oc=(typeof gid==="number")?'onclick="wjOpenViewer('+gid+','+idx+')"':'';
+  if(wjIsImg(m)){
+    return '<div style="position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border)"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in" '+oc+'>'+del+'</div>';
   }
-  return '<div style="position:relative;width:84px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:64px;object-fit:cover" controls preload="metadata"></video><button type="button" onclick="'+onRemove+'" style="position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(231,76,60,.9);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;line-height:1;padding:0">✕</button></div>';
+  return '<div style="position:relative;width:84px;height:64px;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover;pointer-events:none" preload="metadata" muted></video><div '+oc+' style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;cursor:zoom-in;text-shadow:0 1px 4px rgba(0,0,0,.9)">▶</div>'+del+'</div>';
 }
 function renderAEMediaList(){
   const el=document.getElementById("aeMediaList");if(!el)return;
   const items=window._aeMedia||[];
   if(!items.length){el.innerHTML='<div style="font-size:10px;color:var(--ts);padding:6px 0">첨부된 사진/동영상이 없습니다</div>';return}
+  const gid=wjNewVGroup();wjAddToVGroup(gid,items);
   let h='<div style="font-size:10px;font-weight:700;color:var(--accent);margin-top:6px">📎 첨부 ('+items.length+'개)</div><div style="display:flex;gap:6px;flex-wrap:wrap;padding:5px 0">';
-  items.forEach((m,idx)=>{h+=aeThumbHtml(m,"removeAEMedia("+idx+")")});
+  items.forEach((m,idx)=>{h+=aeThumbHtml(m,"removeAEMedia("+idx+")",gid,idx)});
   el.innerHTML=h+'</div>';
 }
 function removeAEMedia(idx){
@@ -6365,8 +6442,9 @@ function renderAECaseMediaList(n){
   const items=(window._aeCaseMedia&&window._aeCaseMedia[n])||[];
   if(cnt)cnt.textContent=items.length?"첨부 "+items.length+"개":"";
   if(!items.length){el.innerHTML="";return}
+  const gid=wjNewVGroup();wjAddToVGroup(gid,items);
   let h='<div style="display:flex;gap:5px;flex-wrap:wrap;padding:5px 0">';
-  items.forEach((m,idx)=>{h+=aeThumbHtml(m,"removeAECaseMedia("+n+","+idx+")")});
+  items.forEach((m,idx)=>{h+=aeThumbHtml(m,"removeAECaseMedia("+n+","+idx+")",gid,idx)});
   el.innerHTML=h+'</div>';
 }
 function removeAECaseMedia(n,idx){
@@ -6398,17 +6476,13 @@ function removeAttachedMedia(idx){
   renderMediaList();
 }
 
-function renderMediaLinks(media){
+function renderMediaLinks(media,gid){
   if(!media||!media.length)return"";
+  if(typeof gid!=="number")gid=wjNewVGroup();
+  const base=wjAddToVGroup(gid,media);
   let h='<div style="margin-top:4px;padding:6px 10px;background:rgba(232,168,56,.1);border-radius:6px;border-left:3px solid var(--accent)"><div style="font-size:9px;font-weight:700;color:var(--accent);margin-bottom:4px">📷 첨부 사진/동영상 ('+media.length+'개)</div>'
     +'<div style="display:flex;gap:5px;flex-wrap:wrap">';
-  media.forEach(m=>{
-    if(m.kind==="image"){
-      h+='<a href="'+esc(m.url)+'" target="_blank" style="display:block;width:60px;height:60px;border-radius:5px;overflow:hidden;border:1px solid var(--border);text-decoration:none"><img src="'+esc(m.url)+'" style="width:100%;height:100%;object-fit:cover" alt=""></a>';
-    }else{
-      h+='<div style="width:80px;border-radius:5px;overflow:hidden;border:1px solid var(--border);background:#000"><video src="'+esc(m.url)+'" style="width:100%;height:60px;object-fit:cover" controls preload="metadata"></video></div>';
-    }
-  });
+  media.forEach((m,i)=>{h+=wjThumbHtml(m,gid,base+i,60,60)});
   h+='</div></div>';return h;
 }
 
@@ -6835,6 +6909,36 @@ function _dm_bulkApply(){
   renderDMTable();
 }
 </script>
+
+<!-- ══ 미디어 뷰어(라이트박스) — 캐스케이드 조사와 동일 방식 ══ -->
+<style>
+.wj-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:30000;align-items:center;justify-content:center}
+.wj-viewer.open{display:flex}
+.wj-viewer-btn{position:absolute;top:14px;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;z-index:3;font-family:inherit;font-size:16px;text-decoration:none}
+.wj-viewer-btn:hover{background:rgba(255,255,255,.32)}
+.wj-viewer-close{right:16px}
+.wj-viewer-dl{right:62px}
+#wjViewerContent img{max-width:92vw;max-height:86vh;object-fit:contain;border-radius:6px;display:block}
+#wjViewerContent video{max-width:92vw;max-height:80vh;border-radius:6px;outline:none;display:block;background:#000}
+.wj-viewer-err{display:none;color:#fff;font-size:12px;background:rgba(255,100,100,.25);padding:8px 14px;border-radius:6px;text-align:center;margin-top:8px;line-height:1.5}
+.wj-viewer-err a{color:#a8d0ff;text-decoration:underline}
+.wj-viewer-nav{display:none;position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;font-size:28px;line-height:1;cursor:pointer;border-radius:50%;width:44px;height:44px;align-items:center;justify-content:center;font-family:inherit;z-index:2}
+.wj-viewer-nav:hover{background:rgba(255,255,255,.32)}
+.wj-viewer-prev{left:12px}
+.wj-viewer-next{right:12px}
+.wj-viewer-cap{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);max-width:84vw;color:rgba(255,255,255,.65);font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}
+.wj-viewer-counter{display:none;position:absolute;bottom:14px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.88);font-size:12px;background:rgba(255,255,255,.15);padding:4px 13px;border-radius:20px;pointer-events:none}
+@media(max-width:600px){.wj-viewer-nav{width:38px;height:38px;font-size:23px}.wj-viewer-prev{left:5px}.wj-viewer-next{right:5px}}
+</style>
+<div class="wj-viewer" id="wjViewer" onclick="if(event.target===this)wjCloseViewer()">
+  <a class="wj-viewer-btn wj-viewer-dl" id="wjViewerDl" href="#" target="_blank" rel="noopener" title="원본 열기/저장">⬇</a>
+  <button type="button" class="wj-viewer-btn wj-viewer-close" onclick="wjCloseViewer()" title="닫기 (Esc)">✕</button>
+  <button type="button" class="wj-viewer-nav wj-viewer-prev" id="wjViewerPrev" onclick="wjViewerGo(-1)" title="이전 (←)">‹</button>
+  <div id="wjViewerContent"></div>
+  <button type="button" class="wj-viewer-nav wj-viewer-next" id="wjViewerNext" onclick="wjViewerGo(1)" title="다음 (→)">›</button>
+  <div class="wj-viewer-cap" id="wjViewerCap"></div>
+  <div class="wj-viewer-counter" id="wjViewerCounter"></div>
+</div>
 </body>
 </html>
 
