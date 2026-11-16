@@ -1835,6 +1835,7 @@ function loadWeek(){
     +'<select id="wkBr" class="fi-sel" style="width:auto;padding:5px 8px;font-size:10px" onchange="renderWk()"><option value="전체">전체 지사</option>';
   DEF_BR.forEach(b=>{h+='<option>'+b+'</option>'});
   h+='</select><button class="atab" style="padding:6px 10px;color:var(--success)" onclick="renderWk()">🔄</button>'
+    +'<label style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--ts);font-weight:600">회의일자<input type="date" id="wkMeetingDate" class="fi-input" style="padding:4px 8px;font-size:10px;width:auto;border-radius:6px"></label>'
     +'<button onclick="downloadWkExcel()" style="padding:6px 12px;border:none;border-radius:6px;background:#1D6F42;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📥 엑셀 다운</button>'
     +'<button onclick="downloadWkWord()" style="padding:6px 12px;border:none;border-radius:6px;background:#2B5797;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📄 워드 다운</button>'
     +'<button onclick="copyWkText()" style="padding:6px 12px;border:none;border-radius:6px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">📋 텍스트 복사</button>'
@@ -1966,13 +1967,15 @@ function downloadWkExcel(){
   const rgName=getBranchRegion(uniqBr[0]||"");
   const centerName=rgName&&rgName!=="기타"?rgName.replace("권","센터"):"CS센터";
   const writers=[...new Set(entries.map(e=>e.name).filter(Boolean))].join(" · ");
+  const mtgRaw=document.getElementById("wkMeetingDate")?.value||"";
+  const mtgLabel=mtgRaw?fds(mtgRaw):"";
   // ═ 헤더 ═
   let r=pr([centerName+" 주간 업무 보고","","","","","","","",""]);
   mgAll(r);sRows.push({r,t:"title"});
   r=pr(["현장기술팀 센터장 회의 보고자료","","","","","","","",""]);
   mgAll(r);sRows.push({r,t:"sub"});
-  r=pr(["보고기간","",label,"","","회의일자","","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);sRows.push({r,t:"info"});
+  r=pr(["보고기간","",label,"","","회의일자","",mtgLabel,""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,6);mg(r,7,NCOL-1);sRows.push({r,t:"info"});
   r=pr(["센터","",centerName,"","","작성자","",writers,""]);
   mg(r,0,1);mg(r,2,4);mg(r,5,6);mg(r,7,NCOL-1);sRows.push({r,t:"info"});
   er();
