@@ -1954,81 +1954,127 @@ function downloadWkExcel(){
   const entries=window._wkEntries||[];
   if(!entries.length){alert("다운로드할 데이터가 없습니다.");return;}
   const label=window._wkLabel||"주간";
-  /* 케이스 내용 판정 — prevAs/custResp/diag만 채워진 케이스도 누락되지 않도록 (v3.6.9와 동일 기준) */
-  const hasCase=c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag||c.action||c.serial;
-  const sorted=[...entries].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
-  const totalCases=sorted.reduce((s,e)=>s+(e.cases||[]).filter(hasCase).length,0);
-  const NCOL=10;
-  const rows=[];const merges=[];const styleRows=[];
-  function addMergedRow(text,type){
-    rows.push([text]);
-    const r=rows.length-1;
-    merges.push({s:{r,c:0},e:{r,c:NCOL-1}});
-    if(type)styleRows.push({r,type,merged:true});
-    return r;
+  const NCOL=9;
+  const rows=[],merges=[],sRows=[];
+  function pr(cells){rows.push(cells);return rows.length-1;}
+  function mg(r,c1,c2){merges.push({s:{r,c:c1},e:{r,c:c2}});}
+  function mgAll(r){mg(r,0,NCOL-1);}
+  function er(){rows.push(new Array(NCOL).fill(""));}
+  function fmd(s){if(!s)return"";const p=s.split("-");return(+p[1])+"/"+(+p[2]);}
+  // 센터 이름 추론
+  const uniqBr=[...new Set(entries.map(e=>e.branch).filter(Boolean))];
+  const rgName=getBranchRegion(uniqBr[0]||"");
+  const centerName=rgName&&rgName!=="기타"?rgName.replace("권","센터"):"CS센터";
+  const writers=[...new Set(entries.map(e=>e.name).filter(Boolean))].join(" · ");
+  // ═ 헤더 ═
+  let r=pr([centerName+" 주간 업무 보고","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"title"});
+  r=pr(["현장기술팀 센터장 회의 보고자료","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sub"});
+  r=pr(["보고기간","",label,"","","회의일자","","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);sRows.push({r,t:"info"});
+  r=pr(["센터","",centerName,"","","작성자","",writers,""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,6);mg(r,7,NCOL-1);sRows.push({r,t:"info"});
+  er();
+  // ═ 0. 주간 요약 ═
+  r=pr(["0. 주간 요약","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sec"});
+  r=pr(["구분","","실적","","","세부","","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);sRows.push({r,t:"hdr"});
+  const allCases=entries.flatMap(e=>(e.cases||[]).filter(c=>c.model||c.symptom));
+  const fpMap={};
+  entries.forEach(e=>{const cnt=(e.cases||[]).filter(c=>c.model||c.symptom).length;if(cnt)fpMap[e.name]=(fpMap[e.name]||0)+cnt;});
+  const fpDetail=Object.entries(fpMap).map(([n,c])=>n+" "+c).join(" · ")||"-";
+  r=pr(["현장지원","",allCases.length+"건","","",fpDetail,"","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
+  const cMap={};
+  entries.forEach(e=>{if(e.field2&&e.field2.trim())cMap[e.name]=(cMap[e.name]||0)+1;});
+  const cTotal=Object.values(cMap).reduce((a,b)=>a+b,0);
+  const cDetail=Object.entries(cMap).map(([n,c])=>n+" "+c+"일").join(" · ")||"(업무일지 집계)";
+  r=pr(["상담·업무처리","",cTotal>0?cTotal+"건":"집계 필요","","",cDetail,"","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
+  const rvCnt=allCases.filter(c=>c.action&&c.action.includes("재방문")).length;
+  r=pr(["현장 처리결과","","완료 "+(allCases.length-rvCnt)+" · 재방문 "+rvCnt,"","","세부 처리 현황은 활동 내역 참조","","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
+  const symMap={};
+  allCases.forEach(c=>{if(c.symptom)symMap[c.symptom]=(symMap[c.symptom]||0)+1;});
+  const topSym=Object.entries(symMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,n])=>s+" "+n).join(", ")||"-";
+  r=pr(["주요 증상","",topSym,"","","(모델별 세부는 활동 내역 참조)","","",""]);
+  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
+  er();
+  // ═ 1. 주간 이슈사항 ═
+  r=pr(["1. 주간 이슈사항 (제품·부품 불량 등) — 센터 회의 수기 내용 입력","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sec"});
+  r=pr(["No","구분","모델/부품","발생지사","","이슈 내용","조치/요청사항","진행상태","비고"]);
+  mg(r,3,4);sRows.push({r,t:"hdr"});
+  for(let i=1;i<=4;i++){r=pr([i,"","","","","","","",""]);mg(r,3,4);}
+  er();
+  // ═ 2. 대리점 VOC ═
+  r=pr(["2. 대리점 VOC","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sec"});
+  r=pr(["No","지사","대리점","VOC 유형","","VOC 내용","대응/조치","담당자","상태"]);
+  mg(r,3,4);sRows.push({r,t:"hdr"});
+  const vocE=entries.filter(e=>e.field3&&e.field3.trim()).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  if(vocE.length){
+    vocE.forEach((e,i)=>{r=pr([i+1,e.branch||"","-","민원/VOC","",e.field3.trim(),"-",e.name||"","확인 필요"]);mg(r,3,4);});
+  }else{
+    for(let i=1;i<=3;i++){r=pr([i,"","","","","","","",""]);mg(r,3,4);}
   }
-  function addHdrRow(cols,mergeLastFrom){
-    rows.push(cols);
-    const r=rows.length-1;
-    styleRows.push({r,type:"hdr",merged:false});
-    if(mergeLastFrom!=null)merges.push({s:{r,c:mergeLastFrom},e:{r,c:NCOL-1}});
-  }
-  addMergedRow("CS업무일지 주간보고","title");
-  addMergedRow("📅 "+label+"  |  제출 "+sorted.length+"건 · 현장지원 "+totalCases+"건","sub");
-  rows.push([]);
-  /* ① 현장기술 — 기간 전체를 날짜순 한 개의 표로 */
-  addMergedRow("▣ 현장기술","date");
-  addHdrRow(["보고날짜","담당자","모델","용량","기종구분","구분","S/N","증상","처리","내용"]);
-  let nCase=0;
+  er();
+  // ═ 3. 주간 활동 내역 ═
+  r=pr(["3. 주간 활동 내역","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sec"});
+  r=pr(["일자","지사","담당자","담당대리점","활동구분","활동 내용","","결과","비고"]);
+  mg(r,5,6);sRows.push({r,t:"hdr"});
+  const sorted=[...entries].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.branch||"").localeCompare(b.branch||""));
   sorted.forEach(e=>{
-    (e.cases||[]).filter(hasCase).forEach(c=>{
-      const np=[];
-      if(c.prevAs)np.push("[이전AS] "+c.prevAs);
-      if(c.custResp)np.push("[고객반응] "+c.custResp);
-      if(c.diag)np.push("[초기진단] "+c.diag);
-      if(c.note)np.push(c.note);
-      rows.push([e.date||"",e.name||"",c.model||"",c.capacity||c.cap||"",c.openclose||"",c.category||c.cat||"",c.serial||"",c.symptom||"",c.action||"",np.join(" / ")]);
-      styleRows.push({r:rows.length-1,type:"text",merged:false});
-      nCase++;
+    const cases=(e.cases||[]).filter(c=>c.model||c.symptom);
+    cases.forEach(c=>{
+      const content=[c.model,c.capacity?c.capacity:"",c.symptom?"- "+c.symptom:"",c.action?"→ "+c.action:""].filter(Boolean).join(" ");
+      const result=c.action&&c.action.includes("재방문")?"재방문":"완료";
+      r=pr([fmd(e.date),e.branch||"",e.name||"","-","현장지원",content,"",result,c.note||""]);
+      mg(r,5,6);
     });
-  });
-  if(!nCase)addMergedRow("(해당 기간 현장기술 내역 없음)","note");
-  /* ②③④ 서술형 필드 — 종류별로 묶어서 */
-  function addTextSection(title,key){
-    const list=sorted.filter(e=>(e[key]||"").trim());
-    if(!list.length)return; // 내용이 하나도 없으면 섹션 자체를 만들지 않음
-    rows.push([]);
-    addMergedRow("▣ "+title,"date");
-    addHdrRow(["보고날짜","담당자","내용"],2);
-    list.forEach(e=>{
-      rows.push([e.date||"",e.name||"",(e[key]||"").trim()]);
-      const r=rows.length-1;
-      merges.push({s:{r,c:2},e:{r,c:NCOL-1}});
-      styleRows.push({r,type:"text",merged:false});
-    });
-  }
-  addTextSection("상담&특이사항","field2");
-  addTextSection("VOC","field3");
-  addTextSection("현장업무","field1");
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"]=[{wch:12},{wch:9},{wch:13},{wch:7},{wch:9},{wch:10},{wch:16},{wch:22},{wch:22},{wch:46}];
-  ws["!merges"]=merges;
-  const STY={
-    title:{font:{bold:true,sz:14,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}}},
-    sub:{font:{sz:9,color:{rgb:"555555"}}},
-    date:{font:{bold:true,sz:11,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}}},
-    hdr:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"E3F2FD"}}},
-    note:{font:{sz:8,color:{rgb:"555555"}}},
-    text:{font:{sz:9},alignment:{wrapText:true,vertical:"top"}}
-  };
-  styleRows.forEach(({r,type,merged})=>{
-    if(merged){
-      const addr=XLSX.utils.encode_cell({r,c:0});
-      if(ws[addr])ws[addr].s=STY[type];
-    }else{
-      for(let c=0;c<NCOL;c++){const addr=XLSX.utils.encode_cell({r,c});if(ws[addr])ws[addr].s=STY[type];}
+    if(!cases.length&&e.field1&&e.field1.trim()){
+      r=pr([fmd(e.date),e.branch||"",e.name||"","-","현장업무",e.field1.trim(),"","완료",""]);
+      mg(r,5,6);
     }
   });
+  const cGrouped={};
+  sorted.forEach(e=>{if(e.field2&&e.field2.trim()){if(!cGrouped[e.name])cGrouped[e.name]={branch:e.branch,cnt:0};cGrouped[e.name].cnt++;}});
+  Object.entries(cGrouped).forEach(([name,{branch,cnt}])=>{
+    r=pr(["주간",branch,name,"관할 대리점","상담","기술상담 ("+cnt+"일간 · 세부: 상담&특이사항 참조)","","완료",""]);
+    mg(r,5,6);
+  });
+  er();
+  // ═ 4. 차주 계획 및 건의사항 ═
+  r=pr(["4. 차주 계획 및 건의사항 (센터원별) — 직접 입력 필요","","","","","","","",""]);
+  mgAll(r);sRows.push({r,t:"sec"});
+  r=pr(["No","구분","내용","","","","요청/협업","기한","비고"]);
+  mg(r,2,5);sRows.push({r,t:"hdr"});
+  const seen=new Set();
+  sorted.forEach(e=>{
+    if(seen.has(e.name))return;seen.add(e.name);
+    r=pr(["■ "+e.name+" ("+e.branch+")","","","","","","","",""]);
+    mgAll(r);sRows.push({r,t:"person"});
+    for(let i=1;i<=3;i++){r=pr([i,"","","","","","","",""]);mg(r,2,5);}
+  });
+  // ═ 워크시트 ═
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"]=[{wch:8},{wch:9},{wch:7},{wch:11},{wch:8},{wch:30},{wch:3},{wch:7},{wch:12}];
+  ws["!merges"]=merges;
+  ws["!rows"]=rows.map(row=>{const mx=Math.max(...row.map(c=>typeof c==="string"?c.length:0));return{hpt:mx>60?36:mx>30?24:18};});
+  const STY={
+    title:{font:{bold:true,sz:14,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{horizontal:"center",vertical:"center"}},
+    sub:{font:{sz:9,color:{rgb:"CCDDEE"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{horizontal:"center"}},
+    info:{font:{bold:true,sz:9,color:{rgb:"1B3A5C"}},fill:{fgColor:{rgb:"E8ECF4"}},alignment:{horizontal:"center",vertical:"center"},border:{top:{style:"thin",color:{rgb:"AAAAAA"}},bottom:{style:"thin",color:{rgb:"AAAAAA"}},left:{style:"thin",color:{rgb:"AAAAAA"}},right:{style:"thin",color:{rgb:"AAAAAA"}}}},
+    sec:{font:{bold:true,sz:10,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{vertical:"center"}},
+    hdr:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"D9E1F2"}},alignment:{horizontal:"center",vertical:"center"},border:{top:{style:"thin",color:{rgb:"999999"}},bottom:{style:"thin",color:{rgb:"999999"}},left:{style:"thin",color:{rgb:"999999"}},right:{style:"thin",color:{rgb:"999999"}}}},
+    person:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"E2EFDA"}},alignment:{vertical:"center"}}
+  };
+  sRows.forEach(({r,t})=>{const s=STY[t];for(let c=0;c<NCOL;c++){const a=XLSX.utils.encode_cell({r,c});if(ws[a])ws[a].s=s;}});
+  const dBrd={border:{top:{style:"thin",color:{rgb:"CCCCCC"}},bottom:{style:"thin",color:{rgb:"CCCCCC"}},left:{style:"thin",color:{rgb:"CCCCCC"}},right:{style:"thin",color:{rgb:"CCCCCC"}}},alignment:{wrapText:true,vertical:"top"}};
+  rows.forEach((row,ri)=>{if(sRows.some(x=>x.r===ri))return;row.forEach((cell,ci)=>{if(cell===""||cell===null||cell===undefined)return;const a=XLSX.utils.encode_cell({r:ri,c:ci});if(ws[a]&&!ws[a].s)ws[a].s=dBrd;});});
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"주간보고");
   const fname="주간보고_"+label.replace(/\s/g,"_").replace(/~/g,"-")+"_"+new Date().toISOString().slice(0,10)+".xlsx";
