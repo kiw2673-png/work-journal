@@ -1905,7 +1905,7 @@ async function renderWk(){
   if(brF!=="전체")entries=entries.filter(e=>e.branch===brF);
   else if(ctF!=="전체"){const cbs=getRegionBranches(ctF);entries=entries.filter(e=>cbs.includes(e.branch));}
   entries.sort((a,b)=>a.date.localeCompare(b.date)||(a.branch||"").localeCompare(b.branch||""));
-  window._wkEntries=entries;window._wkLabel=label;
+  window._wkEntries=entries;window._wkLabel=label;window._wkDays=days;
   // Summary stats for monthly
   let summaryHtml="";
   if(mode==="month"&&entries.length>0){
@@ -1951,137 +1951,173 @@ async function renderWk(){
   });
   document.getElementById("wkBody").innerHTML=html}
 
-function downloadWkExcel(){
+/* ── 주간 엑셀: 센터장 회의 보고 양식 (ExcelJS — 서식/병합/인쇄설정 포함) ── */
+function loadExcelJS(){
+  if(window.ExcelJS)return Promise.resolve(window.ExcelJS);
+  if(window._excelJsP)return window._excelJsP;
+  window._excelJsP=new Promise((res,rej)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js";s.onload=()=>res(window.ExcelJS);s.onerror=()=>{window._excelJsP=null;rej(new Error("ExcelJS 로드 실패"))};document.head.appendChild(s)});
+  return window._excelJsP;
+}
+function buildWkWorkbook(ExcelJS,entries,opt){
+  const W=["일","월","화","수","목","금","토"];
+  const dt=s=>{const p=String(s||"").split("-");return new Date(+p[0],+p[1]-1,+p[2])};
+  const p2=n=>String(n).padStart(2,"0");
+  const dotL=s=>{const d=dt(s);return d.getFullYear()+"."+p2(d.getMonth()+1)+"."+p2(d.getDate())+"("+W[d.getDay()]+")"};
+  const dotS=s=>{const d=dt(s);return p2(d.getMonth()+1)+"."+p2(d.getDate())+"("+W[d.getDay()]+")"};
+  const md=s=>{const d=dt(s);return p2(d.getMonth()+1)+"/"+p2(d.getDate())};
+  const lines=t=>String(t||"").split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&!/^[-=━─_*·•]+$/.test(l));
+  const strip=l=>l.replace(/^(\d+[.)]\s*|[-•·*▶►◦○●]\s*)/,"").trim();
+  const shortBr=b=>String(b||"").replace(/지사$/,"");
+  const days=opt.days||[];
+  const ctF=opt.center||"전체";
+  // 센터명: 필터 우선, 없으면 지사로 추론
+  let centerName=ctF!=="전체"?ctF:"";
+  if(!centerName){const rs=[...new Set(entries.map(e=>opt.branchRegion(e.branch)).filter(r=>r&&r!=="미배정"&&r!=="기타"))];centerName=rs.length===1?rs[0]:(rs.length?rs.join("·"):"CS센터")}
+  if(opt.branch&&opt.branch!=="전체")centerName+=" "+opt.branch;
+  const period=days.length?(dotL(days[0])+" ~ "+dotS(days[days.length-1])):"";
+  const mtg=opt.meetingDate?dotL(opt.meetingDate):"";
+  // 대리점 이름 사전 (긴 이름부터 매칭)
+  const dNames=[...new Set((opt.dealers||[]).map(d=>d.name).filter(Boolean))].sort((a,b)=>b.length-a.length);
+  const findDealer=t=>{t=String(t||"");const hit=dNames.find(n=>t.includes(n));if(hit)return hit;const m=t.match(/[가-힣A-Za-z0-9]+대리점/);return m?m[0]:""};
+  const caseOf=e=>(e.cases||[]).filter(c=>c.model||c.symptom||c.note||c.prevAs||c.custResp||c.diag);
+  const isRv=c=>/재방문/.test(c.action||"");
+  const sorted=[...entries].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||""));
+
+  const wb=new ExcelJS.Workbook();wb.creator="CS업무일지";
+  const ws=wb.addWorksheet("주간보고",{views:[{showGridLines:false}],
+    pageSetup:{paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0,horizontalCentered:true,margins:{left:0.4,right:0.4,top:1,bottom:1,header:0.5,footer:0.5}}});
+  ws.columns=[7,11,13,16,11,48,32,9.83,14].map(w=>({width:w}));
+  const FONT="맑은 고딕",NAVY="FF1F3864",HDR="FFD9E2F3",PER="FFEDF1F8";
+  const BD={style:"thin",color:{argb:"FF808080"}};const BOX={top:BD,left:BD,bottom:BD,right:BD};
+  const fill=c=>({type:"pattern",pattern:"solid",fgColor:{argb:c}});
+  let r=0;
+  const L=n=>String.fromCharCode(64+n);
+  // spans: [[fromCol,toCol,value,style], ...]  style: {b,color,fill,left,sz}
+  function row(spans,h,boxed=true){
+    r++;const R=ws.getRow(r);if(h||boxed)R.height=h||22;
+    spans.forEach(([c1,c2,v,st])=>{st=st||{};
+      if(c2>c1)ws.mergeCells(L(c1)+r+":"+L(c2)+r);
+      for(let c=c1;c<=c2;c++){const cell=R.getCell(c);
+        cell.font={name:FONT,size:st.sz||10,bold:!!st.b,color:st.color?{argb:st.color}:undefined};
+        cell.alignment={horizontal:st.left?"left":"center",vertical:"middle",wrapText:true};
+        if(boxed)cell.border=BOX;if(st.fill)cell.fill=fill(st.fill);}
+      R.getCell(c1).value=(v===undefined||v===null)?"":v;
+    });
+    return R;
+  }
+  const autoH=(texts,base)=>{const mx=Math.max(0,...texts.map(([t,w])=>{const s=String(t||"");return s.split("\n").reduce((a,l)=>a+Math.max(1,Math.ceil(l.length*1.9/w)),0)}));return Math.max(base||22,mx<=1?22:mx===2?35:Math.min(15*mx+5,120))};
+  const blank=()=>{r++};
+  const sec=t=>{row([[1,9,t,{b:true,sz:12,color:NAVY,left:true}]],17.5,false)};
+  const H={b:true,fill:HDR};
+
+  // ═ 제목 ═
+  row([[1,9,centerName+" 주간 업무 보고",{b:true,sz:18,color:"FFFFFFFF",fill:NAVY}]],36,false);
+  row([[1,9,"현장기술팀 센터장 회의 보고자료",{color:"FF595959"}]],null,false);
+  blank();
+  row([[1,2,"보고기간",H],[3,5,period],[6,6,"회의일자",H],[7,9,mtg]]);
+  row([[1,2,"센터",H],[3,5,centerName],[6,6,"작성자",H],[7,9,opt.writer||""]]);
+  blank();
+
+  // ═ 0. 주간 요약 ═
+  sec("0. 주간 요약");
+  row([[1,2,"구분",H],[3,5,"실적",H],[6,9,"세부",H]]);
+  const allCases=[];sorted.forEach(e=>caseOf(e).forEach(c=>allCases.push({e,c})));
+  const cnt=(arr,key)=>{const m={};arr.forEach(x=>{const k=key(x);if(k)m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const fp=cnt(allCases,x=>x.e.name);
+  const sumRow=(k,v,d)=>row([[1,2,k,{b:true}],[3,5,v,{b:true,color:NAVY}],[6,9,d,{left:true}]],autoH([[d,60]]));
+  sumRow("현장지원",allCases.length+"건",fp.map(([n,c])=>n+" "+c).join(" · ")||"-");
+  const cMap={};sorted.forEach(e=>{const n=lines(e.field2).length;if(n)cMap[e.name]=(cMap[e.name]||0)+n});
+  const cArr=Object.entries(cMap).sort((a,b)=>b[1]-a[1]);const cTot=cArr.reduce((a,[,n])=>a+n,0);
+  sumRow("상담·업무처리",cTot+"건",cArr.map(([n,c])=>n+" "+c).join(" · ")||"-");
+  const rv=allCases.filter(x=>isRv(x.c));
+  const trf=allCases.filter(x=>/이관/.test(x.c.action||"")).length;
+  const rvBr=cnt(rv,x=>x.e.branch).map(([b,n])=>b+" "+n).join(", ");
+  const resD=[trf?"설비·타업체 이관 "+trf+"건 포함":"",rv.length?"재방문 "+rv.length+"건("+rvBr+")":""].filter(Boolean).join(" / ")||"-";
+  sumRow("현장 처리결과","완료 "+(allCases.length-rv.length)+" · 재방문 "+rv.length,resD);
+  const sym=cnt(allCases,x=>(x.c.symptom||"").trim());
+  const topS=sym.slice(0,2).map(([s])=>s.replace(/^[A-Za-z0-9]+-/,"")).join("·");
+  sumRow("주요 증상",topS?topS+" 우세":"-",sym.map(([s,n])=>s+" "+n).join(", ")||"-");
+  blank();
+
+  // ═ 1. 주간 이슈사항 ═
+  sec("1. 주간 이슈사항 (제품·부품 불량 등) — 센터 회의 수기 내용 입력");
+  row([[1,1,"No",H],[2,2,"구분",H],[3,3,"모델/부품",H],[4,5,"발생지사",H],[6,6,"이슈 내용",H],[7,7,"조치/요청사항",H],[8,8,"진행상태",H],[9,9,"비고",H]]);
+  for(let i=1;i<=4;i++)row([[1,1,i],[2,2,""],[3,3,""],[4,5,""],[6,6,"",{left:true}],[7,7,"",{left:true}],[8,8,""],[9,9,""]],35);
+  blank();
+
+  // ═ 2. 대리점 VOC ═
+  sec("2. 대리점 VOC");
+  row([[1,1,"No",H],[2,2,"지사",H],[3,3,"대리점",H],[4,5,"VOC 유형",H],[6,6,"VOC 내용",H],[7,7,"대응/조치",H],[8,8,"담당자",H],[9,9,"상태",H]]);
+  const vocs=[];
+  sorted.forEach(e=>{const ls=lines(e.field3);if(!ls.length)return;
+    const bul=/^(\d+[.)]|[-•·*▶►◦○●])\s*/;const items=[];
+    if(ls.some(l=>bul.test(l)))ls.forEach(l=>{if(bul.test(l)||!items.length)items.push(strip(l));else items[items.length-1]+=" "+l});
+    else ls.forEach(l=>items.push(strip(l)));
+    items.filter(Boolean).forEach(t=>vocs.push({e,t}));
+  });
+  vocs.forEach((v,i)=>row([[1,1,String(i+1)],[2,2,v.e.branch||""],[3,3,findDealer(v.t)||"-"],[4,5,""],[6,6,md(v.e.date)+" "+v.t,{left:true}],[7,7,"",{left:true}],[8,8,v.e.name||""],[9,9,""]],autoH([[v.t,48]],35)));
+  for(let i=vocs.length;i<3;i++)row([[1,1,String(i+1)],[2,2,""],[3,3,""],[4,5,""],[6,6,"",{left:true}],[7,7,"",{left:true}],[8,8,""],[9,9,""]],35);
+  blank();
+
+  // ═ 3. 주간 활동 내역 ═
+  sec("3. 주간 활동 내역");
+  row([[1,1,"일자",H],[2,2,"지사",H],[3,3,"담당자",H],[4,4,"담당대리점",H],[5,5,"활동구분",H],[6,7,"활동 내용",H],[8,8,"결과",H],[9,9,"비고",H]]);
+  const act=(d,b,n,dl,k,t,res,note)=>row([[1,1,d],[2,2,b],[3,3,n],[4,4,dl||"-"],[5,5,k],[6,7,t,{left:true}],[8,8,res],[9,9,note||""]],autoH([[t,80],[note,14]],35));
+  allCases.forEach(({e,c})=>{
+    const head=[c.model,c.capacity].filter(Boolean).join(" ");
+    const body=[c.symptom,c.diag].filter(Boolean).join(" / ");
+    const tail=[c.action,c.note].filter(Boolean).join(" · ");
+    const t=[head,body].filter(Boolean).join(" ")+(tail?" — "+tail:"");
+    const res=isRv(c)?"진행중":"완료";
+    const note=/이관/.test(c.action||"")?"설비 이관":(isRv(c)?"재방문":"");
+    act(md(e.date),e.branch||"",e.name||"",findDealer([c.note,c.prevAs,c.custResp,c.diag].join(" ")),"현장지원",t,res,note);
+  });
+  const kind=t=>/교육/.test(t)?"교육":/회의|미팅/.test(t)?"회의":/점검|조사|확인/.test(t)?"점검":/방문|출장/.test(t)?"방문":"기타";
+  sorted.forEach(e=>{
+    const models=caseOf(e).map(c=>c.model).filter(Boolean);
+    lines(e.field1).map(strip).filter(Boolean).forEach(t=>{
+      if(models.some(m=>t.includes(m)))return; // 현장지원 케이스와 중복되는 서술은 제외
+      act(md(e.date),e.branch||"",e.name||"",findDealer(t),kind(t),t,"완료","");
+    });
+  });
+  if(cTot){const brs=[...new Set(sorted.filter(e=>cMap[e.name]).map(e=>shortBr(e.branch)))];
+    act("주간",brs.join("/"),cArr.length===1?cArr[0][0]:cArr.length+"명","관할 대리점","상담","부품·에러 조치·설정 등 기술상담 (총 "+cTot+"건 · 세부는 상담&특이사항 참조)","완료","");}
+  if(!allCases.length&&!cTot&&!sorted.some(e=>lines(e.field1).length))act("","","","","","","","");
+  blank();
+
+  // ═ 4. 차주 계획 및 건의사항 ═
+  sec("4. 차주 계획 및 건의사항 (센터원별)");
+  row([[1,1,"No",H],[2,2,"구분",H],[3,6,"내용",H],[7,7,"요청/협업",H],[8,8,"기한",H],[9,9,"비고",H]]);
+  const people=[];const seen=new Set();
+  [...sorted].sort((a,b)=>(a.branch||"").localeCompare(b.branch||"")||(a.name||"").localeCompare(b.name||"")).forEach(e=>{if(e.name&&!seen.has(e.name)){seen.add(e.name);people.push(e)}});
+  people.forEach(p=>{
+    row([[1,9,"■ "+p.name+" ("+(p.branch||"")+")",{b:true,color:NAVY,fill:PER,left:true}]],20);
+    const items=[["휴가/부재","",true]];
+    allCases.filter(x=>x.e.name===p.name&&isRv(x.c)).forEach(({c})=>items.push(["재방문",[c.model,c.capacity].filter(Boolean).join(" ")+(c.symptom?" "+c.symptom:"")+" — 재방문",false]));
+    while(items.length<3)items.push(["","",false]);
+    items.forEach(([k,t,red],i)=>row([[1,1,String(i+1)],[2,2,k],[3,6,t,red?{b:true,color:"FFC00000",left:true}:{left:true}],[7,7,""],[8,8,""],[9,9,""]],autoH([[t,85]])));
+  });
+  return wb;
+}
+async function downloadWkExcel(){
   const entries=window._wkEntries||[];
   if(!entries.length){alert("다운로드할 데이터가 없습니다.");return;}
-  const label=window._wkLabel||"주간";
-  const NCOL=9;
-  const rows=[],merges=[],sRows=[];
-  function pr(cells){rows.push(cells);return rows.length-1;}
-  function mg(r,c1,c2){merges.push({s:{r,c:c1},e:{r,c:c2}});}
-  function mgAll(r){mg(r,0,NCOL-1);}
-  function er(){rows.push(new Array(NCOL).fill(""));}
-  function fmd(s){if(!s)return"";const p=s.split("-");return(+p[1])+"/"+(+p[2]);}
-  // 센터 이름 추론
-  const uniqBr=[...new Set(entries.map(e=>e.branch).filter(Boolean))];
-  const rgName=getBranchRegion(uniqBr[0]||"");
-  const centerName=rgName&&rgName!=="기타"?rgName.replace("권","센터"):"CS센터";
-  const writers=[...new Set(entries.map(e=>e.name).filter(Boolean))].join(" · ");
-  const mtgRaw=document.getElementById("wkMeetingDate")?.value||"";
-  const mtgLabel=mtgRaw?fds(mtgRaw):"";
-  // ═ 헤더 ═
-  let r=pr([centerName+" 주간 업무 보고","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"title"});
-  r=pr(["현장기술팀 센터장 회의 보고자료","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sub"});
-  r=pr(["보고기간","",label,"","","회의일자","",mtgLabel,""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,6);mg(r,7,NCOL-1);sRows.push({r,t:"info"});
-  r=pr(["센터","",centerName,"","","작성자","",writers,""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,6);mg(r,7,NCOL-1);sRows.push({r,t:"info"});
-  er();
-  // ═ 0. 주간 요약 ═
-  r=pr(["0. 주간 요약","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sec"});
-  r=pr(["구분","","실적","","","세부","","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);sRows.push({r,t:"hdr"});
-  const allCases=entries.flatMap(e=>(e.cases||[]).filter(c=>c.model||c.symptom));
-  const fpMap={};
-  entries.forEach(e=>{const cnt=(e.cases||[]).filter(c=>c.model||c.symptom).length;if(cnt)fpMap[e.name]=(fpMap[e.name]||0)+cnt;});
-  const fpDetail=Object.entries(fpMap).map(([n,c])=>n+" "+c).join(" · ")||"-";
-  r=pr(["현장지원","",allCases.length+"건","","",fpDetail,"","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
-  const cMap={};
-  entries.forEach(e=>{if(e.field2&&e.field2.trim())cMap[e.name]=(cMap[e.name]||0)+1;});
-  const cTotal=Object.values(cMap).reduce((a,b)=>a+b,0);
-  const cDetail=Object.entries(cMap).map(([n,c])=>n+" "+c+"일").join(" · ")||"(업무일지 집계)";
-  r=pr(["상담·업무처리","",cTotal>0?cTotal+"건":"집계 필요","","",cDetail,"","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
-  const rvCnt=allCases.filter(c=>c.action&&c.action.includes("재방문")).length;
-  r=pr(["현장 처리결과","","완료 "+(allCases.length-rvCnt)+" · 재방문 "+rvCnt,"","","세부 처리 현황은 활동 내역 참조","","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
-  const symMap={};
-  allCases.forEach(c=>{if(c.symptom)symMap[c.symptom]=(symMap[c.symptom]||0)+1;});
-  const topSym=Object.entries(symMap).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([s,n])=>s+" "+n).join(", ")||"-";
-  r=pr(["주요 증상","",topSym,"","","(모델별 세부는 활동 내역 참조)","","",""]);
-  mg(r,0,1);mg(r,2,4);mg(r,5,NCOL-1);
-  er();
-  // ═ 1. 주간 이슈사항 ═
-  r=pr(["1. 주간 이슈사항 (제품·부품 불량 등) — 센터 회의 수기 내용 입력","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sec"});
-  r=pr(["No","구분","모델/부품","발생지사","","이슈 내용","조치/요청사항","진행상태","비고"]);
-  mg(r,3,4);sRows.push({r,t:"hdr"});
-  for(let i=1;i<=4;i++){r=pr([i,"","","","","","","",""]);mg(r,3,4);}
-  er();
-  // ═ 2. 대리점 VOC ═
-  r=pr(["2. 대리점 VOC","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sec"});
-  r=pr(["No","지사","대리점","VOC 유형","","VOC 내용","대응/조치","담당자","상태"]);
-  mg(r,3,4);sRows.push({r,t:"hdr"});
-  const vocE=entries.filter(e=>e.field3&&e.field3.trim()).sort((a,b)=>(a.date||"").localeCompare(b.date||""));
-  if(vocE.length){
-    vocE.forEach((e,i)=>{r=pr([i+1,e.branch||"","-","민원/VOC","",e.field3.trim(),"-",e.name||"","확인 필요"]);mg(r,3,4);});
-  }else{
-    for(let i=1;i<=3;i++){r=pr([i,"","","","","","","",""]);mg(r,3,4);}
-  }
-  er();
-  // ═ 3. 주간 활동 내역 ═
-  r=pr(["3. 주간 활동 내역","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sec"});
-  r=pr(["일자","지사","담당자","담당대리점","활동구분","활동 내용","","결과","비고"]);
-  mg(r,5,6);sRows.push({r,t:"hdr"});
-  const sorted=[...entries].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.branch||"").localeCompare(b.branch||""));
-  sorted.forEach(e=>{
-    const cases=(e.cases||[]).filter(c=>c.model||c.symptom);
-    cases.forEach(c=>{
-      const content=[c.model,c.capacity?c.capacity:"",c.symptom?"- "+c.symptom:"",c.action?"→ "+c.action:""].filter(Boolean).join(" ");
-      const result=c.action&&c.action.includes("재방문")?"재방문":"완료";
-      r=pr([fmd(e.date),e.branch||"",e.name||"","-","현장지원",content,"",result,c.note||""]);
-      mg(r,5,6);
-    });
-    if(!cases.length&&e.field1&&e.field1.trim()){
-      r=pr([fmd(e.date),e.branch||"",e.name||"","-","현장업무",e.field1.trim(),"","완료",""]);
-      mg(r,5,6);
-    }
-  });
-  const cGrouped={};
-  sorted.forEach(e=>{if(e.field2&&e.field2.trim()){if(!cGrouped[e.name])cGrouped[e.name]={branch:e.branch,cnt:0};cGrouped[e.name].cnt++;}});
-  Object.entries(cGrouped).forEach(([name,{branch,cnt}])=>{
-    r=pr(["주간",branch,name,"관할 대리점","상담","기술상담 ("+cnt+"일간 · 세부: 상담&특이사항 참조)","","완료",""]);
-    mg(r,5,6);
-  });
-  er();
-  // ═ 4. 차주 계획 및 건의사항 ═
-  r=pr(["4. 차주 계획 및 건의사항 (센터원별) — 직접 입력 필요","","","","","","","",""]);
-  mgAll(r);sRows.push({r,t:"sec"});
-  r=pr(["No","구분","내용","","","","요청/협업","기한","비고"]);
-  mg(r,2,5);sRows.push({r,t:"hdr"});
-  const seen=new Set();
-  sorted.forEach(e=>{
-    if(seen.has(e.name))return;seen.add(e.name);
-    r=pr(["■ "+e.name+" ("+e.branch+")","","","","","","","",""]);
-    mgAll(r);sRows.push({r,t:"person"});
-    for(let i=1;i<=3;i++){r=pr([i,"","","","","","","",""]);mg(r,2,5);}
-  });
-  // ═ 워크시트 ═
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"]=[{wch:8},{wch:9},{wch:7},{wch:11},{wch:8},{wch:30},{wch:3},{wch:7},{wch:12}];
-  ws["!merges"]=merges;
-  ws["!rows"]=rows.map(row=>{const mx=Math.max(...row.map(c=>typeof c==="string"?c.length:0));return{hpt:mx>60?36:mx>30?24:18};});
-  const STY={
-    title:{font:{bold:true,sz:14,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{horizontal:"center",vertical:"center"}},
-    sub:{font:{sz:9,color:{rgb:"CCDDEE"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{horizontal:"center"}},
-    info:{font:{bold:true,sz:9,color:{rgb:"1B3A5C"}},fill:{fgColor:{rgb:"E8ECF4"}},alignment:{horizontal:"center",vertical:"center"},border:{top:{style:"thin",color:{rgb:"AAAAAA"}},bottom:{style:"thin",color:{rgb:"AAAAAA"}},left:{style:"thin",color:{rgb:"AAAAAA"}},right:{style:"thin",color:{rgb:"AAAAAA"}}}},
-    sec:{font:{bold:true,sz:10,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"1B3A5C"}},alignment:{vertical:"center"}},
-    hdr:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"D9E1F2"}},alignment:{horizontal:"center",vertical:"center"},border:{top:{style:"thin",color:{rgb:"999999"}},bottom:{style:"thin",color:{rgb:"999999"}},left:{style:"thin",color:{rgb:"999999"}},right:{style:"thin",color:{rgb:"999999"}}}},
-    person:{font:{bold:true,sz:9},fill:{fgColor:{rgb:"E2EFDA"}},alignment:{vertical:"center"}}
-  };
-  sRows.forEach(({r,t})=>{const s=STY[t];for(let c=0;c<NCOL;c++){const a=XLSX.utils.encode_cell({r,c});if(ws[a])ws[a].s=s;}});
-  const dBrd={border:{top:{style:"thin",color:{rgb:"CCCCCC"}},bottom:{style:"thin",color:{rgb:"CCCCCC"}},left:{style:"thin",color:{rgb:"CCCCCC"}},right:{style:"thin",color:{rgb:"CCCCCC"}}},alignment:{wrapText:true,vertical:"top"}};
-  rows.forEach((row,ri)=>{if(sRows.some(x=>x.r===ri))return;row.forEach((cell,ci)=>{if(cell===""||cell===null||cell===undefined)return;const a=XLSX.utils.encode_cell({r:ri,c:ci});if(ws[a]&&!ws[a].s)ws[a].s=dBrd;});});
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"주간보고");
-  const fname="주간보고_"+label.replace(/\s/g,"_").replace(/~/g,"-")+"_"+new Date().toISOString().slice(0,10)+".xlsx";
-  XLSX.writeFile(wb,fname);
+  const btn=document.querySelector('[onclick="downloadWkExcel()"]');const orig=btn?btn.textContent:"";
+  if(btn){btn.disabled=true;btn.textContent="⏳ 생성 중..."}
+  try{
+    const ExcelJS=await loadExcelJS();
+    const wb=buildWkWorkbook(ExcelJS,entries,{
+      days:window._wkDays||[],center:document.getElementById("wkCenter")?.value||"전체",branch:document.getElementById("wkBr")?.value||"전체",
+      meetingDate:document.getElementById("wkMeetingDate")?.value||"",writer:"",branchRegion:getBranchRegion,dealers:await loadDealers()});
+    const buf=await wb.xlsx.writeBuffer();
+    const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+    const ctF=document.getElementById("wkCenter")?.value||"전체";
+    const d=(window._wkDays||[])[(window._wkDays||[]).length-1]||new Date().toISOString().slice(0,10);
+    const fname=(ctF!=="전체"?ctF:"전체")+"_주간업무보고_"+d.slice(5).replace("-","")+".xlsx";
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+  }catch(err){console.error(err);alert("엑셀 생성 실패: "+err.message);}
+  finally{if(btn){btn.disabled=false;btn.textContent=orig}}
 }
 async function downloadWkWord(){
   const entries=window._wkEntries||[];
@@ -6990,11 +7026,3 @@ function _dm_bulkApply(){
 </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
