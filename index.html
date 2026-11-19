@@ -125,13 +125,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.12.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.12.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -177,7 +177,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -5572,7 +5572,8 @@ function loadSolutions(){
    ─ 원본: 도면까지 봐야 하는 경우만 PDF 원본(또는 PPTX 이미지)을 전송.
    ══════════════════════════════════════════════════════════ */
 var _manuals=null,_manPayload=null,_manChunks={},_manSyncStop=false,_repCache=null;
-const MAN_MAX_MB=20;      // Claude 요청 상한 32MB(base64 약 1.33배) 고려한 원본 용량 한도
+const MAN_MAX_MB=20;      // [원본 전체 전송] 모드 한도 — Claude 요청 상한 32MB(base64 약 1.33배) 고려
+const MAN_INDEX_MAX_MB=80;// [색인] 한도 — 브라우저에서 텍스트만 뽑으므로 훨씬 큰 파일도 처리 가능
 const MAN_MAX_IMGS=24;    // PPTX에서 추출해 보낼 최대 이미지 수
 const MAN_MIN_IMG_BYTES=12000; // 아이콘/로고로 보이는 작은 이미지는 제외
 const MAN_SYNC_MAX=300;   // 한 번의 동기화에서 처리할 최대 파일 수
@@ -5636,7 +5637,7 @@ async function loadManuals(force){
   return _manuals;
 }
 
-function manIcon(m){return (m.kind==="pdf"?"📕":"📊")+(m.origin==="drive"?"🔗":"")}
+function manIcon(m){return (m.kind==="pdf"?"📕":(m.kind==="image"?"🖼":"📊"))+(m.origin==="drive"?"🔗":"")}
 function manLabel(m){
   const bits=[];
   if(m.pages)bits.push(m.pages+"쪽");
@@ -5659,6 +5660,17 @@ function renderManualSelects(){
     const n=(_manuals||[]).length,ix=(_manuals||[]).filter(m=>m.indexed!==false&&!m.scanned).length;
     ask.innerHTML=n?('📚 등록된 매뉴얼 '+n+'건 중 <b>'+ix+'건 색인 완료</b>'):'아직 등록된 매뉴얼이 없습니다 — <b>설정 탭 → 📘 서비스 매뉴얼</b>에서 드라이브 폴더를 연결해주세요.';
   }
+  // 매뉴얼에서 인식된 기기 코드(MC-3600 등)도 모델 선택지에 추가
+  const mk=document.getElementById("maskModel");
+  if(mk&&_manuals){
+    const have={};[...mk.options].forEach(o=>have[o.value.toUpperCase()]=1);
+    const extra=[];
+    _manuals.forEach(m=>(m.models||[]).forEach(x=>{
+      const u=String(x).toUpperCase();
+      if(!have[u]&&extra.indexOf(x)<0)extra.push(x);
+    }));
+    extra.sort().forEach(x=>{const o=document.createElement("option");o.textContent=x;mk.appendChild(o)});
+  }
   const mm=document.getElementById("manModel");
   if(mm&&!mm.options.length){
     const cur=document.getElementById("solModel")?.value||"";
@@ -5680,13 +5692,13 @@ async function handleManualUpload(ev){
   const st=document.getElementById("manSyncStatus")||document.getElementById("manStatus");
   const setSt=(t,c)=>{if(st){st.style.color=c||"var(--ts)";st.innerHTML=t}};
   const low=file.name.toLowerCase();
-  const kind=low.endsWith(".pdf")?"pdf":(low.endsWith(".pptx")?"pptx":"");
-  if(!kind){alert("PDF 또는 PPTX 파일만 등록할 수 있습니다.\n\n※ 구버전 .ppt는 PowerPoint에서 .pptx 또는 PDF로 저장한 뒤 등록해주세요.");return}
-  if(file.size>MAN_MAX_MB*1024*1024){
-    alert("파일이 너무 큽니다 ("+Math.round(file.size/1024/1024*10)/10+"MB).\n\nAI 분석 요청 한도 때문에 "+MAN_MAX_MB+"MB 이하만 등록할 수 있습니다.\n페이지를 나누거나 PDF로 압축해 다시 시도해주세요.");
+  const kind=low.endsWith(".pdf")?"pdf":(low.endsWith(".pptx")?"pptx":(/\.(jpe?g|png|webp)$/.test(low)?"image":""));
+  if(!kind){alert("PDF · PPTX · 이미지(JPG/PNG) 파일만 등록할 수 있습니다.\n\n※ 구버전 .ppt는 PowerPoint에서 .pptx 또는 PDF로 저장한 뒤 등록해주세요.");return}
+  if(file.size>MAN_INDEX_MAX_MB*1024*1024){
+    alert("파일이 너무 큽니다 ("+Math.round(file.size/1024/1024*10)/10+"MB).\n\n"+MAN_INDEX_MAX_MB+"MB 이하만 등록할 수 있습니다.\n페이지를 나누거나 PDF로 압축해 다시 시도해주세요.");
     return;
   }
-  const defName=file.name.replace(/\.(pdf|pptx)$/i,"");
+  const defName=file.name.replace(/\.(pdf|pptx|jpe?g|png|webp)$/i,"");
   const name=(prompt("매뉴얼 이름을 입력하세요 (목록에 표시됩니다)",defName)||"").trim();
   if(!name)return;
   try{
@@ -5698,8 +5710,8 @@ async function handleManualUpload(ev){
 
 /* Storage 업로드 + 색인 + manuals 문서 생성 (설정탭 직접 업로드용) */
 async function saveManualBlob(blob,fileName,kind,name,setSt,origin){
-  if(blob.size>MAN_MAX_MB*1024*1024)
-    throw new Error("파일이 "+Math.round(blob.size/1024/1024*10)/10+"MB 로 한도("+MAN_MAX_MB+"MB)를 넘습니다. 장(章) 단위로 나눠 등록해주세요.");
+  if(blob.size>MAN_INDEX_MAX_MB*1024*1024)
+    throw new Error("파일이 "+Math.round(blob.size/1024/1024*10)/10+"MB 로 한도("+MAN_INDEX_MAX_MB+"MB)를 넘습니다. 장(章) 단위로 나눠 등록해주세요.");
   setSt("📤 업로드 중... 0%");
   const safe=fileName.replace(/[^\w.\-가-힣]/g,"_");
   const path="manuals/"+Date.now()+"_"+safe;
@@ -5708,19 +5720,20 @@ async function saveManualBlob(blob,fileName,kind,name,setSt,origin){
   task.on("state_changed",s=>setSt("📤 업로드 중... "+Math.round(s.bytesTransferred/s.totalBytes*100)+"%"));
   await task;
   const url=await ref.getDownloadURL();
-  const ix=await indexManualBlob(blob,kind,setSt);
+  const ix=await indexManualBlob(blob,kind,setSt,fileName);
   const owner=CU||{};
+  const scanned=kind!=="image"&&ix.chars<200;
   const rec={name,fileName,kind,url,storagePath:path,size:blob.size,origin:origin||"local",
     models:guessManualModels(fileName,ix.chunks.map(c=>c.t).join(" ").slice(0,3000)),
     pages:ix.pages,chars:ix.chars,chunkCount:ix.chunks.length,
-    indexed:ix.chunks.length>0,scanned:ix.chars<200,
+    indexed:ix.chunks.length>0,scanned,
     uploadedAt:new Date().toISOString(),uploadedBy:owner.name||getMyRole()||""};
   const doc=await db.collection("manuals").add(rec);
   await saveManualIndex(doc.id,ix.chunks);
   _manuals=[{id:doc.id,...rec},...(_manuals||[])];
   renderManualSelects();renderManualAdminList();
   const sel=document.getElementById("manSel");if(sel)sel.value=doc.id;
-  setSt("✅ 등록 완료 — "+(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간 색인"+(ix.chars<200?" ⚠️ 본문 텍스트가 없는 스캔본입니다(원본 모드로만 사용 가능)":""),ix.chars<200?"var(--accent)":"var(--success)");
+  setSt("✅ 등록 완료 — "+(kind==="image"?"이미지 자료":(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간 색인")+(scanned?" ⚠️ 본문 텍스트가 없는 스캔본입니다(원본 모드로만 사용 가능)":""),scanned?"var(--accent)":"var(--success)");
   return doc.id;
 }
 
@@ -5728,11 +5741,19 @@ async function saveManualBlob(blob,fileName,kind,name,setSt,origin){
 const DRIVE_FOLDER_MIME="application/vnd.google-apps.folder";
 const DRIVE_MIME={
   "application/pdf":"pdf",
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation":"pptx"
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation":"pptx",
+  "image/jpeg":"image","image/png":"image","image/webp":"image"
 };
 const DRIVE_EXPORTABLE={
   "application/vnd.google-apps.presentation":"구글 슬라이드",
   "application/vnd.google-apps.document":"구글 문서"
+};
+/* 수집에서 빠지는 형식 중 '고치면 되는' 것들은 이유를 구체적으로 안내 */
+const DRIVE_UNSUPPORTED={
+  "application/vnd.ms-powerpoint":"구버전 .ppt — PowerPoint에서 <b>다른 이름으로 저장 → .pptx 또는 PDF</b> 로 바꿔 올려주세요",
+  "application/msword":"구버전 .doc — Word에서 .docx 또는 PDF로 저장 후 올려주세요",
+  "application/haansofthwp":"한글(.hwp) — PDF로 저장 후 올려주세요",
+  "application/x-hwp":"한글(.hwp) — PDF로 저장 후 올려주세요"
 };
 
 /* 공유 링크 → {type:"folder"|"file", id} */
@@ -5805,12 +5826,19 @@ async function driveMeta(id,key){
   return driveJson("https://www.googleapis.com/drive/v3/files/"+id
     +"?fields=id,name,mimeType,size,modifiedTime&supportsAllDrives=true&key="+encodeURIComponent(key));
 }
+function manSleep(ms){return new Promise(r=>setTimeout(r,ms))}
 async function driveDownload(f,key){
   const ex=DRIVE_EXPORTABLE[f.mimeType];
   const url=ex
     ? "https://www.googleapis.com/drive/v3/files/"+f.id+"/export?mimeType=application%2Fpdf&key="+encodeURIComponent(key)
     : "https://www.googleapis.com/drive/v3/files/"+f.id+"?alt=media&supportsAllDrives=true&key="+encodeURIComponent(key);
-  const r=await fetch(url);
+  let r;
+  try{
+    r=await fetch(url);
+  }catch(e){
+    // 구글이 반복 다운로드를 일시 제한하면 CORS 헤더 없는 응답이 와서 fetch 자체가 실패한다
+    throw new Error("내려받지 못했습니다 — 네트워크 오류이거나, 짧은 시간에 많이 받아 <b>구글이 일시적으로 다운로드를 막은</b> 상태입니다(파일 목록 조회는 되는데 다운로드만 실패하면 이 경우). 잠시 뒤(길면 수십 분) [🔄 동기화]를 다시 누르면 <b>받지 못한 파일만 이어서</b> 처리합니다.");
+  }
   if(!r.ok){
     const j=await r.json().catch(()=>({}));
     const msg=(j.error&&j.error.message)||("HTTP "+r.status);
@@ -5887,8 +5915,15 @@ async function extractPptxChunks(blob,onProg){
   }
   return {chunks,pages:names.length,chars};
 }
-async function indexManualBlob(blob,kind,onProg){
-  return kind==="pdf"?extractPdfChunks(blob,onProg):extractPptxChunks(blob,onProg);
+async function indexManualBlob(blob,kind,onProg,nameHint){
+  if(kind==="image"){
+    // 이미지 자료는 본문 텍스트가 없으므로 파일명·폴더명을 색인어로 삼고,
+    // 질문에 걸리면 질의 시점에 그림 자체를 Claude에 첨부한다.
+    const t="(이미지 자료) "+String(nameHint||"").replace(/[_\-.]+/g," ");
+    return {chunks:[{p:1,t}],pages:1,chars:t.length,image:true};
+  }
+  if(kind==="pdf")return extractPdfChunks(blob,onProg);
+  return extractPptxChunks(blob,onProg);
 }
 /* 문자열의 UTF-8 바이트 수 (한글 3바이트 — Firestore 문서 1MB 한도 계산용) */
 function manUtf8Bytes(s){
@@ -5940,6 +5975,15 @@ function guessManualModels(nameText,sampleText){
     const u=String(m).toUpperCase().replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
     try{if(new RegExp("(^|[^A-Z0-9])"+u+"([^A-Z0-9]|$)").test(hay))out.push(m)}catch(e){}
   });
+  // 설정 모델 목록에 없는 기기 코드(MC-3600, DCR_34, DS3-21 등)도 파일명에서 뽑아 태그로 쓴다
+  const nm=String(nameText||"").toUpperCase();
+  const re=/(^|[^A-Z0-9])([A-Z]{2,4})[-_ ]?(\d{2,4}[A-Z]?)(?![0-9])/g;
+  let m2;
+  while((m2=re.exec(nm))){
+    const code=m2[2]+"-"+m2[3];
+    if(/^(REV|VER|NO|PT|TEL|FAX)$/.test(m2[2]))continue;
+    if(out.indexOf(code)<0&&out.length<6)out.push(code);
+  }
   return out;
 }
 
@@ -5994,19 +6038,30 @@ async function syncManualSources(){
       if(_manSyncStop){manSyncLog("⏹ 중단되었습니다","var(--accent)");break}
       const f=list[i],pre="["+(i+1)+"/"+list.length+"] "+esc(f.name);
       const kind=DRIVE_MIME[f.mimeType]||(DRIVE_EXPORTABLE[f.mimeType]?"pdf":"");
-      if(!kind){skipped++;manSyncLog(pre+" — 건너뜀 (지원하지 않는 형식)");continue}
+      if(!kind){
+        skipped++;
+        const why=DRIVE_UNSUPPORTED[f.mimeType];
+        manSyncLog(pre+" — 건너뜀 "+(why?"<b style='color:var(--accent)'>"+why+"</b>":"(지원하지 않는 형식: "+esc(f.mimeType||"")+")"),why?"var(--accent)":"var(--ts)");
+        continue;
+      }
       const prev=byDrive[f.id];
       if(prev&&prev.indexed&&prev.driveModified&&f.modifiedTime&&prev.driveModified===f.modifiedTime){
         skipped++;manSyncLog(pre+" — 변경 없음");continue;
       }
-      if(f.size&&+f.size>MAN_MAX_MB*1024*1024){
-        skipped++;manSyncLog(pre+" — 건너뜀 ("+Math.round(+f.size/1048576*10)/10+"MB, 한도 "+MAN_MAX_MB+"MB 초과)","var(--accent)");continue;
+      if(f.size&&+f.size>MAN_INDEX_MAX_MB*1024*1024){
+        skipped++;manSyncLog(pre+" — 건너뜀 ("+Math.round(+f.size/1048576*10)/10+"MB, 한도 "+MAN_INDEX_MAX_MB+"MB 초과)","var(--accent)");continue;
       }
       try{
-        st(pre+" ⬇️ 다운로드 중...");
-        const blob=await driveDownload(f,key);
+        let blob=null,lastErr=null;
+        for(let a=0;a<3&&!_manSyncStop;a++){
+          try{
+            st(pre+" ⬇️ 다운로드 중..."+(a?" (재시도 "+a+"/2)":""));
+            blob=await driveDownload(f,key);lastErr=null;break;
+          }catch(e){lastErr=e;if(a<2)await manSleep(2000*(a+1))}
+        }
+        if(!blob)throw lastErr||new Error("다운로드 실패");
         st(pre+" 🔎 색인 중...");
-        const ix=await indexManualBlob(blob,kind,t=>st(pre+" "+t));
+        const ix=await indexManualBlob(blob,kind,t=>st(pre+" "+t),(f.name||"")+" "+(f.folderPath||""));
         const models=(prev&&prev.models&&prev.models.length)
           ? prev.models
           : guessManualModels(f.name+" "+(f.folderPath||""),ix.chunks.map(c=>c.t).join(" ").slice(0,3000));
@@ -6015,19 +6070,21 @@ async function syncManualSources(){
           driveId:f.id,driveMime:f.mimeType||"",driveModified:f.modifiedTime||"",folderPath:f.folderPath||"",
           size:+(f.size||blob.size)||0,models,
           pages:ix.pages,chars:ix.chars,chunkCount:ix.chunks.length,
-          indexed:ix.chunks.length>0,scanned:ix.chars<200,
+          indexed:ix.chunks.length>0,scanned:kind!=="image"&&ix.chars<200,
           uploadedAt:new Date().toISOString(),uploadedBy:(CU&&CU.name)||getMyRole()||""};
         let id;
         if(prev){id=prev.id;await db.collection("manuals").doc(id).set(rec,{merge:true});updated++}
         else{const doc=await db.collection("manuals").add(rec);id=doc.id;added++}
         await saveManualIndex(id,ix.chunks);
-        manSyncLog(pre+" ✅ "+(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간"
+        await manSleep(400); // 연속 다운로드로 드라이브 제한에 걸리지 않도록 간격을 둔다
+        manSyncLog(pre+" ✅ "+(kind==="image"?"이미지 자료":(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간")
           +(models.length?" · 모델 "+esc(models.join(",")):" · 모델 미인식")
-          +(ix.chars<200?" <b style='color:var(--accent)'>⚠ 스캔본(텍스트 없음)</b>":""),"var(--success)");
+          +(rec.scanned?" <b style='color:var(--accent)'>⚠ 스캔본(텍스트 없음)</b>":""),"var(--success)");
       }catch(e){failed++;manSyncLog(pre+" ⚠️ "+e.message,"var(--danger)")}
     }
     await loadManuals(true);
-    st("동기화 완료 — 신규 "+added+" · 갱신 "+updated+" · 건너뜀 "+skipped+" · 실패 "+failed,
+    st("동기화 완료 — 신규 "+added+" · 갱신 "+updated+" · 건너뜀 "+skipped+" · 실패 "+failed
+       +(failed?" <b>→ 잠시 후 [🔄 동기화]를 한 번 더 누르면 실패한 파일만 다시 시도합니다</b>":""),
        failed?"var(--danger)":"var(--success)");
   }catch(e){
     st("⚠️ "+e.message,"var(--danger)");
@@ -6087,9 +6144,10 @@ function manualSettingsHtml(){
   const srcs=(pendS&&pendS.manualSources)||[];
   let h='<div class="stag"><h4>📘 서비스 매뉴얼 (구글 드라이브 연동)</h4>'
     +'<p style="font-size:10px;color:var(--ts);margin:0 0 8px;line-height:1.7">'
-    +'드라이브 <b>폴더 링크</b>를 등록하고 [🔄 동기화]를 누르면 하위 폴더까지 훑어 <b>PDF·PPTX를 모두 수집하고 본문을 색인</b>합니다. '
+    +'드라이브 <b>폴더 링크</b>를 등록하고 [🔄 동기화]를 누르면 하위 폴더까지 훑어 <b>PDF·PPTX·이미지를 모두 수집하고 본문을 색인</b>합니다. '
     +'질문할 때는 색인에서 관련 구간만 골라 CLAUDE에 전달하므로 매뉴얼이 많아도 느려지지 않습니다.<br>'
-    +'※ 드라이브에서 <b>공유 → "링크가 있는 모든 사용자(뷰어)"</b> 로 바꿔야 수집됩니다. 변경되지 않은 파일은 다음 동기화 때 건너뜁니다.</p>'
+    +'※ 드라이브에서 <b>공유 → "링크가 있는 모든 사용자(뷰어)"</b> 로 바꿔야 수집됩니다. 변경되지 않은 파일은 다음 동기화 때 건너뜁니다.<br>'
+    +'※ 구버전 <b>.ppt</b>는 읽을 수 없어 건너뜁니다 — PowerPoint에서 .pptx나 PDF로 저장해 주세요. 한 번에 많이 받으면 구글이 다운로드를 잠시 막을 수 있는데, 그때는 <b>조금 뒤 [🔄 동기화]를 다시 누르면</b> 못 받은 것만 이어서 처리합니다.</p>'
     +'<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">';
   if(!srcs.length)h+='<span style="font-size:10px;color:var(--ts)">등록된 링크가 없습니다.</span>';
   srcs.forEach((s,i)=>{
@@ -6103,7 +6161,7 @@ function manualSettingsHtml(){
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">'
     +'<button id="manSyncBtn" onclick="syncManualSources()" style="padding:7px 14px;border:none;border-radius:7px;background:#148F77;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔄 동기화</button>'
     +'<button id="manStopBtn" onclick="stopManualSync()" style="display:none;padding:7px 12px;border:1px solid var(--danger);border-radius:7px;background:transparent;color:var(--danger);font-size:11px;cursor:pointer;font-family:inherit">⏹ 중단</button>'
-    +'<input type="file" id="manFile" accept=".pdf,.pptx" style="display:none" onchange="handleManualUpload(event)">'
+    +'<input type="file" id="manFile" accept=".pdf,.pptx,.jpg,.jpeg,.png,.webp" style="display:none" onchange="handleManualUpload(event)">'
     +'<button onclick="document.getElementById(\'manFile\').click()" style="padding:7px 12px;border:1px solid #148F77;border-radius:7px;background:transparent;color:#148F77;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">📎 파일 직접 등록</button>'
     +'<span style="font-size:9px;color:var(--ts)">드라이브를 안 쓰는 자료는 직접 업로드</span>'
     +'</div>'
@@ -6217,13 +6275,42 @@ async function fetchManualBlob(man){
   throw new Error("원본 파일 위치를 찾을 수 없습니다. 설정탭에서 다시 동기화해주세요.");
 }
 
+/* 이미지 Blob → Claude image 블록 (긴 변 1400px JPEG로 축소) */
+async function manImageBlock(blob){
+  const d=await blobToResizedJpegB64(blob,1400);
+  return {type:"image",source:{type:"base64",media_type:"image/jpeg",data:d}};
+}
+/* 선택된 구간 중 이미지 자료가 있으면 그림 자체를 첨부 (최대 3장) */
+async function manImageBlocksFor(picked,setSt){
+  const seen={},blocks=[],names=[];
+  for(const s of (picked||[])){
+    const m=s.man;
+    if(!m||m.kind!=="image"||seen[m.id])continue;
+    seen[m.id]=1;
+    if(blocks.length>=3)break;
+    try{
+      if(setSt)setSt("🖼 이미지 자료 첨부 중... "+esc(m.fileName||m.name||""));
+      blocks.push(await manImageBlock(await fetchManualBlob(m)));
+      names.push(m.name||m.fileName||"");
+    }catch(e){}
+  }
+  if(names.length)blocks.push({type:"text",text:"[위 이미지 자료] "+names.join(" / ")});
+  return blocks;
+}
+
 /* 선택한 매뉴얼을 Claude 전송용 content 블록으로 변환 (동일 매뉴얼은 캐시 재사용) */
 async function buildManualBlocks(man,setSt){
   if(_manPayload&&_manPayload.id===man.id)return _manPayload;
   setSt("⬇️ 매뉴얼 다운로드 중...");
   const blob=await fetchManualBlob(man);
   const blocks=[];let info="";
-  if(man.kind==="pdf"){
+  if(man.kind==="image"){
+    setSt("🖼 이미지 인코딩 중...");
+    blocks.push(await manImageBlock(blob));
+    info="이미지 자료 "+Math.round(blob.size/1024)+"KB";
+  }else if(man.kind==="pdf"){
+    if(blob.size>MAN_MAX_MB*1024*1024)
+      throw new Error("원본이 "+Math.round(blob.size/1048576*10)/10+"MB 로 전송 한도("+MAN_MAX_MB+"MB)를 넘습니다. <b>⚡ 색인 기반</b> 모드로 분석하거나 매뉴얼을 장(章) 단위로 나눠 등록해주세요.");
     setSt("📕 PDF 인코딩 중...");
     const b64=await blobToB64(blob);
     if(b64.length>30*1024*1024)throw new Error("PDF 용량이 너무 커서 전송할 수 없습니다. 분할해서 등록해주세요.");
@@ -6311,8 +6398,8 @@ async function runManualAI(){
       if(!chunks.length)throw new Error("이 매뉴얼은 색인이 없습니다 (스캔본이거나 아직 동기화 전). 모드를 <b>📕 원본 전체</b>로 바꾸거나 설정탭에서 다시 동기화해주세요.");
       let picked=scoreManualChunks([{man,chunks}],[model,symptom].filter(Boolean).join(" "),MAN_CTX_CHUNKS);
       if(!picked.length)picked=chunks.slice(0,MAN_CTX_CHUNKS).map(c=>({man,p:c.p,t:c.t,score:0}));
-      blocks=[{type:"text",text:manualEvidenceText(picked)}];
-      info="색인 "+picked.length+"구간 발췌 (전체 "+chunks.length+"구간)";
+      blocks=(await manImageBlocksFor(picked,setSt)).concat([{type:"text",text:manualEvidenceText(picked)}]);
+      info=man.kind==="image"?"이미지 자료":"색인 "+picked.length+"구간 발췌 (전체 "+chunks.length+"구간)";
     }
     setSt("📊 누적 보고서 집계 중...");
     const ctx=await buildManualReportContext(model,symptom);
@@ -6422,6 +6509,12 @@ function scoreManualChunks(cands,q,limit){
   if(!toks.length)return [];
   const scored=[];
   (cands||[]).forEach(cd=>{
+    // 파일명·폴더명·모델태그에 질문어가 들어 있으면 그 매뉴얼 전체에 가산점
+    // (예: "MC-3600 결선" → MC-3600 매뉴얼 본문에 모델명이 안 적혀 있어도 잡히도록)
+    const nameHay=((cd.man.name||"")+" "+(cd.man.fileName||"")+" "+(cd.man.folderPath||"")+" "
+      +((cd.man.models||[]).join(" "))).toLowerCase().replace(/[-_.]/g," ");
+    let nameBonus=0;
+    toks.forEach(w=>{if(nameHay.indexOf(w)>=0)nameBonus+=10});
     (cd.chunks||[]).forEach(c=>{
       const t=String(c.t||"").toLowerCase();
       if(!t)return;
@@ -6431,8 +6524,10 @@ function scoreManualChunks(cands,q,limit){
         while((i=t.indexOf(w,i))>=0){n++;i+=w.length;if(n>=8)break}
         if(n){hit++;s+=n*(w.length>=3?2:1)}
       });
-      if(!s)return;
-      s+=hit*6; // 서로 다른 키워드가 많이 걸린 구간 우선
+      if(!s&&!nameBonus)return;
+      s+=hit*6+nameBonus; // 서로 다른 키워드가 많이 걸린 구간 우선 + 파일명 일치 가산
+      // 표지·목차처럼 짧은 구간은 내용이 거의 없으므로 뒤로 민다 (이미지 자료는 예외)
+      if(cd.man.kind!=="image"&&String(c.t||"").length<60)s*=0.35;
       scored.push({man:cd.man,p:c.p,t:c.t,score:s});
     });
   });
@@ -6460,13 +6555,14 @@ function manualEvidenceText(picked){
 function pickCandidateManuals(model,limit){
   const all=(_manuals||[]).filter(m=>m.indexed!==false&&!m.scanned);
   if(!all.length)return [];
+  const cap=limit||40; // 색인은 가볍고 캐시되므로 등록 매뉴얼 전체를 훑는 것이 기본
   if(model&&model!=="전체"){
     const tagged=all.filter(m=>(m.models||[]).some(x=>String(x).toUpperCase()===String(model).toUpperCase()));
     const untagged=all.filter(m=>!(m.models||[]).length);
     const merged=tagged.concat(untagged);
-    if(merged.length)return merged.slice(0,limit||8);
+    if(merged.length)return merged.slice(0,cap);
   }
-  return all.slice(0,limit||8);
+  return all.slice(0,cap);
 }
 /* 전체 보고서 캐시 (5분) */
 async function getAllReports(){
@@ -6544,11 +6640,10 @@ async function runManualAsk(){
     const apiKey=settings.claudeKey||"";
     if(!apiKey||!apiKey.startsWith("sk-ant-"))throw new Error("설정 탭에서 <b>Claude API Key</b>(sk-ant-...)를 먼저 등록해주세요.");
     await loadManuals();
-    const cands=pickCandidateManuals(model,8);
+    const cands=pickCandidateManuals(model);
     if(!cands.length)throw new Error("색인된 매뉴얼이 없습니다. <b>설정 탭 → 📘 서비스 매뉴얼</b>에서 드라이브 폴더를 등록하고 [🔄 동기화]를 실행해주세요.");
     setSt("🔎 매뉴얼 "+cands.length+"건에서 관련 구간을 찾는 중...");
-    const loaded=[];
-    for(const m of cands)loaded.push({man:m,chunks:await loadManualChunks(m)});
+    const loaded=await Promise.all(cands.map(async m=>({man:m,chunks:await loadManualChunks(m)})));
     const picked=scoreManualChunks(loaded,q+" "+(model!=="전체"?model:""),MAN_CTX_CHUNKS);
     if(!picked.length)throw new Error("질문과 겹치는 매뉴얼 구간을 찾지 못했습니다. 다른 표현(부품명·오류코드 등)으로 다시 검색해보세요.");
     let repTxt="",repCnt=0;
@@ -6557,11 +6652,12 @@ async function runManualAsk(){
       const ev=await buildJournalEvidence(q,model,12);
       repTxt="\n\n"+ev.text;repCnt=ev.count;
     }
+    const imgBlocks=await manImageBlocksFor(picked,setSt);
     setSt("✨ CLAUDE가 답변을 작성 중입니다...");
     const ask=manualEvidenceText(picked)+repTxt
       +"\n\n[질문] "+q+(model!=="전체"?"\n[대상 모델] "+model:"")
-      +"\n\n위 매뉴얼 발췌와 현장 사례만을 근거로 답해주세요. 매뉴얼 근거에는 [매뉴얼명 p.쪽수]를 반드시 붙이세요.";
-    const out=await callClaudeApi(apiKey,ASK_SYS,[{type:"text",text:ask}],6000);
+      +"\n\n위 매뉴얼 발췌"+(imgBlocks.length?"·첨부 이미지":"")+"와 현장 사례만을 근거로 답해주세요. 매뉴얼 근거에는 [매뉴얼명 p.쪽수]를 반드시 붙이세요.";
+    const out=await callClaudeApi(apiKey,ASK_SYS,imgBlocks.concat([{type:"text",text:ask}]),6000);
     const u=out.usage;
     const srcList=[...new Set(picked.map(s=>(s.man.name||s.man.fileName||"")+" p."+(s.p||"?")))];
     window._maskLast={q,model,text:out.text,sources:srcList};
