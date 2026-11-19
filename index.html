@@ -125,13 +125,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.12.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.13.0</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -177,7 +177,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.12.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.0</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -3008,10 +3008,10 @@ function renderSett(){const p=pendS;let h='';
   h+=bSL("🏷️ 현장업무 빠른태그 (케이스 추가 + 조치내용 자동입력)","field1Tags","sNF1");
   h+=bSL("🏷️ 조치내용 태그 (케이스별 메모)","noteTags","sNNT");
   h+=bSL("🏷️ 상담&특이사항 태그","field2Tags","sNF2");
-  h+='<div class="stag"><h4 style="display:flex;align-items:center;gap:6px">🤖 OpenAI API Key (음성변환 + AI진단)<span id="oaiDot" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0"></span></h4><div class="stag-add"><input id="sWK" type="password" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3" oninput="checkOAIStatus(this.value)"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
+  h+='<div class="stag"><h4 style="display:flex;align-items:center;gap:6px">🤖 OpenAI API Key (음성변환 + AI진단)<span id="oaiDot" style="width:9px;height:9px;border-radius:50%;background:#ccc;display:inline-block;flex-shrink:0"></span></h4><div class="stag-add"><input id="sWK" type="password" autocomplete="new-password" name="sWK_nofill" placeholder="sk-..." value="'+esc(p.whisperKey||"")+'" style="flex:3" oninput="checkOAIStatus(this.value)"><span style="font-size:9px;color:var(--ts)">Whisper(음성→텍스트) + GPT(AI진단) 공용</span></div></div>';
   setTimeout(checkOAIStatus,100);
-  h+='<div class="stag"><h4>✨ Claude API Key (CLAUDE 종합보고서)</h4><div class="stag-add"><input id="sCK" type="password" placeholder="sk-ant-..." value="'+esc(p.claudeKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">console.anthropic.com에서 발급 · 분석탭 CLAUDE 종합보고서용</span></div></div>';
-  h+='<div class="stag"><h4>🔗 Google API Key (드라이브 매뉴얼 가져오기)</h4><div class="stag-add"><input id="sGK" type="password" placeholder="AIza..." value="'+esc(p.googleKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">console.cloud.google.com → Drive API 사용 설정 후 API 키 발급 · 아래 서비스 매뉴얼 동기화에 사용</span></div></div>';
+  h+='<div class="stag"><h4>✨ Claude API Key (CLAUDE 종합보고서)</h4><div class="stag-add"><input id="sCK" type="password" autocomplete="new-password" name="sCK_nofill" placeholder="sk-ant-..." value="'+esc(p.claudeKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">console.anthropic.com에서 발급 · 분석탭 CLAUDE 종합보고서용</span></div></div>';
+  h+='<div class="stag"><h4>🔗 Google API Key (드라이브 매뉴얼 가져오기)</h4><div class="stag-add"><input id="sGK" type="password" autocomplete="new-password" name="sGK_nofill" placeholder="AIza..." value="'+esc(p.googleKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">console.cloud.google.com → Drive API 사용 설정 후 API 키 발급 · 아래 서비스 매뉴얼 동기화에 사용</span></div></div>';
   h+=manualSettingsHtml();
   setTimeout(renderManualAdminList,60);
   h+='<div class="stag"><h4>💬 카카오톡 공유 (선택사항)</h4><div class="stag-add"><input id="sKK" placeholder="JavaScript 키 (developers.kakao.com)" value="'+esc(p.kakaoKey||"")+'" style="flex:3"><span style="font-size:9px;color:var(--ts)">미등록 시 텍스트 복사로 공유</span></div></div>';
@@ -3044,14 +3044,22 @@ function addNewCat(){const name=prompt("새 카테고리명을 입력하세요:"
 function addHoliday(){const v=document.getElementById("sNHD")?.value;if(!v)return;if(!pendS.holidays)pendS.holidays=[];if(!pendS.holidays.includes(v)){pendS.holidays.push(v);}renderSett()}
 async function saveSett(){
   try{
-    const wk=document.getElementById("sWK")?.value||"";
-    const ck=document.getElementById("sCK")?.value.trim()||"";
-    const gk=document.getElementById("sGK")?.value.trim()||"";
+    // API 키는 "빈 칸으로 저장"하면 기존 값을 유지한다 (브라우저 자동완성·실수로 지워지는 사고 방지)
+    const keepKey=(id,prev,label,prefix)=>{
+      const v=(document.getElementById(id)?.value||"").trim();
+      if(!v)return prev||"";
+      if(prefix&&!v.startsWith(prefix)&&!confirm(label+" 값이 '"+prefix+"'로 시작하지 않습니다.\n\n입력값: "+v.slice(0,20)+"...\n\n그래도 저장할까요?"))
+        return prev||"";
+      return v;
+    };
+    const wk=keepKey("sWK",_settings?.whisperKey,"OpenAI API Key","sk-");
+    const ck=keepKey("sCK",_settings?.claudeKey,"Claude API Key","sk-ant-");
+    const gk=keepKey("sGK",_settings?.googleKey,"Google API Key","AIza");
     const kk=document.getElementById("sKK")?.value||"";
     const tgt=document.getElementById("sTGT")?.value.trim()||"";
     const tgc=document.getElementById("sTGC")?.value.trim()||"";
     const tgat=document.getElementById("sTGAT")?.value||"08:30";
-    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,claudeKey:ck,googleKey:gk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,field1Tags:pendS.field1Tags||[],noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[],modelCategories:pendS.modelCategories||DEF_MODEL_CATS,holidays:pendS.holidays||[],manualSources:pendS.manualSources||[]});
+    await saveSettings({models:pendS.models,categories:pendS.cats,symptoms:pendS.syms,actions:pendS.acts,regions:pendS.regions,opencloseOpts:pendS.opencloseOpts||["OD","CD"],whisperKey:wk,claudeKey:ck,googleKey:gk,kakaoKey:kk,tgBotToken:tgt,tgChatId:tgc,tgAutoTime:tgat,field1Tags:pendS.field1Tags||[],noteTags:pendS.noteTags||[],field2Tags:pendS.field2Tags||[],modelCategories:pendS.modelCategories||DEF_MODEL_CATS,holidays:pendS.holidays||[],manualSources:pendS.manualSources||[],manualVision:!document.getElementById("sMVis")||document.getElementById("sMVis").checked});
     renderF1Tags();renderF2Tags();
     alert("설정이 저장되었습니다.");
     startAutoTgScheduler();
@@ -5573,7 +5581,8 @@ function loadSolutions(){
    ══════════════════════════════════════════════════════════ */
 var _manuals=null,_manPayload=null,_manChunks={},_manSyncStop=false,_repCache=null;
 const MAN_MAX_MB=20;      // [원본 전체 전송] 모드 한도 — Claude 요청 상한 32MB(base64 약 1.33배) 고려
-const MAN_INDEX_MAX_MB=80;// [색인] 한도 — 브라우저에서 텍스트만 뽑으므로 훨씬 큰 파일도 처리 가능
+const MAN_INDEX_MAX_MB=200;// [색인] 한도 — 브라우저에서 텍스트만 뽑으므로 훨씬 큰 파일도 처리 가능
+const MAN_PDF_MAX_PAGES=800;// 초대용량 PDF에서 텍스트를 뽑을 최대 쪽수(브라우저 멈춤 방지)
 const MAN_MAX_IMGS=24;    // PPTX에서 추출해 보낼 최대 이미지 수
 const MAN_MIN_IMG_BYTES=12000; // 아이콘/로고로 보이는 작은 이미지는 제외
 const MAN_SYNC_MAX=300;   // 한 번의 동기화에서 처리할 최대 파일 수
@@ -5582,6 +5591,15 @@ const MAN_CHUNK_CHARS=1800;   // 색인 구간 1개 최대 길이
 const MAN_DOC_BYTES=700000;   // Firestore 문서 1MB 제한 대비 분할 기준(UTF-8 바이트 — 한글은 3바이트)
 const MAN_CTX_CHUNKS=14;      // 질문 1건에 넣을 최대 구간 수
 const MAN_CTX_CHARS=45000;    // 질문 1건 매뉴얼 근거 총 길이 상한
+const MAN_VISION_MAX_PAGES=20;// 스캔본 PDF에서 그림으로 읽어낼 최대 쪽수(비용 상한)
+const MAN_VISION_SYS="당신은 기술 매뉴얼 이미지를 글자로 옮기는 OCR 보조원입니다. 이미지에 보이는 모든 글자(제목·표·라벨·숫자·단위·버튼명·에러코드·주석)를 빠짐없이 원문 그대로 받아 적으세요. 표는 행 단위로 풀어 쓰고, 배선도·도면은 구성요소 이름과 연결 관계를 문장으로 설명하세요. 요약하거나 설명을 덧붙이지 말고 읽어낸 내용만 출력하세요. 글자가 없으면 '(글자 없음)'만 출력하세요.";
+/* 이미지·스캔본 내용 읽기 사용 여부 (설정값 없으면 사용) */
+function manVisionOn(){return !(_settings&&_settings.manualVision===false)}
+/* 쪽수 대비 글자수로 '스캔본(본문 텍스트 없음)' 판정 — 쪽당 20자 미만이면 스캔본으로 본다 */
+function manLooksScanned(ix){
+  if(!ix)return true;
+  return (ix.chars||0)<Math.max(50,(ix.pages||1)*20);
+}
 
 function manualBoxHtml(){
   let h='<div style="background:rgba(22,160,133,.07);border:1px solid rgba(22,160,133,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px">'
@@ -5720,13 +5738,16 @@ async function saveManualBlob(blob,fileName,kind,name,setSt,origin){
   task.on("state_changed",s=>setSt("📤 업로드 중... "+Math.round(s.bytesTransferred/s.totalBytes*100)+"%"));
   await task;
   const url=await ref.getDownloadURL();
-  const ix=await indexManualBlob(blob,kind,setSt,fileName);
+  const vKey=(((document.getElementById("sCK")||{}).value)||(_settings&&_settings.claudeKey)||"").trim();
+  const vChk=document.getElementById("sMVis");
+  const ix=await indexManualBlob(blob,kind,setSt,
+    {nameHint:fileName,vision:vChk?vChk.checked:manVisionOn(),apiKey:vKey});
   const owner=CU||{};
-  const scanned=kind!=="image"&&ix.chars<200;
+  const scanned=kind!=="image"&&!ix.visionRead&&manLooksScanned(ix);
   const rec={name,fileName,kind,url,storagePath:path,size:blob.size,origin:origin||"local",
     models:guessManualModels(fileName,ix.chunks.map(c=>c.t).join(" ").slice(0,3000)),
     pages:ix.pages,chars:ix.chars,chunkCount:ix.chunks.length,
-    indexed:ix.chunks.length>0,scanned,
+    indexed:ix.chunks.length>0,scanned,visionRead:!!ix.visionRead,
     uploadedAt:new Date().toISOString(),uploadedBy:owner.name||getMyRole()||""};
   const doc=await db.collection("manuals").add(rec);
   await saveManualIndex(doc.id,ix.chunks);
@@ -5875,7 +5896,8 @@ async function extractPdfChunks(blob,onProg){
   const pdf=await lib.getDocument({data:buf}).promise;
   const chunks=[];let chars=0;
   const pages=pdf.numPages;
-  for(let p=1;p<=pages;p++){
+  const lim=Math.min(pages,MAN_PDF_MAX_PAGES);
+  for(let p=1;p<=lim;p++){
     if(_manSyncStop)break;
     try{
       const page=await pdf.getPage(p);
@@ -5884,7 +5906,7 @@ async function extractPdfChunks(blob,onProg){
       if(t){splitManText(t).forEach(s=>chunks.push({p,t:s}));chars+=t.length}
       if(page.cleanup)page.cleanup();
     }catch(e){}
-    if(onProg&&(p%5===0||p===pages))onProg("📕 PDF 텍스트 추출 "+p+"/"+pages+"쪽");
+    if(onProg&&(p%5===0||p===lim))onProg("📕 PDF 텍스트 추출 "+p+"/"+lim+"쪽");
   }
   try{pdf.destroy()}catch(e){}
   return {chunks,pages,chars};
@@ -5915,15 +5937,88 @@ async function extractPptxChunks(blob,onProg){
   }
   return {chunks,pages:names.length,chars};
 }
-async function indexManualBlob(blob,kind,onProg,nameHint){
-  if(kind==="image"){
-    // 이미지 자료는 본문 텍스트가 없으므로 파일명·폴더명을 색인어로 삼고,
-    // 질문에 걸리면 질의 시점에 그림 자체를 Claude에 첨부한다.
-    const t="(이미지 자료) "+String(nameHint||"").replace(/[_\-.]+/g," ");
-    return {chunks:[{p:1,t}],pages:1,chars:t.length,image:true};
+/* ── 이미지/스캔본 내용 읽기 (CLAUDE 비전) ───────────────── */
+/* PDF 페이지를 그림으로 렌더링해 base64 JPEG 목록으로 (스캔본 OCR용) */
+async function renderPdfPageImages(blob,maxPages,onProg){
+  const lib=await loadPdfJs();
+  const pdf=await lib.getDocument({data:await blob.arrayBuffer()}).promise;
+  const n=Math.min(pdf.numPages,maxPages||MAN_VISION_MAX_PAGES);
+  const out=[];
+  for(let p=1;p<=n;p++){
+    if(_manSyncStop)break;
+    try{
+      const page=await pdf.getPage(p);
+      const vp0=page.getViewport({scale:1});
+      const scale=Math.min(2,1500/Math.max(vp0.width,vp0.height));
+      const vp=page.getViewport({scale:scale>0?scale:1});
+      const cv=document.createElement("canvas");
+      cv.width=Math.round(vp.width);cv.height=Math.round(vp.height);
+      const cx=cv.getContext("2d");
+      cx.fillStyle="#fff";cx.fillRect(0,0,cv.width,cv.height);
+      await page.render({canvasContext:cx,viewport:vp}).promise;
+      const d=cv.toDataURL("image/jpeg",0.82);
+      out.push({p,b64:d.slice(d.indexOf(",")+1)});
+      if(page.cleanup)page.cleanup();
+    }catch(e){}
+    if(onProg)onProg("🖼 스캔본 페이지 변환 "+p+"/"+n+"쪽");
   }
-  if(kind==="pdf")return extractPdfChunks(blob,onProg);
-  return extractPptxChunks(blob,onProg);
+  try{pdf.destroy()}catch(e){}
+  return {images:out,total:pdf.numPages};
+}
+/* 그림 1장을 CLAUDE로 읽어 텍스트화 */
+async function visionReadImage(apiKey,b64,label){
+  const out=await callClaudeApi(apiKey,MAN_VISION_SYS,
+    [{type:"image",source:{type:"base64",media_type:"image/jpeg",data:b64}},
+     {type:"text",text:"이 이미지("+(label||"")+")에 있는 내용을 모두 글자로 옮겨주세요."}],3000);
+  return String(out.text||"").trim();
+}
+
+async function indexManualBlob(blob,kind,onProg,opt){
+  const o=(typeof opt==="string")?{nameHint:opt}:(opt||{});
+  const nameHint=o.nameHint||"";
+  const vision=!!(o.vision&&o.apiKey);
+  if(kind==="image"){
+    // 파일명을 기본 색인어로 쓰고, 비전이 켜져 있으면 그림 속 글자까지 읽어 색인한다
+    let t="(이미지 자료) "+String(nameHint).replace(/[_\-.]+/g," ");
+    let read=false;
+    if(vision){
+      try{
+        if(onProg)onProg("🔍 이미지 내용을 읽는 중...");
+        const b64=await blobToResizedJpegB64(blob,1600);
+        const txt=await visionReadImage(o.apiKey,b64,nameHint);
+        if(txt&&!/^\(글자 없음\)$/.test(txt)){t+="\n"+txt;read=true}
+        else read=true;
+      }catch(e){
+        if(onProg)onProg("⚠️ 이미지 읽기 실패: "+e.message);
+        o.visionError=e.message;
+      }
+    }
+    return {chunks:splitManText(t).map(s=>({p:1,t:s})),pages:1,chars:t.length,image:true,visionRead:read};
+  }
+  if(kind!=="pdf")return extractPptxChunks(blob,onProg);
+  const ix=await extractPdfChunks(blob,onProg);
+  // 텍스트가 거의 없는 스캔본이면 페이지를 그림으로 읽어 색인한다
+  if(manLooksScanned(ix)&&vision){
+    try{
+      const {images,total}=await renderPdfPageImages(blob,MAN_VISION_MAX_PAGES,onProg);
+      const chunks=[];let chars=0;
+      for(let i=0;i<images.length;i++){
+        if(_manSyncStop)break;
+        if(onProg)onProg("🔍 스캔본 내용을 읽는 중... "+(i+1)+"/"+images.length+"쪽");
+        try{
+          const txt=await visionReadImage(o.apiKey,images[i].b64,nameHint+" "+images[i].p+"쪽");
+          if(txt&&!/^\(글자 없음\)$/.test(txt)){
+            splitManText(txt).forEach(s=>chunks.push({p:images[i].p,t:s}));
+            chars+=txt.length;
+          }
+        }catch(e){o.visionError=e.message;break}
+        await manSleep(200);
+      }
+      if(chunks.length)return {chunks,pages:total,chars,visionRead:true,
+        partial:images.length<total?images.length:0};
+    }catch(e){o.visionError=e.message}
+  }
+  return ix;
 }
 /* 문자열의 UTF-8 바이트 수 (한글 3바이트 — Firestore 문서 1MB 한도 계산용) */
 function manUtf8Bytes(s){
@@ -6008,7 +6103,11 @@ async function syncManualSources(){
   if(btn){btn.disabled=true;btn.style.opacity=".6"}
   if(stop)stop.style.display="inline-block";
   const log=document.getElementById("manSyncLog");if(log)log.innerHTML="";
-  let added=0,updated=0,skipped=0,failed=0;
+  let added=0,updated=0,skipped=0,failed=0,visionWarned=false,failStreak=0,cooldown=400;
+  const vChk=document.getElementById("sMVis");
+  const visionOn=vChk?vChk.checked:manVisionOn();
+  const visionKey=(((document.getElementById("sCK")||{}).value)||(_settings&&_settings.claudeKey)||"").trim();
+  if(visionOn&&!visionKey)manSyncLog("ℹ️ Claude API Key가 없어 이미지·스캔본 내용 읽기는 건너뜁니다 (파일명만 색인)","var(--accent)");
   try{
     await loadManuals(true);
     const byDrive={};(_manuals||[]).forEach(m=>{if(m.driveId)byDrive[m.driveId]=m});
@@ -6036,7 +6135,8 @@ async function syncManualSources(){
     manSyncLog("── 대상 "+list.length+"건 · 색인 시작 ──");
     for(let i=0;i<list.length;i++){
       if(_manSyncStop){manSyncLog("⏹ 중단되었습니다","var(--accent)");break}
-      const f=list[i],pre="["+(i+1)+"/"+list.length+"] "+esc(f.name);
+      const f=list[i],pre="["+(i+1)+"/"+list.length
+        +(added+updated?" · 완료 "+(added+updated):"")+(failed?" · 실패 "+failed:"")+"] "+esc(f.name);
       const kind=DRIVE_MIME[f.mimeType]||(DRIVE_EXPORTABLE[f.mimeType]?"pdf":"");
       if(!kind){
         skipped++;
@@ -6045,7 +6145,9 @@ async function syncManualSources(){
         continue;
       }
       const prev=byDrive[f.id];
-      if(prev&&prev.indexed&&prev.driveModified&&f.modifiedTime&&prev.driveModified===f.modifiedTime){
+      // 비전을 켠 뒤 처음 도는 경우, 아직 못 읽은 이미지·스캔본은 변경이 없어도 다시 처리한다
+      const needVision=visionOn&&(kind==="image"||(prev&&prev.scanned))&&!(prev&&prev.visionRead);
+      if(prev&&prev.indexed&&prev.driveModified&&f.modifiedTime&&prev.driveModified===f.modifiedTime&&!needVision){
         skipped++;manSyncLog(pre+" — 변경 없음");continue;
       }
       if(f.size&&+f.size>MAN_INDEX_MAX_MB*1024*1024){
@@ -6053,15 +6155,21 @@ async function syncManualSources(){
       }
       try{
         let blob=null,lastErr=null;
-        for(let a=0;a<3&&!_manSyncStop;a++){
+        // 드라이브가 연속 다운로드를 막을 때가 있어 점점 길게 기다리며 재시도한다
+        const waits=[0,3000,10000,30000];
+        for(let a=0;a<waits.length&&!_manSyncStop;a++){
+          if(waits[a])await manSleep(waits[a]);
           try{
-            st(pre+" ⬇️ 다운로드 중..."+(a?" (재시도 "+a+"/2)":""));
+            st(pre+" ⬇️ 다운로드 중..."+(a?" (재시도 "+a+"/"+(waits.length-1)+")":""));
             blob=await driveDownload(f,key);lastErr=null;break;
-          }catch(e){lastErr=e;if(a<2)await manSleep(2000*(a+1))}
+          }catch(e){lastErr=e}
         }
         if(!blob)throw lastErr||new Error("다운로드 실패");
+        failStreak=0;cooldown=400;
         st(pre+" 🔎 색인 중...");
-        const ix=await indexManualBlob(blob,kind,t=>st(pre+" "+t),(f.name||"")+" "+(f.folderPath||""));
+        const vOpt={nameHint:(f.name||"")+" "+(f.folderPath||""),vision:visionOn,apiKey:visionKey};
+        const ix=await indexManualBlob(blob,kind,t=>st(pre+" "+t),vOpt);
+        if(vOpt.visionError&&!visionWarned){visionWarned=true;manSyncLog("⚠️ 이미지 내용 읽기 실패 — "+vOpt.visionError+" (파일명만 색인됩니다)","var(--danger)")}
         const models=(prev&&prev.models&&prev.models.length)
           ? prev.models
           : guessManualModels(f.name+" "+(f.folderPath||""),ix.chunks.map(c=>c.t).join(" ").slice(0,3000));
@@ -6070,17 +6178,28 @@ async function syncManualSources(){
           driveId:f.id,driveMime:f.mimeType||"",driveModified:f.modifiedTime||"",folderPath:f.folderPath||"",
           size:+(f.size||blob.size)||0,models,
           pages:ix.pages,chars:ix.chars,chunkCount:ix.chunks.length,
-          indexed:ix.chunks.length>0,scanned:kind!=="image"&&ix.chars<200,
+          indexed:ix.chunks.length>0,scanned:kind!=="image"&&!ix.visionRead&&manLooksScanned(ix),
+          visionRead:!!ix.visionRead,visionPages:ix.partial||0,
           uploadedAt:new Date().toISOString(),uploadedBy:(CU&&CU.name)||getMyRole()||""};
         let id;
         if(prev){id=prev.id;await db.collection("manuals").doc(id).set(rec,{merge:true});updated++}
         else{const doc=await db.collection("manuals").add(rec);id=doc.id;added++}
         await saveManualIndex(id,ix.chunks);
-        await manSleep(400); // 연속 다운로드로 드라이브 제한에 걸리지 않도록 간격을 둔다
+        await manSleep(cooldown); // 연속 다운로드로 드라이브 제한에 걸리지 않도록 간격을 둔다
         manSyncLog(pre+" ✅ "+(kind==="image"?"이미지 자료":(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간")
+          +(ix.visionRead?" <b style='color:#148F77'>🔍 내용 읽음"+(ix.partial?" ("+ix.partial+"쪽만)":"")+"</b>":"")
           +(models.length?" · 모델 "+esc(models.join(",")):" · 모델 미인식")
           +(rec.scanned?" <b style='color:var(--accent)'>⚠ 스캔본(텍스트 없음)</b>":""),"var(--success)");
-      }catch(e){failed++;manSyncLog(pre+" ⚠️ "+e.message,"var(--danger)")}
+      }catch(e){
+        failed++;failStreak++;
+        manSyncLog(pre+" ⚠️ "+e.message,"var(--danger)");
+        if(failStreak>=5){
+          manSyncLog("⏸ 연속 "+failStreak+"건 실패 — 구글이 다운로드를 막은 것으로 보여 여기서 멈춥니다. "
+            +"<b>10~30분 뒤 [🔄 동기화]를 다시 누르면 남은 "+(list.length-i-1)+"건부터 이어서</b> 진행합니다.","var(--accent)");
+          break;
+        }
+        cooldown=Math.min(15000,cooldown*3); // 실패가 이어지면 간격을 벌린다
+      }
     }
     await loadManuals(true);
     st("동기화 완료 — 신규 "+added+" · 갱신 "+updated+" · 건너뜀 "+skipped+" · 실패 "+failed
@@ -6105,9 +6224,12 @@ function renderManualAdminList(){
     +'<table style="width:100%;border-collapse:collapse;font-size:10px">'
     +'<tr style="background:rgba(0,0,0,.04)"><th style="text-align:left;padding:5px 6px">파일</th><th style="text-align:left;padding:5px 6px;width:110px">모델</th><th style="padding:5px 6px;width:70px">색인</th><th style="width:28px"></th></tr>';
   ms.forEach(m=>{
-    const stx=m.scanned?'<span style="color:var(--accent)">스캔본</span>'
-      :(m.indexed===false?'<span style="color:var(--danger)">없음</span>'
-      :(m.pages||"?")+"쪽/"+(m.chunkCount||0));
+    const canRead=(m.kind==="image"||m.scanned)&&!m.visionRead;
+    const stx=canRead
+      ? '<span style="color:var(--accent)">'+(m.kind==="image"?"이미지":"스캔본")+'</span> <button onclick="visionIndexManual(\''+m.id+'\')" title="CLAUDE로 내용 읽기" style="border:1px solid #148F77;border-radius:4px;background:transparent;color:#148F77;cursor:pointer;font-size:9px;padding:0 4px;font-family:inherit">🔍 읽기</button>'
+      : (m.visionRead?'<span style="color:#148F77">🔍 '+(m.pages||"?")+"쪽/"+(m.chunkCount||0)+'</span>'
+      : (m.indexed===false?'<span style="color:var(--danger)">없음</span>'
+      : (m.pages||"?")+"쪽/"+(m.chunkCount||0)));
     h+='<tr style="border-top:1px solid var(--border)">'
       +'<td style="padding:4px 6px">'+manIcon(m)+' '+esc(m.fileName||m.name||"")
       +(m.folderPath?'<div style="font-size:9px;color:var(--ts)">📂 '+esc(m.folderPath)+'</div>':'')+'</td>'
@@ -6118,6 +6240,33 @@ function renderManualAdminList(){
   });
   h+='</table></div>';
   el.innerHTML=h;
+}
+/* 이미지·스캔본 1건을 CLAUDE로 읽어 색인 다시 만들기 (설정탭 🔍 읽기 버튼) */
+async function visionIndexManual(id){
+  const m=(_manuals||[]).find(x=>x.id===id);
+  if(!m)return;
+  const st=(t,c)=>{const e=document.getElementById("manSyncStatus");if(e){e.style.color=c||"var(--ts)";e.innerHTML=t}};
+  const apiKey=(((document.getElementById("sCK")||{}).value)||(_settings&&_settings.claudeKey)||"").trim();
+  if(!apiKey||!apiKey.startsWith("sk-ant-")){alert("Claude API Key(sk-ant-...)를 먼저 등록해주세요.");return}
+  if(m.kind!=="image"&&!confirm("'"+(m.fileName||m.name)+"' 의 페이지를 그림으로 읽어 색인합니다.\n\n최대 "+MAN_VISION_MAX_PAGES+"쪽까지 CLAUDE가 읽으며 API 비용이 발생합니다. 진행할까요?"))return;
+  _manSyncStop=false;
+  try{
+    st("⬇️ "+esc(m.fileName||m.name||"")+" 내려받는 중...");
+    const blob=await fetchManualBlob(m);
+    const opt={nameHint:(m.fileName||m.name||"")+" "+(m.folderPath||""),vision:true,apiKey};
+    const ix=await indexManualBlob(blob,m.kind,t=>st(esc(m.fileName||"")+" "+t),opt);
+    if(opt.visionError)throw new Error(opt.visionError);
+    if(!ix.visionRead)throw new Error("읽어낸 내용이 없습니다.");
+    const upd={pages:ix.pages,chars:ix.chars,chunkCount:ix.chunks.length,indexed:ix.chunks.length>0,
+      scanned:false,visionRead:true,visionPages:ix.partial||0};
+    await db.collection("manuals").doc(id).set(upd,{merge:true});
+    await saveManualIndex(id,ix.chunks);
+    Object.assign(m,upd);
+    renderManualAdminList();renderManualSelects();
+    st("✅ "+esc(m.fileName||m.name||"")+" — 내용 읽기 완료 ("+ix.chunks.length+"구간"+(ix.partial?", "+ix.partial+"쪽만":"")+")","var(--success)");
+  }catch(e){
+    st("⚠️ "+e.message,"var(--danger)");
+  }
 }
 async function updateManualModels(id,v){
   const models=String(v||"").split(/[,\s]+/).map(s=>s.trim()).filter(Boolean);
@@ -6158,6 +6307,9 @@ function manualSettingsHtml(){
   h+='</div>'
     +'<div class="stag-add"><input id="sNMS" placeholder="https://drive.google.com/drive/folders/... (폴더 또는 파일 링크)" style="flex:3">'
     +'<input id="sNMSL" placeholder="표시 이름(선택)" style="flex:1"><button onclick="addManualSource()">추가</button></div>'
+    +'<label style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ts);margin-top:6px;cursor:pointer">'
+    +'<input type="checkbox" id="sMVis"'+(manVisionOn()?' checked':'')+' style="margin:0">'
+    +'<span>🔍 <b>이미지·스캔본 내용까지 읽기</b> — 사진(JPG/PNG)과 글자가 없는 스캔 PDF를 CLAUDE가 읽어 색인합니다 (Claude API 사용, 스캔본은 최대 '+MAN_VISION_MAX_PAGES+'쪽)</span></label>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px">'
     +'<button id="manSyncBtn" onclick="syncManualSources()" style="padding:7px 14px;border:none;border-radius:7px;background:#148F77;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔄 동기화</button>'
     +'<button id="manStopBtn" onclick="stopManualSync()" style="display:none;padding:7px 12px;border:1px solid var(--danger);border-radius:7px;background:transparent;color:var(--danger);font-size:11px;cursor:pointer;font-family:inherit">⏹ 중단</button>'
