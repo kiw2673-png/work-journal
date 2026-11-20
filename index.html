@@ -125,13 +125,13 @@
 </head>
 <body>
 <!-- AUTH -->
-<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.13.1</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
+<div id="authScreen" class="scr active"><div class="abg"><div class="acard fi"><div style="text-align:center;margin-bottom:24px"><div id="authIcon" class="aico ui">📋</div><div style="font-size:14px;color:var(--ts);letter-spacing:1px;font-weight:600;margin-bottom:4px">대성쎌틱에너시스(주)</div><h1 style="font-size:24px;font-weight:700">CS업무일지</h1><div style="font-size:11px;color:var(--ts);margin-top:2px;opacity:.7">v3.13.2</div><p id="authSub" style="margin-top:6px;color:var(--ts);font-size:16px">사번을 입력하세요</p></div><div id="authErr" class="err" style="display:none"></div>
 <div id="loginStep"><label class="fl" style="font-size:15px">회사 사번 (9자리)</label><input id="empIdInput" class="fi-input" maxlength="9" placeholder="000000000" style="font-size:17px;padding:12px 14px"><div style="text-align:right;font-size:13px;color:var(--ts);margin-top:3px"><span id="empCnt">0</span>/9</div><button id="loginBtn" class="btn bd" style="margin-top:8px;font-size:17px;padding:14px" disabled>로그인</button><div style="text-align:center;margin-top:18px"><button onclick="showAL()" style="background:none;border:2px solid var(--admin);color:var(--admin);font-size:16px;cursor:pointer;font-family:inherit;padding:10px 24px;border-radius:10px;font-weight:700">🔐 관리자 모드</button></div></div>
 <div id="regStep" style="display:none"><div style="background:var(--ibg);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:15px">사번: <strong id="regEmpId"></strong></div><label class="fl" style="font-size:15px">이름</label><input id="nameInput" class="fi-input" placeholder="이름" style="margin-bottom:12px;font-size:15px"><label class="fl" style="font-size:15px">지사명</label><select id="branchSelect" class="fi-sel" style="font-size:15px"><option value="">선택</option></select><div style="display:flex;gap:8px;margin-top:18px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doReg()" class="btn bp" style="flex:2;font-size:15px;padding:12px">등록</button></div></div>
 <div id="admStep" style="display:none"><label class="fl" style="font-size:15px">관리자 코드</label><input id="admCodeInput" class="fi-input" type="password" placeholder="관리자 코드" style="font-size:15px"><div style="display:flex;gap:8px;margin-top:16px"><button onclick="backTL()" class="btn bo" style="flex:1;font-size:15px;padding:12px">뒤로</button><button onclick="doAL()" class="btn ba" style="flex:2;font-size:15px;padding:12px">로그인</button></div></div></div></div></div>
 
 <!-- JOURNAL -->
-<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
+<div id="journalScreen" class="scr"><div class="hdr uh"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">📋</span><div><div style="font-size:9px;opacity:.6;letter-spacing:1px">대성쎌틱에너시스(주)</div><span style="font-size:15px;font-weight:700">CS업무일지</span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.2</span></div></div><div style="display:flex;gap:6px;align-items:center"><button onclick="openSolModal()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💡 해결법</button><button onclick="goAdminMode()" style="padding:5px 11px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(255,255,255,.12);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">🛡️ 관리자</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="hi"><div><div style="font-size:10px;opacity:.6" id="jBr"></div><div style="font-size:14px;font-weight:600" id="jUsr"></div></div><button onclick="openSchedule()" style="display:flex;align-items:center;gap:5px;padding:7px 13px;border:1.5px solid rgba(255,255,255,.4);border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>팀일정</button></div></div>
 <div class="cw">
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(52,152,219,.05),transparent)"><h3 style="font-size:15px;font-weight:700">🏗️ 현장업무</h3><div style="display:flex;align-items:center;gap:6px"><button onclick="resetForm()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--ts);font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>새로작성</button><input type="date" id="jDtInput" onchange="onDateChange()" style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;background:var(--ibg);color:var(--text);font-size:11px;font-family:inherit;font-weight:600;cursor:pointer"></div></div><textarea id="field1" class="sta" style="display:none"></textarea><div class="cgs" id="caseGroups"></div><div id="f1TagArea" class="qtag-row" style="display:none;padding:4px 14px 6px"></div><button class="add-cg" onclick="addCase()">+ 현장지원 추가</button></div>
 <div class="sc fi"><div class="sh" style="background:linear-gradient(135deg,rgba(0,184,148,.05),rgba(243,156,18,.03))"><h3>💬 상담 & 특이사항</h3><div style="display:flex;gap:4px"><button class="vb idle" id="vbField2" onclick="toggleV(this,'field2')"><span>🎙</span> 말하기</button><button id="vpField2" onclick="pauseV()" style="display:none;padding:5px 10px;border:none;border-radius:7px;background:#F39C12;color:#fff;font-size:11px;cursor:pointer;font-family:inherit">⏸ 일시정지</button></div></div><div id="f2TagArea" class="qtag-row" style="display:none;padding:4px 14px 0;margin-bottom:0"></div><textarea id="field2" class="sta" placeholder="상담업무 및 특이사항 입력..."></textarea>
@@ -177,7 +177,7 @@
 <div id="histSec" style="margin-top:24px;display:none"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><h3 style="font-size:13px;font-weight:700;color:var(--ts);margin:0">📅 최근 기록</h3><button id="histToggleBtn" onclick="toggleHistList()" style="width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--ibg);color:var(--ts);font-size:15px;line-height:1;cursor:pointer;font-family:inherit;padding:0">−</button></div><div id="histList"></div></div></div></div>
 
 <!-- ADMIN -->
-<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.1</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
+<div id="adminScreen" class="scr"><div class="hdr ah"><div style="max-width:820px;margin:0 auto"><div class="ht"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:18px">🛡️</span><div><span style="font-size:15px;font-weight:700">관리자</span> <span id="adminRoleBadge" style="font-size:10px;background:rgba(255,255,255,.18);padding:1px 7px;border-radius:10px;margin-left:4px"></span> <span style="font-size:9px;opacity:.5;font-weight:400">v3.13.2</span></div></div><div style="display:flex;gap:6px;align-items:center"><button class="blo" onclick="goJournalMode()">📋 업무일지</button><button class="blo" onclick="doLO()">로그아웃</button></div></div><div class="stc" id="admStats"></div></div></div>
 <div class="aw"><div class="atabs" id="adminTabs"></div><div id="tabStats"></div><div id="tabReport" style="display:none"></div><div id="tabWeekly" style="display:none"></div><div id="tabMonthly" style="display:none"></div><div id="tabAnalysis" style="display:none"></div><div id="tabSearch" style="display:none"></div><div id="tabCSR" style="display:none"></div><div id="tabVoc" style="display:none"></div><div id="tabSettings" style="display:none"></div><div id="tabUsers" style="display:none"></div><div id="tabUpload" style="display:none"></div><div id="tabSchedule" style="display:none"></div><div id="tabMap" style="display:none"></div><div id="tabArea" style="display:none"></div></div></div>
 
 <!-- DETAIL -->
@@ -5551,7 +5551,6 @@ function loadSolutions(){
     +'</div>'
     +'<div id="batchAiStatus"></div>'
     +'</div>'
-    +manualBoxHtml()
     +'<div style="background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.2);border-radius:10px;padding:10px 14px;margin-bottom:14px">'
     +'<div style="font-size:11px;font-weight:600;color:#2980B9;margin-bottom:6px">🤖 AI 직접 진단</div>'
     +'<div style="display:flex;gap:6px;flex-wrap:wrap"><input id="aiSymInput" class="fi-input" placeholder="증상을 입력하세요 (예: 점화불량, 누수, 온수미지근)" style="flex:1;padding:7px 10px;font-size:12px">'
@@ -5563,7 +5562,6 @@ function loadSolutions(){
   if(!tabEl){console.error("tabCSR element not found");return;}
   tabEl.innerHTML=h;
   setTimeout(()=>renderSolutions(),100);
-  setTimeout(()=>loadManuals(),150);
   }catch(err){
     console.error("loadSolutions error:",err);
     const tabEl=document.getElementById("tabCSR");
@@ -5580,8 +5578,7 @@ function loadSolutions(){
           모델 태그로 매뉴얼을 좁히고 → 질문과 관련된 구간만 골라 전달한다.
    ─ 원본: 도면까지 봐야 하는 경우만 PDF 원본(또는 PPTX 이미지)을 전송.
    ══════════════════════════════════════════════════════════ */
-var _manuals=null,_manPayload=null,_manChunks={},_manSyncStop=false,_repCache=null;
-const MAN_MAX_MB=20;      // [원본 전체 전송] 모드 한도 — Claude 요청 상한 32MB(base64 약 1.33배) 고려
+var _manuals=null,_manChunks={},_manSyncStop=false,_repCache=null;
 const MAN_INDEX_MAX_MB=200;// [색인] 한도 — 브라우저에서 텍스트만 뽑으므로 훨씬 큰 파일도 처리 가능
 const MAN_PDF_MAX_PAGES=800;// 초대용량 PDF에서 텍스트를 뽑을 최대 쪽수(브라우저 멈춤 방지)
 const MAN_MAX_IMGS=24;    // PPTX에서 추출해 보낼 최대 이미지 수
@@ -5602,32 +5599,9 @@ function manLooksScanned(ix){
   return (ix.chars||0)<Math.max(50,(ix.pages||1)*20);
 }
 
-function manualBoxHtml(){
-  let h='<div style="background:rgba(22,160,133,.07);border:1px solid rgba(22,160,133,.3);border-radius:10px;padding:10px 14px;margin-bottom:10px">'
-    +'<div style="font-size:12px;font-weight:700;color:#148F77">📘 서비스 매뉴얼 기반 해결법 제안 <span style="font-size:9px;background:#148F77;color:#fff;padding:1px 6px;border-radius:4px;vertical-align:middle">CLAUDE</span></div>'
-    +'<div style="font-size:10px;color:var(--ts);margin:3px 0 8px;line-height:1.6">등록된 매뉴얼 + 누적 보고서 데이터를 함께 분석해 해결방안을 만듭니다. 매뉴얼 등록·동기화는 <b>설정 탭 → 📘 서비스 매뉴얼</b>에서 합니다.</div>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px">'
-    +'<select id="manSel" class="fi-sel" style="flex:1;min-width:150px;padding:6px 10px;font-size:11px"><option>불러오는 중...</option></select>'
-    +'<select id="manMode" class="fi-sel" style="width:auto;padding:6px 10px;font-size:11px" title="색인=저장된 본문에서 관련 구간만 전달(빠름) / 원본=파일 전체를 전달(도면까지 보지만 느리고 비쌈)">'
-    +'<option value="index">⚡ 색인 기반 (빠름)</option><option value="full">📕 원본 전체 (정밀·느림)</option></select>'
-    +'</div>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
-    +'<select id="manModel" class="fi-sel" style="width:auto;padding:6px 10px;font-size:11px"></select>'
-    +'<select id="manSym" class="fi-sel" style="width:auto;padding:6px 10px;font-size:11px" onchange="manSymVis()"></select>'
-    +'<input id="manSymX" class="fi-input" placeholder="증상 직접입력" style="display:none;width:auto;padding:6px 10px;font-size:11px">'
-    +'<button id="manRunBtn" onclick="runManualAI()" style="padding:6px 14px;border:none;border-radius:6px;background:#148F77;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">🤖 매뉴얼 분석</button>'
-    +'</div>'
-    +'<div id="manStatus" style="font-size:10px;margin-top:6px;color:var(--ts)"></div>'
-    +'<div id="manResult" style="margin-top:8px"></div>'
-    +'</div>';
-  return h;
-}
-
-function manSymVis(){
-  const sel=document.getElementById("manSym"),x=document.getElementById("manSymX");
-  if(!sel||!x)return;
-  x.style.display=sel.value==="__o"?"block":"none";
-}
+/* (v3.13.2 삭제) 해결법 탭의 "📘 서비스 매뉴얼 기반 해결법 제안" 박스 제거 —
+   manualBoxHtml() / manSymVis() / runManualAI() / buildManualBlocks() / buildManualReportContext()
+   매뉴얼 AI 기능은 검색 탭의 "📘 서비스 매뉴얼 AI 답변"(runManualAsk)으로 일원화. */
 
 /* JSZip 지연 로드 (PPTX 해제용) */
 function loadJsZip(){
@@ -5657,23 +5631,7 @@ async function loadManuals(force){
 }
 
 function manIcon(m){return (m.kind==="pdf"?"📕":(m.kind==="image"?"🖼":"📊"))+(m.origin==="drive"?"🔗":"")}
-function manLabel(m){
-  const bits=[];
-  if(m.pages)bits.push(m.pages+"쪽");
-  if(m.models&&m.models.length)bits.push(m.models.join("/"));
-  if(m.indexed===false||m.scanned)bits.push("색인없음");
-  return esc(m.name||m.fileName||"")+(bits.length?" ("+esc(bits.join(" · "))+")":"");
-}
-
 function renderManualSelects(){
-  const sel=document.getElementById("manSel");
-  if(sel){
-    if(!_manuals||!_manuals.length){
-      sel.innerHTML='<option value="">등록된 매뉴얼 없음 — 설정탭에서 먼저 등록하세요</option>';
-    }else{
-      sel.innerHTML=_manuals.map(m=>'<option value="'+m.id+'">'+manIcon(m)+' '+manLabel(m)+'</option>').join("");
-    }
-  }
   const ask=document.getElementById("maskManInfo");
   if(ask){
     const n=(_manuals||[]).length,ix=(_manuals||[]).filter(m=>m.indexed!==false&&!m.scanned).length;
@@ -5689,18 +5647,6 @@ function renderManualSelects(){
       if(!have[u]&&extra.indexOf(x)<0)extra.push(x);
     }));
     extra.sort().forEach(x=>{const o=document.createElement("option");o.textContent=x;mk.appendChild(o)});
-  }
-  const mm=document.getElementById("manModel");
-  if(mm&&!mm.options.length){
-    const cur=document.getElementById("solModel")?.value||"";
-    const list=[...new Set([...getAllModelNames(),...EXTRA_MODELS])];
-    mm.innerHTML=list.map(m=>'<option'+(m===cur?' selected':'')+'>'+esc(m)+'</option>').join("");
-  }
-  const ms=document.getElementById("manSym");
-  if(ms&&!ms.options.length){
-    ms.innerHTML='<option value="">증상 선택(선택사항)</option>'
-      +getSyms().map(s=>'<option>'+esc(s)+'</option>').join("")
-      +'<option value="__o">직접 입력...</option>';
   }
 }
 
@@ -5754,7 +5700,6 @@ async function saveManualBlob(blob,fileName,kind,name,setSt,origin){
   await saveManualIndex(doc.id,ix.chunks);
   _manuals=[{id:doc.id,...rec},...(_manuals||[])];
   renderManualSelects();renderManualAdminList();
-  const sel=document.getElementById("manSel");if(sel)sel.value=doc.id;
   setSt("✅ 등록 완료 — "+(kind==="image"?"이미지 자료":(ix.pages||"?")+"쪽 · "+ix.chunks.length+"구간 색인")+(scanned?" ⚠️ 본문 텍스트가 없는 스캔본입니다(원본 모드로만 사용 가능)":""),scanned?"var(--accent)":"var(--success)");
   return doc.id;
 }
@@ -6288,7 +6233,6 @@ async function deleteManualById(id){
     await deleteManualIndex(id);
     await db.collection("manuals").doc(id).delete();
     _manuals=(_manuals||[]).filter(x=>x.id!==id);
-    if(_manPayload&&_manPayload.id===id)_manPayload=null;
     renderManualSelects();renderManualAdminList();
   }catch(e){alert("삭제 오류: "+e.message)}
 }
@@ -6452,170 +6396,6 @@ async function manImageBlocksFor(picked,setSt){
   }
   if(names.length)blocks.push({type:"text",text:"[위 이미지 자료] "+names.join(" / ")});
   return blocks;
-}
-
-/* 선택한 매뉴얼을 Claude 전송용 content 블록으로 변환 (동일 매뉴얼은 캐시 재사용) */
-async function buildManualBlocks(man,setSt){
-  if(_manPayload&&_manPayload.id===man.id)return _manPayload;
-  setSt("⬇️ 매뉴얼 다운로드 중...");
-  const blob=await fetchManualBlob(man);
-  const blocks=[];let info="";
-  if(man.kind==="image"){
-    setSt("🖼 이미지 인코딩 중...");
-    blocks.push(await manImageBlock(blob));
-    info="이미지 자료 "+Math.round(blob.size/1024)+"KB";
-  }else if(man.kind==="pdf"){
-    if(blob.size>MAN_MAX_MB*1024*1024)
-      throw new Error("원본이 "+Math.round(blob.size/1048576*10)/10+"MB 로 전송 한도("+MAN_MAX_MB+"MB)를 넘습니다. <b>⚡ 색인 기반</b> 모드로 분석하거나 매뉴얼을 장(章) 단위로 나눠 등록해주세요.");
-    setSt("📕 PDF 인코딩 중...");
-    const b64=await blobToB64(blob);
-    if(b64.length>30*1024*1024)throw new Error("PDF 용량이 너무 커서 전송할 수 없습니다. 분할해서 등록해주세요.");
-    blocks.push({type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}});
-    info="PDF 원본 "+Math.round(blob.size/1024/1024*10)/10+"MB";
-  }else{
-    const ex=await extractPptx(blob,setSt);
-    ex.images.forEach(d=>blocks.push({type:"image",source:{type:"base64",media_type:"image/jpeg",data:d}}));
-    blocks.push({type:"text",text:"[서비스 매뉴얼 — "+esc(man.name||man.fileName)+" / PPTX 슬라이드 "+ex.slideCount+"장]\n"+(ex.text||"(텍스트 없음 — 위 이미지를 참고하세요)")});
-    info="PPTX 슬라이드 "+ex.slideCount+"장 · 이미지 "+ex.images.length+"/"+ex.mediaTotal+"장";
-  }
-  _manPayload={id:man.id,blocks,info};
-  return _manPayload;
-}
-
-/* 모델·증상에 해당하는 누적 보고서 + 기존 해결법 요약 텍스트 */
-async function buildManualReportContext(model,symptom){
-  const snap=await db.collection("reports").get();
-  const cases=[];
-  snap.docs.forEach(doc=>{
-    const e=doc.data();if(!e.cases)return;
-    e.cases.forEach(c=>{
-      if(!matchModel(c.model||"",model))return;
-      if(symptom){
-        const sv=(c.symptom||"").trim(),base=sv.replace(/\s*\(.*\)\s*$/,"").trim();
-        if(sv!==symptom&&base!==symptom&&!sv.includes(symptom))return;
-      }
-      if(c.action||c.note||c.diag||c.prevAs||c.custResp)
-        cases.push({date:e.date||"",branch:e.branch||"",symptom:(c.symptom||"").trim(),
-          action:(c.action||"").trim(),note:(c.note||"").trim(),
-          prevAs:(c.prevAs||"").trim(),custResp:(c.custResp||"").trim(),diag:(c.diag||"").trim()});
-    });
-  });
-  const stds=[];
-  try{
-    const ss=await db.collection("solutions").get();
-    ss.docs.forEach(doc=>{
-      const s=doc.data();
-      if(!matchModel(s.model||"",model)&&s.model!==model)return;
-      if(symptom&&s.symptom&&!String(s.symptom).includes(symptom))return;
-      stds.push(s);
-    });
-  }catch(e){}
-  const symCount={},actCount={};
-  cases.forEach(c=>{if(c.symptom)symCount[c.symptom]=(symCount[c.symptom]||0)+1;if(c.action)actCount[c.action]=(actCount[c.action]||0)+1});
-  const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([k,v])=>k+": "+v+"건").join("\n");
-  const recent=cases.filter(c=>c.note||c.diag).sort((a,b)=>(b.date||"").localeCompare(a.date||"")).slice(0,25)
-    .map((c,i)=>(i+1)+". ["+c.date+" / "+c.branch+(c.action?" · "+c.action:"")+"] 증상:"+(c.symptom||"-")
-      +(c.diag?" / 초기진단:"+c.diag:"")+(c.prevAs?" / 이전AS:"+c.prevAs:"")
-      +(c.custResp?" / 고객반응:"+c.custResp:"")+(c.note?" / 조치:"+c.note:"")).join("\n");
-  let t="[누적 현장 보고서 데이터 — 모델 "+model+(symptom?" / 증상 "+symptom:"")+" · 총 "+cases.length+"건]\n";
-  t+=cases.length?("\n▸ 증상 분포\n"+top(symCount)+"\n\n▸ 처리결과 분포\n"+top(actCount)+"\n\n▸ 최근 현장 조치 내역\n"+recent)
-                 :"(해당 조건의 누적 보고서가 없습니다. 매뉴얼 내용 위주로 작성해주세요.)";
-  if(stds.length)t+="\n\n[이미 등록된 표준 해결법]\n"+stds.map(s=>"- ("+(s.symptom||"")+") "+String(s.solution||"").replace(/^\[.*?\]\n?/,"").slice(0,600)).join("\n");
-  return {text:t,caseCount:cases.length};
-}
-
-const MAN_SYS="당신은 대성쎌틱에너시스(주) CS 기술지원 AI입니다. 제공된 서비스 매뉴얼(도면·사양·점검절차 포함)과 실제 현장에서 누적된 보고서 데이터를 종합해, 현장 엔지니어가 즉시 따라 할 수 있는 실무 해결방안을 작성합니다. 매뉴얼에 근거한 내용과 현장 데이터에 근거한 내용을 구분해 표기하고, 매뉴얼에서 확인되지 않는 내용은 추측하지 말고 '매뉴얼 미확인'이라고 명시하세요. 한국어로, 번호가 매겨진 단계 형식으로 간결하게 작성하세요.";
-
-async function runManualAI(){
-  const res=document.getElementById("manResult"),st=document.getElementById("manStatus"),btn=document.getElementById("manRunBtn");
-  const setSt=(t,c)=>{if(st){st.style.color=c||"var(--ts)";st.innerHTML=t}};
-  if(!res)return;
-  const id=document.getElementById("manSel")?.value||"";
-  const man=(_manuals||[]).find(x=>x.id===id);
-  if(!man){alert("먼저 서비스 매뉴얼을 등록하거나 선택해주세요");return}
-  const model=document.getElementById("manModel")?.value||"";
-  let symptom=document.getElementById("manSym")?.value||"";
-  if(symptom==="__o")symptom=(document.getElementById("manSymX")?.value||"").trim();
-  if(!model){alert("모델을 선택해주세요");return}
-  res.innerHTML="";
-  if(btn){btn.disabled=true;btn.style.opacity="0.6";btn.textContent="분석 중..."}
-  try{
-    const settings=await loadSettings();
-    const apiKey=settings.claudeKey||"";
-    if(!apiKey||!apiKey.startsWith("sk-ant-"))throw new Error("설정 탭에서 Claude API Key(sk-ant-...)를 먼저 등록해주세요.");
-    const mode=document.getElementById("manMode")?.value||"index";
-    let blocks=[],info="";
-    if(mode==="full"){
-      const payload=await buildManualBlocks(man,setSt);
-      blocks=payload.blocks;info=payload.info;
-    }else{
-      setSt("🔎 매뉴얼 색인에서 관련 구간을 찾는 중...");
-      const chunks=await loadManualChunks(man);
-      if(!chunks.length)throw new Error("이 매뉴얼은 색인이 없습니다 (스캔본이거나 아직 동기화 전). 모드를 <b>📕 원본 전체</b>로 바꾸거나 설정탭에서 다시 동기화해주세요.");
-      let picked=scoreManualChunks([{man,chunks}],[model,symptom].filter(Boolean).join(" "),MAN_CTX_CHUNKS);
-      if(!picked.length)picked=chunks.slice(0,MAN_CTX_CHUNKS).map(c=>({man,p:c.p,t:c.t,score:0}));
-      blocks=(await manImageBlocksFor(picked,setSt)).concat([{type:"text",text:manualEvidenceText(picked)}]);
-      info=man.kind==="image"?"이미지 자료":"색인 "+picked.length+"구간 발췌 (전체 "+chunks.length+"구간)";
-    }
-    setSt("📊 누적 보고서 집계 중...");
-    const ctx=await buildManualReportContext(model,symptom);
-    setSt("✨ CLAUDE가 매뉴얼과 현장 데이터를 분석 중입니다... (분량에 따라 20초~3분 소요)");
-    const ask="제품 모델: "+model+"\n대상 증상: "+(symptom||"(지정 없음 — 매뉴얼과 데이터에서 빈발 증상을 선별)")
-      +"\n\n"+ctx.text
-      +"\n\n위에 첨부한 서비스 매뉴얼과 현장 데이터를 종합해 다음을 작성해주세요.\n"
-      +"1. 추정 원인 (매뉴얼 근거 / 현장 데이터 근거를 각각 표기)\n"
-      +"2. 현장 점검 순서 (매뉴얼의 점검 기준값·부품명을 그대로 인용)\n"
-      +"3. 단계별 조치 방법 (교체 부품, 조정값 포함)\n"
-      +"4. 주의사항 및 재발 방지\n"
-      +"5. 매뉴얼과 현장 처리 방식이 다른 부분이 있으면 지적\n\n"
-      +"실무적이고 간결하게, 바로 해결법으로 등록할 수 있는 형태로 작성해주세요.";
-    const content=blocks.concat([{type:"text",text:ask}]);
-    const out=await callClaudeApi(apiKey,MAN_SYS,content,16000);
-    const text=out.text,u=out.usage;
-    window._manLast={model,symptom,text,manualName:man.name||man.fileName||"",manualId:man.id};
-    setSt("✅ 완료 · "+esc(info)+" · 보고서 "+ctx.caseCount+"건 반영 · 토큰 입력"+(u.input_tokens||0)+"/출력"+(u.output_tokens||0),"var(--success)");
-    res.innerHTML='<div style="background:#fff;border:1px solid rgba(22,160,133,.35);border-left:4px solid #148F77;border-radius:0 8px 8px 0;padding:12px 14px">'
-      +'<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:7px">'
-      +'<span style="background:#148F77;color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:4px">📘 매뉴얼 기반 CLAUDE</span>'
-      +'<span style="font-size:10px;color:var(--ts)">'+esc(man.name||man.fileName||"")+' · '+esc(model)+(symptom?' · '+esc(symptom):'')+'</span>'
-      +'</div>'
-      +'<div style="font-size:12px;line-height:1.8;white-space:pre-wrap;color:#222">'+esc(text)+'</div>'
-      +'<div style="display:flex;gap:5px;margin-top:9px;flex-wrap:wrap">'
-      +'<button onclick="registerManualSolution()" style="padding:5px 12px;border:none;border-radius:6px;background:var(--admin);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">💾 해결법으로 등록</button>'
-      +'<button onclick="copyManualResult()" style="padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--ts);font-size:11px;cursor:pointer;font-family:inherit">📋 복사</button>'
-      +'</div></div>';
-  }catch(e){
-    setSt("⚠️ "+esc(e.message),"var(--danger)");
-  }finally{
-    if(btn){btn.disabled=false;btn.style.opacity="1";btn.textContent="🤖 매뉴얼 분석"}
-  }
-}
-
-function copyManualResult(){
-  const r=window._manLast;if(!r)return;
-  navigator.clipboard.writeText(r.text).then(()=>alert("복사되었습니다")).catch(()=>alert("복사 실패"));
-}
-
-async function registerManualSolution(){
-  const r=window._manLast;
-  if(!r){alert("먼저 분석을 실행해주세요");return}
-  let symptom=r.symptom;
-  if(!symptom){
-    symptom=(prompt("이 해결법을 등록할 증상명을 입력하세요","")||"").trim();
-    if(!symptom)return;
-  }
-  if(!confirm("["+r.model+" / "+symptom+"] 해결법으로 등록할까요?"))return;
-  try{
-    await db.collection("solutions").add({
-      model:r.model,symptom,
-      solution:"[매뉴얼 기반 AI] 출처: "+r.manualName+"\n\n"+r.text,
-      author:"CLAUDE(매뉴얼)",autoGenerated:true,source:"manual",
-      manualId:r.manualId,manualName:r.manualName,
-      createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()
-    });
-    alert("✅ 해결법으로 등록되었습니다");
-    renderSolutions();
-  }catch(e){alert("저장 오류: "+e.message)}
 }
 
 /* ══════════════════════════════════════════════════════════
